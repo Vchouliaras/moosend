@@ -1,0 +1,376 @@
+<?php
+
+
+
+/**
+ * Implements hook_libraries_info().
+ *
+ */
+function moosend_libraries_info() {
+
+  $libraries['moosend'] = array(
+    'name' => 'Moosend API',
+    'vendor url' => 'http://http://moosend.com/api',
+    'download url' => 'https://github.com/moosend/phpwrapper/archive/master.zip',
+    'path' => 'src/moosend',
+    'version arguments' => array(
+      'file' => 'composer.json',
+      // Version 1.0.0
+      'pattern' => '/\"version": \"((\d+)\.(\d+)\.(\d+))\",/',
+    ),
+    'files' => array(
+      'php' => array(
+        'MoosendApi.php',
+        'Models/SubscriberParams.php',
+        'Models/CampaignParams.php'
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+
+
+/**
+ * Implements hook_menu().
+ *
+ */
+function moosend_menu() {
+
+  $items = array();
+  $items['admin/config/services/moosend'] = array(
+    'title' => 'Moosend',
+    'description' => 'Manage Moosend Settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('moosend_admin_settings'),
+    'access arguments' => array('administer moosend'),
+    'file' => 'includes/moosend.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+
+
+/**
+ * Implements hook_permission().
+ *
+ */
+function moosend_permission() {
+  return array(
+    'administer moosend' => array(
+      'title' => t('Administer Moosend'),
+      'description' => t('Administer Moosend configutation options'),
+    ),
+  );
+}
+
+
+/**
+ * Initialize Moosend Api
+ * @return object MoosendApi
+ *
+ */
+function initialize_moosend_api(){
+
+  $moosendApi = &drupal_static(__FUNCTION__);
+
+  // if ( isset($moosendApi) ) {
+  //   return $moosendApi;
+  // }
+
+  $library = libraries_load('moosend');
+
+  if ( empty($library['installed']) || !$library['installed'] ) {
+    $msg = t('Failed to load Moosend PHP Wrapper. Please refer to README.txt');
+    watchdog('moosend', $msg, NULL, WATCHDOG_ERROR);
+    drupal_set_message($msg, 'error');
+    return NULL;
+  }
+
+  $moosendApiKey = variable_get('moosend_api_key','');
+
+  if ( !strlen($moosendApiKey) ) {
+    $msg = t('Api key cannot be blank');
+    watchdog('moosend', $msg, NULL, WATCHDOG_ERROR);
+    drupal_set_message($msg, 'error');
+    return NULL;
+  }
+
+  //Get MoosendApi
+  $moosendApi = new moosend\MoosendApi($moosendApiKey);
+
+  return $moosendApi;
+}
+
+
+
+
+// Create Moosend API CORE functionallity----------------------------------------------------------------------------------------
+
+
+
+/**
+ *
+ */
+function moosend_get_active_lists($page = 1, $page_size = 10, $cache = FALSE) {
+
+   $moosend_cache = $cache ? cache_get('lists', 'cache_moosend') : NULL;
+   $lists = array();
+
+    if ($cache) {
+      $lists = $moosend_cache->data;
+    }
+  else {
+    try {
+
+        $moosendApi = initialize_moosend_api();
+        $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page,$page_size);
+
+        // $list = array();
+        foreach ($activeMailingLists as $key => $activeMailingList) {
+          $lists[$key] = $activeMailingList->getID();
+      }
+      cache_set('lists', $lists, 'cache_moosend', CACHE_TEMPORARY);
+    }
+    catch (Exception $e) {
+      watchdog('moosend','An error occurred. "%message"', array('%message' => $e->getMessage()),WATCHDOG_ERROR);
+    }
+  }
+  return $lists;
+}
+
+
+
+/**
+ * [moosend_get_active_lists_details description]
+ * @param  array   $list_ids [description]
+ * @param  boolean $cache    [description]
+ * @return [type]            [description]
+ *
+ */
+function moosend_get_active_lists_details($list_ids = array(), $cache = FALSE){
+
+  $list_ids = empty($list_ids) ? moosend_get_active_lists() : $lists_ids;
+  $details = array();
+
+  if ( $cache && is_array($list_ids) ) {
+    foreach ($list_ids as $key => $list_id) {
+      $cache = cache_get($list_id . '-details','cache_moosend');
+      $details[$list_id] = $cache->data;
+      unset($list_ids[$key]);
+    }
+   return $details;
+  }
+
+
+  if ( is_array($list_ids) && count($list_ids) != 0 ) {
+    $moosendApi = initialize_moosend_api();
+    $last_list_id = NULL;
+    try {
+      foreach ($list_ids as $key => $list_id) {
+        $last_list_id = $list_id;
+        $mailingListDetail = $moosendApi->mailingLists->getDetails($last_list_id);
+        $details[$last_list_id]['Name'] =  $mailingListDetail->getName();
+        $details[$last_list_id]['ActiveMemberCount'] =  $mailingListDetail->getActiveMemberCount();
+        $details[$last_list_id]['BouncedMemberCount'] =  $mailingListDetail->getBouncedMemberCount();
+        $details[$last_list_id]['RemovedMemberCount'] =  $mailingListDetail->getRemovedMemberCount();
+        $details[$last_list_id]['UnsubscribedMemberCount'] =  $mailingListDetail->getUnsubscribedMemberCount();
+        $details[$last_list_id]['Status'] =  $mailingListDetail->getStatus();
+        $details[$last_list_id]['CreatedOn'] =  $mailingListDetail->getCreatedOn();
+        $details[$last_list_id]['UpdatedOn'] =  $mailingListDetail->getUpdatedOn();
+        $details[$last_list_id]['CustomFieldsDefinition'] =  $mailingListDetail->getCustomFieldsDefinition();
+        cache_set($last_list_id . '-details', $details[$last_list_id], 'cache_moosend', CACHE_TEMPORARY);
+      }
+    }
+    catch (Exception $e) {
+      watchdog('moosend', 'An error occurred requesting data for List @list. "%message"', array(
+        '@list' => $last_list_id,
+        '%message' => $e->getMessage(),
+      ), WATCHDOG_ERROR);
+    }
+  }
+  return $details;
+}
+
+
+
+
+
+
+/**
+ * [moosend_get_active_list_subscibers description]
+ * @param  [type]  $list_id [description]
+ * @param  [type]  $since   [description]
+ * @param  boolean $cache   [description]
+ * @return [type]           [description]
+ *
+ */
+function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FALSE ){
+
+  $subscribers = array();
+  $since = isset($since) ? new DateTime($since) : NULL;
+
+  if ( !strlen($list_id) ) {
+    $msg = t('An error occurred requesting subscribers. "List ID can not be blank"');
+    watchdog('moosend',$msg, NULL, WATCHDOG_ERROR);
+    return NULL;
+  }
+
+  if ($cache) {
+    $subscribers = cache_get($list_id . '-subscribers','cache_moosend')->data;
+    return $subscribers;
+  }
+
+  $moosendApi = initialize_moosend_api();
+  try {
+    $members = $moosendApi->mailingLists->getSubscribers($list_id,'Subscribed',$since);
+    foreach ($members as $key => $subscriber) {
+      $subscribers[$key]['name'] =  empty($subscriber->getName()) ?  t('Anonymous') : $subscriber->getName();
+      $subscribers[$key]['email'] =  $subscriber->getEmail();
+    }
+    cache_set($list_id . '-subscribers', $subscribers, 'cache_moosend', CACHE_TEMPORARY);
+  }
+  catch (Exception $e) {
+    watchdog('moosend', 'An error occurred requesting subscribers for list @list. "%message"', array(
+      '@list' => $list_id,
+      '%message' => $e->getMessage(),
+    ), WATCHDOG_ERROR);
+  }
+  return $subscribers;
+}
+
+
+
+// SUBSCRIBER API----------------------------------------------------------------------
+
+
+/**
+ * [moosend_is_a_subscriber description]
+ * @param  [type]  $list_id [description]
+ * @param  [type]  $email   [description]
+ * @param  boolean $cache   [description]
+ * @return [type]           [description]
+ *
+ */
+function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
+
+  $subscribers = moosend_get_active_list_subscibers($list_id,NULL,$cache);
+  $emails = array_column($subscribers,'email');/* >= PHP 5.5.0*/
+  return in_array($email, $emails);
+}
+
+
+
+
+
+// function moosend_subscribe($list_id, $email, $merge_vars = NULL, $double_optin = FALSE, $confirm = TRUE, $format = 'html', $update_existing = TRUE, $replace_interests = TRUE) {
+//   if (variable_get('mailchimp_cron', FALSE)) {
+//     $args = array(
+//       'list_id' => $list_id,
+//       'email' => $email,
+//       'merge_vars' => $merge_vars,
+//       'format' => $format,
+//       'double_optin' => $double_optin,
+//       'update_existing' => $update_existing,
+//       'replace_interests' => $replace_interests,
+//       'confirm' => $confirm,
+//     );
+//     return mailchimp_addto_queue('mailchimp_subscribe_process', $args);
+//   }
+
+//   return mailchimp_subscribe_process($list_id, $email, $merge_vars, $double_optin, $format, $update_existing, $replace_interests, $confirm);
+// }
+
+
+
+
+function moosend_add_subscriber($list_id, $email, $name, $custom_fields = array(), $update_existing = TRUE) {
+  $status = TRUE;
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $member = moosend_subsciber_params($email, $name, $custom_fields);
+    $addedSubscriber = $moosendApiKey->subscribers->addSubscriber($list_id, $member);
+    moosend_subscriber_clear_cache($list_id, $email); // Clear Subcriber Cache
+    watchdog('moosend', '@email was subscribed to list @list.',
+        array('@email' => $email, '@list' => $list_id),
+        WATCHDOG_NOTICE
+      );
+ }
+catch (Exception $e) {
+    $status = FALSE;
+    watchdog('moosend', 'An error occurred subscribing @email to list @list. "%message"', array(
+      '@email' => $email,
+      '@list' => $list_id,
+      '%message' => $e->getMessage(),
+    ), WATCHDOG_ERROR);
+}
+
+return $status;
+}
+
+
+
+function moosend_subsciber_params($email, $name, $custom_fields){
+    $member = NULL;
+    $custom_fields = !empty($custom_fields) ? $custom_fields : array();
+
+    $member = new moosend\Models\SubscriberParams();
+    $member->email = $email;
+    $member->name= $name;
+    $member->customFields = $custom_fields;
+
+    return $member;
+}
+
+
+
+
+$y = moosend_add_subscriber('db69cf99-a902-4adb-b510-f34851df9fb9','niki@studio.gr','niki');
+kpr($y);
+
+
+/**
+ *
+ *
+ * @string $function
+ *   The name of the function the queue runner should call.
+ * @array $args
+ *   The list of args to pass to the function.
+ *
+ * @return bool
+ *   Success or failure.
+ */
+// function moosend_addto_queue($function, $args) {
+//   $queue = DrupalQueue::get(QUEUE_CRON);
+//   $queue->createQueue();
+//   return $queue->createItem(array(
+//     'function' => $function,
+//     'args' => $args,
+//   ));
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Clear a mailchimp user memberinfo cache.
+ *
+ * @string $list_id
+ * @string $email
+ */
+function moosend_subscriber_clear_cache($list_id, $email) {
+  cache_clear_all($list_id.'-subscribers', 'cache_moosend');
+}

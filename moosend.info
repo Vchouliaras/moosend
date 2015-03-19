@@ -1,0 +1,7 @@
+name = Moosend
+description = Intergration of Moosend email services
+package = Moosend
+core = 7.x
+
+dependencies[] = libraries ( >=2 )
+configure = admin/config/services/moosend
