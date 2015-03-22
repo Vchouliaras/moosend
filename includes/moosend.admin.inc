@@ -6,7 +6,6 @@
  */
 
 
-
 /**
  * Return the MailChimp global settings form.
  *
@@ -22,8 +21,5 @@ function moosend_admin_settings() {
     '#description' => t('The API key for your Moosend account. Get a valid API key at !moosend.',
                     array('!moosend' => l(t('Moosend '), 'https://moosend.com/'))),
   );
-
   return system_settings_form($form);
 }
-
-

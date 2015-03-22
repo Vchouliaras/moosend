@@ -1,0 +1,39 @@
+<?php
+
+
+
+/**
+ * Implements hook_menu().
+ */
+function moosend_lists_menu() {
+
+  $items = array();
+
+   $items['admin/config/services/moosend/lists'] = array(
+    'title' => 'Lists',
+    'description' => 'Display Moosend Lists',
+    'page callback' => 'moosend_lists_admin_page',
+    'access arguments' => array('administer moosend'),
+    'file' => 'includes/moosend_lists.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/config/services/moosend/lists/add'] = array(
+    'title' => 'Add a Mailing List',
+    'description' => 'Add a new Moosend Mailing List.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('moosend_lists_add_lists_form'),
+    'access arguments' => array('administer moosend'),
+    'file' => 'includes/moosend_lists.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  $items['admin/config/services/moosend/lists/clear_cache'] = array(
+    'title' => 'Moosend lists clear cache',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('moosend_lists_cache_clear'),
+    'access arguments' => array('administer moosend'),
+    'file' => 'includes/moosend_lists.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}

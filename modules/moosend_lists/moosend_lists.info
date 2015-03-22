@@ -1,0 +1,11 @@
+name = Moosend Lists
+description = Manage Moosend Lists
+package = Moosend
+core = 7.x
+dependencies[] = moosend
+dependencies[] = entity
+dependencies[] = options
+
+configure = admin/config/services/moosend/lists
+
+
