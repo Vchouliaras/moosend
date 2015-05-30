@@ -1,0 +1,62 @@
+<?php
+
+
+/**
+ * Implements hook_schema().
+ *
+ */
+function moosend_subscriptions_schema() {
+
+  $schema['moosend_subscriptions'] = array(
+    'description' => 'Manage Moosend subscription forms',
+    'fields' => array(
+      'sub_id' => array(
+        'description' => 'Unique moosend Subscription ID',
+        'type' => 'serial',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+      ),
+     'name' => array(
+        'description' => 'Moosend Subscription form Name',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'mode' => array(
+        'descritption' => 'Describes the type of Moosend Subscription form(Block or Page)',
+        'type' => 'int',
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'list' => array(
+        'description' => 'Moosend Subscription form attached list',
+        'type' => 'varchar',
+        'length' => '48',
+        'not null' => TRUE,
+        'default' => ''
+      ),
+     'created_at' => array(
+        'description' => 'The Unix timestamp when the form was created.',
+        'type' => 'int',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+      'updated_at' => array(
+        'description' => 'The Unix timestamp when the form was updated.',
+        'type' => 'int',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+      'settings' => array(
+          'description' => 'Serialized object for Subscription form settings',
+          'type' => 'blob',
+          'not null' => FALSE,
+          'serialize' => TRUE,
+          'size' => 'big',
+      ),
+    ),
+    'primary key' => array('sub_id')
+  );
+  return $schema;
+}

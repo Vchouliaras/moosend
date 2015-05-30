@@ -1,0 +1,12 @@
+name = Moosend Subscription Forms
+description = Manage Moosend subscription forms
+package = Moosend
+core = 7.x
+dependencies[] = moosend
+dependencies[] = entity
+
+configure = admin/config/services/moosend/subscriptions
+
+files[] = includes/moosend_subscriptions.entity.inc
+files[] = includes/moosend_subscriptions.ui_controller.inc
+

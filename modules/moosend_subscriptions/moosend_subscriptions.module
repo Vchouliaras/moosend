@@ -1,0 +1,215 @@
+<?php
+
+
+define('MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY',1);
+define('MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY',2);
+define('MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK',3);
+
+
+/**
+ * Implements hook_entity_info().
+ *
+ */
+function moosend_subscriptions_entity_info() {
+
+    $info['moosend_subscriptions'] = array(
+      //Human readable name
+      'label' => t('Subscription Form'),
+      //Table for storing entity data with hook_schema
+      'base table' => 'moosend_subscriptions',
+      'entity keys' => array(
+        'id' => 'sub_id',
+        'label' => 'name'
+      ),
+      'uri callback' => 'entity_class_uri',
+      //This is the Default Entity Class
+      // 'entity class' => 'Entity',
+      'entity class' => 'MoosendSubscriptions',
+      //Drupal Core implements the
+      //'controller class' => 'DrupalDefaultEntityController'
+      //Drupal Entity API contrib module implements
+      //'controller class' => 'EntityAPIController',
+      //'controller class' => 'EntityAPIControllerExportable'
+      'controller class' => 'MoosendSubscriptionsController', // We extends this to ovveride the default URI method
+      //The information below is used to extend the EntityDefaultUIController
+      'admin ui' => array(
+        'path' => 'admin/config/services/moosend/subscriptions',
+        'controller class' => 'MoosendSubscriptionsUIController',
+        'file' => 'includes/moosend_subscriptions.admin.inc'
+        ),
+      // 'bundles' => array(
+      //   'subscriptions' => array(
+      //     'label' => t('Moosend Subscriptions'),
+      //   ),
+      // ),
+      //Specify some information to VideoEntityUIController where path is etc
+      'module' => 'moosend_subscriptions',
+      //Access callback to determine permissions
+      //Make our entity Fieldable
+      'fieldable' => FALSE,
+      //Create some custom view modes
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Full'),
+          'custom settings' => FALSE,
+          ),
+        ),
+      //Levage views API
+      //'views controller class' => 'EntityDefaultViewsController'
+      'access callback' => 'moosend_subscriptions_access_callback',
+    );
+
+  return $info;
+}
+
+
+/**
+ * Implements hook_permission().
+ *
+ */
+function moosend_subscriptions_permission() {
+  return array(
+     'administer moosend subscriptions' =>  array(
+       'title' => t('Administer Moosend Subscription forms'),
+     ),
+     'access moosend subcription forms pages' => array(
+      'title' => t('Access Moosend subscription form Pages')
+      )
+  );
+}
+
+
+/**
+ * Specify callback permissions
+ *
+ */
+function moosend_subscriptions_access_callback($op, $subscriptions = NULL, $account = NULL){
+    if( user_access('administer moosend subscriptions',$account) && user_access('administer moosend',$account) ) {
+      return TRUE;
+    }
+    return FALSE;
+}
+
+
+
+
+/**
+ * [moosend_subcriptions_load_multiple description]
+ * @param  array   $ids        [description]
+ * @param  array   $conditions [description]
+ * @param  boolean $reset      [description]
+ * @return [type]              [description]
+ *
+ */
+function moosend_subcriptions_load_multiple($ids = array(), $conditions = array(), $reset = FALSE){
+  if (empty($ids)) {
+    $ids = FALSE;
+  }
+  return entity_load('moosend_subscriptions', $ids, $conditions, $reset);
+}
+
+
+
+/**
+ * [moosend_subscription_load_single description]
+ * @param  [type]  $id         [description]
+ * @param  array   $conditions [description]
+ * @param  boolean $reset      [description]
+ * @return [type]              [description]
+ *
+ */
+function moosend_subscription_load($id,$conditions = array(), $reset = FALSE){
+  $subscription = moosend_subcriptions_load_multiple(array($id));
+  if (!empty($subscription)) {
+    return reset($subscription);
+  }
+  else{
+    return FALSE;
+  }
+}
+
+
+
+
+/**
+ * Implements hook_block_info().
+ *
+ */
+function moosend_subscriptions_block_info() {
+  $blocks = array();
+  $subscriptions = moosend_subcriptions_load_multiple();
+  foreach ($subscriptions as $subscription) {
+    switch ($subscription->mode) {
+      case MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY:
+      case MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK:
+        $blocks[$subscription->identifier()] = array(
+          'info' => t('Moosend Subscription Form : @name', array('@name' => $subscription->label())),
+          'cache' => DRUPAL_CACHE_PER_USER,
+        );
+        break;
+      }
+  }
+  return $blocks;
+}
+
+
+
+/**
+ * Implements hook_block_view().
+ *
+ */
+function moosend_subscriptions_block_view($delta = ''){
+  $subscription = moosend_subscription_load($delta);
+  if ($subscription) {
+    $form = drupal_get_form('moosend_subscriptions_block_id_' . $subscription->sub_id . '_form', $subscription, 'is_a_block');
+    $block = array(
+      'subject' => $subscription->name,
+      'content' => $form,
+    );
+  }
+  return $block;
+}
+
+
+/**
+ * Menu callback for Moosend Subscriptions form page.
+ *
+ */
+// function moosend_subscriptions_form_page($id) {
+//   $subscription = moosend_subscription_load($id);
+//   return drupal_get_form('moosend_subscriptions_page_' . $id . '_form', $subscription, 'moosend_subscriptions_page_form_callback');
+// }
+
+
+/**
+ * Implements hook_forms().
+ *
+ */
+function moosend_subscriptions_forms($form_id, $args) {
+  $forms = array();
+  // kpr($args);
+  if ( strncmp($form_id, 'moosend_subscriptions_', 22) === 0 && $args[1] === 'is_a_block') {
+    $forms['moosend_subscriptions_block_id_' .$args[0]->sub_id. '_form'] = array(
+        'callback' => 'moosend_subscriptions_block_form_factory',
+      );
+
+
+  }
+  return $forms;
+}
+
+
+
+function moosend_subscriptions_block_form_factory($form, &$form_state, $subscription, $mode){
+  // kpr($mode);
+    $form['submit'] = array(
+    '#type' => 'submit',
+    '#weight' => 10,
+    '#value' => t('Save'),
+    '#disabled' => (empty($lists)),
+  );
+
+  return $form;
+}
+
+

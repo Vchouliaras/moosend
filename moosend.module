@@ -80,9 +80,9 @@ function initialize_moosend_api(){
 
   $moosendApi = &drupal_static(__FUNCTION__);
 
-  // if ( isset($moosendApi) ) {
-  //   return $moosendApi;
-  // }
+  if ( isset($moosendApi) ) {
+    return $moosendApi;
+  }
 
   $library = libraries_load('moosend');
 
@@ -103,9 +103,7 @@ function initialize_moosend_api(){
   }
 
   //Get MoosendApi
-  $moosendApi = new moosend\MoosendApi($moosendApiKey);
-
-  return $moosendApi;
+  return new moosend\MoosendApi($moosendApiKey);
 }
 
 
@@ -115,66 +113,62 @@ function initialize_moosend_api(){
 
 // LIST API----------------------------------------------------------------------
 
-
-
-
-
 /**
  *
  */
 function moosend_get_active_lists($page = 1, $page_size = 10, $cache = FALSE) {
 
-   $moosend_cache = $cache ? cache_get('lists', 'cache_moosend') : NULL;
-   $lists = array();
-
     if ($cache) {
-      $lists = $moosend_cache->data;
+      $lists = cache_get('lists', 'cache_moosend')->data;
+      return $lists;
     }
     else {
       try {
-
+          cache_clear_all('lists','cache_moosend');
           $moosendApi = initialize_moosend_api();
           $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page,$page_size);
-          // $list = array();
+          $lists = array();
           foreach ($activeMailingLists as $key => $activeMailingList) {
             $lists[$key] = $activeMailingList->getID();
         }
         cache_set('lists', $lists, 'cache_moosend', CACHE_TEMPORARY);
-        }
-        catch (Exception $e) {
-          watchdog('moosend','An error occurred. "%message"', array('%message' => $e->getMessage()),WATCHDOG_ERROR);
-      }
+    }
+    catch (Exception $e) {
+      watchdog('moosend','An error occurred. "%message"', array('%message' => $e->getMessage()),WATCHDOG_ERROR);
     }
     return $lists;
+  }
 }
 
 
 
 /**
  * [moosend_get_active_lists_details description]
- * @param  array   $list_ids [description]
+ * @param  array   $lists_ids [description]
  * @param  boolean $cache    [description]
  * @return [type]            [description]
  *
  */
-function moosend_get_active_lists_details($list_ids = array(), $cache = FALSE){
+function moosend_get_active_lists_details($lists_ids = array(), $cache = FALSE){
 
+  $lists_ids = empty($lists_ids) ? moosend_get_active_lists(1,10,$cache) : $lists_ids;
   $details = array();
 
-  if ( $cache && is_array($list_ids) ) {
-    foreach ($list_ids as $key => $list_id) {
-      $cache = cache_get($list_id . '-details','cache_moosend');
+  if ( $cache && is_array($lists_ids) ) {
+    foreach ($lists_ids as $key => $list_id) {
+      $cache = cache_get( 'details-' .$list_id,'cache_moosend');
       $details[$list_id] = $cache->data;
-      unset($list_ids[$key]);
+      unset($lists_ids[$key]);
     }
    return $details;
   }
 
-  if ( is_array($list_ids) && count($list_ids) != 0 ) {
+  if ( is_array($lists_ids) && count($lists_ids) != 0 ) {
     $moosendApi = initialize_moosend_api();
+    cache_clear_all('details','cache_moosend',TRUE);
     $last_list_id = NULL;
     try {
-      foreach ($list_ids as $key => $list_id) {
+      foreach ($lists_ids as $key => $list_id) {
         $last_list_id = $list_id;
         $mailingListDetail = $moosendApi->mailingLists->getDetails($last_list_id);
         $details[$last_list_id]['Name'] =  $mailingListDetail->getName();
@@ -186,7 +180,7 @@ function moosend_get_active_lists_details($list_ids = array(), $cache = FALSE){
         $details[$last_list_id]['CreatedOn'] =  $mailingListDetail->getCreatedOn();
         $details[$last_list_id]['UpdatedOn'] =  $mailingListDetail->getUpdatedOn();
         $details[$last_list_id]['CustomFieldsDefinition'] =  $mailingListDetail->getCustomFieldsDefinition();
-        cache_set($last_list_id . '-details', $details[$last_list_id], 'cache_moosend', CACHE_TEMPORARY);
+        cache_set('details-'.$last_list_id, $details[$last_list_id], 'cache_moosend', CACHE_TEMPORARY);
       }
     }
     catch (Exception $e) {
@@ -195,8 +189,8 @@ function moosend_get_active_lists_details($list_ids = array(), $cache = FALSE){
         '%message' => $e->getMessage(),
       ), WATCHDOG_ERROR);
     }
+    return $details;
   }
-  return $details;
 }
 
 
@@ -276,11 +270,30 @@ function moosend_create_mailing_list($name,$confirmationPage = NULL, $redirectAf
 
 
 
-
-// $x = moosend_create_mailing_list('Vasilis Team');
-// kpr($x);
-// die;
-
+/**
+ * [moosend_delete_mailing_list description]
+ * @param  [type] $list_id [description]
+ * @return [type]          [description]
+ */
+function moosend_delete_mailing_list($list_id){
+    $status = TRUE;
+    try {
+    $moosendApiKey = initialize_moosend_api();
+    $moosendApiKey->mailingLists->delete($list_id);
+    watchdog('moosend', 'Mailing List with ID "@ID" deleted',
+        array('@ID' => $list_id),
+        WATCHDOG_NOTICE
+      );
+  }
+  catch (Exception $e) {
+      watchdog('moosend', 'An error occurred deleting mailing list @ID. "%message"', array(
+        '@ID' => $list_id,
+        '%message' => $e->getMessage(),
+      ), WATCHDOG_ERROR);
+      $status = FALSE;
+  }
+  return $status;
+}
 
 
 
@@ -497,13 +510,6 @@ catch (Exception $e) {
 
 
 
-
-
-
-
-
-
-
 /**
  * Clear a moosend user memberinfo cache.
  *
@@ -520,7 +526,7 @@ function moosend_subscriber_clear_cache($list_id, $email) {
  * @return [type] [description]
  */
 function moosend_list_clear_cache(){
-  cache_clear_all('lists','cache_moosend',TRUE);
+  //cache_clear_all('*','cache_moosend',TRUE);
 }
 
 

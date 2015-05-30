@@ -10,7 +10,7 @@ function moosend_lists_menu() {
   $items = array();
 
    $items['admin/config/services/moosend/lists'] = array(
-    'title' => 'Lists',
+    'title' => 'Mailing Lists',
     'description' => 'Display Moosend Lists',
     'page callback' => 'moosend_lists_admin_page',
     'access arguments' => array('administer moosend'),
@@ -31,6 +31,15 @@ function moosend_lists_menu() {
     'title' => 'Moosend lists clear cache',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('moosend_lists_cache_clear'),
+    'access arguments' => array('administer moosend'),
+    'file' => 'includes/moosend_lists.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/config/services/moosend/lists/delete/%'] = array(
+    'title' => 'Moosend delete List',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('moosend_lists_delete',6),
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_CALLBACK,
