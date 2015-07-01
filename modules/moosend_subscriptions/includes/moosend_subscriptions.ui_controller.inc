@@ -115,15 +115,14 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
 
     $created_at = format_date($entity->created_at, 'custom', 'j M Y, H:G');
-
     $mailing_list = moosend_get_active_lists_details(array($entity->list),FALSE);
+
     $mailing_list = l($mailing_list[$entity->list]['Name'],'https://vchouliaras.moosend.com/',
       array(
         'attributes' => array('target' => '_blank'),
         'fragment' => '/mailing-lists/'.$entity->list.'/view-list',
       )
     );
-
     $mode = NULL;
     switch ($entity->mode) {
       case MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY:
@@ -133,7 +132,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
         $mode = t('Page');
         break;
       case MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK:
-        $mode = l(t('Block'), 'admin/structure/block') . ' & ' . t('Page');
+        $mode = l(t('Block'), 'admin/structure/block') . ' & ' . l(t('Page'),$entity->settings['page_url']);
         break;
     }
 
@@ -141,7 +140,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
     if (isset($entity->settings['custom_fields'])) {
         $customFields = array();
         foreach ($entity->settings['custom_fields'] as $key => $field) {
-          $customFields[] = $field;
+          $customFields[] = $field->Name;
         }
         $customFields = !empty($customFields) ? implode(', ',$customFields) : t('None');
      }

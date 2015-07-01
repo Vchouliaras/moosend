@@ -1,14 +1,30 @@
 <?php
 
-
 define('MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY',1);
 define('MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY',2);
 define('MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK',3);
 
+/**
+ * Implements hook_menu().
+ */
+function moosend_subscriptions_menu() {
+  foreach (moosend_subscriptions_load_multiple() as $subscription) {
+    if (intval($subscription->mode) == MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY || intval($subscription->mode) == MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK) {
+      $items[$subscription->settings['page_url']] = array(
+        'title' => $subscription->name,
+        'page callback' => 'moosend_subscriptions_form_page',
+        'page arguments' => array($subscription->identifier()),
+        'access callback' => 'user_access',
+        'access arguments' => array('access moosend subcription forms pages'),
+        'type' => MENU_SUGGESTED_ITEM,
+      );
+    }
+  }
+  return $items;
+}
 
 /**
  * Implements hook_entity_info().
- *
  */
 function moosend_subscriptions_entity_info() {
 
@@ -84,13 +100,11 @@ function moosend_subscriptions_permission() {
  *
  */
 function moosend_subscriptions_access_callback($op, $subscriptions = NULL, $account = NULL){
-    if( user_access('administer moosend subscriptions',$account) && user_access('administer moosend',$account) ) {
+    if (user_access('administer moosend subscriptions',$account) && user_access('administer moosend',$account)) {
       return TRUE;
     }
     return FALSE;
 }
-
-
 
 
 /**
@@ -101,13 +115,12 @@ function moosend_subscriptions_access_callback($op, $subscriptions = NULL, $acco
  * @return [type]              [description]
  *
  */
-function moosend_subcriptions_load_multiple($ids = array(), $conditions = array(), $reset = FALSE){
+function moosend_subscriptions_load_multiple($ids = array(), $conditions = array(), $reset = FALSE){
   if (empty($ids)) {
     $ids = FALSE;
   }
   return entity_load('moosend_subscriptions', $ids, $conditions, $reset);
 }
-
 
 
 /**
@@ -118,8 +131,8 @@ function moosend_subcriptions_load_multiple($ids = array(), $conditions = array(
  * @return [type]              [description]
  *
  */
-function moosend_subscription_load($id,$conditions = array(), $reset = FALSE){
-  $subscription = moosend_subcriptions_load_multiple(array($id));
+function moosend_subscriptions_load($id,$conditions = array(), $reset = FALSE){
+  $subscription = moosend_subscriptions_load_multiple(array($id));
   if (!empty($subscription)) {
     return reset($subscription);
   }
@@ -129,15 +142,13 @@ function moosend_subscription_load($id,$conditions = array(), $reset = FALSE){
 }
 
 
-
-
 /**
  * Implements hook_block_info().
  *
  */
 function moosend_subscriptions_block_info() {
   $blocks = array();
-  $subscriptions = moosend_subcriptions_load_multiple();
+  $subscriptions = moosend_subscriptions_load_multiple();
   foreach ($subscriptions as $subscription) {
     switch ($subscription->mode) {
       case MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY:
@@ -153,13 +164,12 @@ function moosend_subscriptions_block_info() {
 }
 
 
-
 /**
  * Implements hook_block_view().
  *
  */
 function moosend_subscriptions_block_view($delta = ''){
-  $subscription = moosend_subscription_load($delta);
+  $subscription = moosend_subscriptions_load($delta);
   if ($subscription) {
     $form = drupal_get_form('moosend_subscriptions_block_id_' . $subscription->sub_id . '_form', $subscription, 'is_a_block');
     $block = array(
@@ -175,10 +185,11 @@ function moosend_subscriptions_block_view($delta = ''){
  * Menu callback for Moosend Subscriptions form page.
  *
  */
-// function moosend_subscriptions_form_page($id) {
-//   $subscription = moosend_subscription_load($id);
-//   return drupal_get_form('moosend_subscriptions_page_' . $id . '_form', $subscription, 'moosend_subscriptions_page_form_callback');
-// }
+function moosend_subscriptions_form_page($id) {
+  $subscription = moosend_subscriptions_load($id);
+  kpr($subscription);
+  return drupal_get_form('moosend_subscriptions_page_id_' . $id . '_form', $subscription,'is_a_page');
+}
 
 
 /**
@@ -187,29 +198,98 @@ function moosend_subscriptions_block_view($delta = ''){
  */
 function moosend_subscriptions_forms($form_id, $args) {
   $forms = array();
-  // kpr($args);
-  if ( strncmp($form_id, 'moosend_subscriptions_', 22) === 0 && $args[1] === 'is_a_block') {
-    $forms['moosend_subscriptions_block_id_' .$args[0]->sub_id. '_form'] = array(
-        'callback' => 'moosend_subscriptions_block_form_factory',
+  if (strncmp($form_id, 'moosend_subscriptions_', 22) === 0) {
+    if (isset($args[1]) && $args[1] == 'is_a_block') {
+      $forms['moosend_subscriptions_block_id_' .$args[0]->sub_id. '_form'] = array(
+        'callback' => 'moosend_subscriptions_form_factory',
       );
-
-
+    }
+    elseif (isset($args[1]) && $args[1] == 'is_a_page') {
+     $forms['moosend_subscriptions_page_id_' .$args[0]->sub_id. '_form'] = array(
+        'callback' => 'moosend_subscriptions_form_factory',
+      );
+    }
   }
   return $forms;
 }
 
 
+/**
+ * Returns a subscription form for Moosend Lists
+ *
+ */
+function moosend_subscriptions_form_factory($form, &$form_state, $subscription, $mode) {
+    global $conf;
+    kpr($conf);
+    $wrapper = 'moosend_form_' . $subscription->sub_id;
+    $form['moosend'][$wrapper] = array(
+        '#prefix' => '<div id="moosend-newsletter-' . $subscription->sub_id . '">',
+        '#suffix' => '</div>',
+    );
 
-function moosend_subscriptions_block_form_factory($form, &$form_state, $subscription, $mode){
-  // kpr($mode);
-    $form['submit'] = array(
+    if (!empty($subscription->settings['description'])) {
+      $form['moosend'][$wrapper]['description'] = array(
+        '#markup' => $subscription->settings['description']
+      );
+    }
+
+    $form['moosend'][$wrapper]['email'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Email Address'),
+        '#size' => 35,
+        '#required' => TRUE,
+      );
+
+    $form['moosend'][$wrapper]['custom_fields'] = array('#tree' => TRUE);
+    $form['moosend'][$wrapper]['custom_fields'][] = moosend_fields_to_drupal_elements($subscription->settings['custom_fields']);
+
+    $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#weight' => 10,
-    '#value' => t('Save'),
-    '#disabled' => (empty($lists)),
+    '#value' => t('Submit'),
   );
-
   return $form;
 }
 
+
+/**
+ * Validation handler for moosend_subscriptions_form_factory
+ *
+ */
+function moosend_subscriptions_form_factory_validate($form, &$form_state) {
+  if ($form_state['values']['email'] && !valid_email_address($form_state['values']['email'])) {
+    form_set_error('mail', t('The e-mail address you specified is not valid.'));
+  }
+}
+
+/**
+ * Submit handler moosend_subscriptions_form_factory
+ *
+ */
+function moosend_subscriptions_form_factory_submit($form, &$form_state) {
+  $subscriptions = reset($form_state['build_info']['args']);
+  $list_id = $subscriptions->list;
+
+  if(user_is_logged_in()){
+    global $user;
+    $name = ucfirst($user->name);
+  }else{
+    $name = '';
+  }
+
+  $email = $form_state['values']['email'];
+  $custom_fields = array_filter($form_state['values']['custom_fields'][0]);
+
+  $status =  moosend_add_subscriber($list_id, $email, $name, $custom_fields);
+  if(count($status)) {
+    if(strlen($subscriptions->settings['confirm_message'])) {
+      drupal_set_message(t($subscriptions->settings['confirm_message']));
+    }
+    if(!empty($subscriptions->settings['redirect_page'])) {
+      $form_state['redirect'] = $subscriptions->settings['redirect_page'];
+    }
+  }else{
+    drupal_set_message(t('There was a problem with your newsletter signup.'),'warning');
+  }
+}
 
