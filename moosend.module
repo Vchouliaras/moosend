@@ -7,15 +7,10 @@ define('DROPDOWN_FIELD', 3);
 define('CHECKBOX_FIELD', 5);
 
 
-
-/**
- * Implements hook_libraries_info().
- *
- */
 function moosend_libraries_info() {
   $libraries['moosend'] = array(
     'name' => 'Moosend API',
-    'vendor url' => 'http://http://moosend.com/api',
+    'vendor url' => 'http://moosend.com/api',
     'download url' => 'https://github.com/moosend/phpwrapper/archive/master.zip',
     'path' => 'src/moosend',
     'version arguments' => array(
@@ -31,6 +26,7 @@ function moosend_libraries_info() {
       ),
     ),
   );
+
   return $libraries;
 }
 
@@ -81,28 +77,31 @@ function moosend_permission() {
  */
 function initialize_moosend_api(){
   $moosendApi = &drupal_static(__FUNCTION__);
-  if ( isset($moosendApi) ) {
+
+  if (isset($moosendApi) ) {
     return $moosendApi;
   }
+
   $library = libraries_load('moosend');
+
   if ( empty($library['installed']) || !$library['installed'] ) {
     $msg = t('Failed to load Moosend PHP Wrapper. Please refer to README.txt');
     watchdog('moosend', $msg, NULL, WATCHDOG_ERROR);
     drupal_set_message($msg, 'error');
     return NULL;
   }
+
   $moosendApiKey = variable_get('moosend_api_key','');
+
   if ( !strlen($moosendApiKey) ) {
     $msg = t('Api key cannot be blank');
     watchdog('moosend', $msg, NULL, WATCHDOG_ERROR);
     drupal_set_message($msg, 'error');
     return NULL;
   }
+
   return new moosend\MoosendApi($moosendApiKey); //Get MoosendApi
 }
-
-
-
 
 
 
@@ -112,21 +111,19 @@ function initialize_moosend_api(){
  *
  */
 function moosend_get_active_lists($page = 1, $page_size = 10, $cache = FALSE) {
-
-    if ($cache) {
-      $lists = cache_get('lists', 'cache_moosend')->data;
-      return $lists;
-    }
-    else {
-      try {
-          cache_clear_all('lists','cache_moosend');
-          $moosendApi = initialize_moosend_api();
-          $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page,$page_size);
-          $lists = array();
-          foreach ($activeMailingLists as $key => $activeMailingList) {
-            $lists[$key] = $activeMailingList->getID();
-        }
-        cache_set('lists', $lists, 'cache_moosend', CACHE_TEMPORARY);
+  if ($cache) {
+    return cache_get('lists', 'cache_moosend')->data;
+  }
+  else {
+    try {
+      cache_clear_all('lists','cache_moosend');
+      $moosendApi = initialize_moosend_api();
+      $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page,$page_size);
+      $lists = array();
+      foreach ($activeMailingLists as $key => $activeMailingList) {
+        $lists[$key] = $activeMailingList->getID();
+      }
+      cache_set('lists', $lists, 'cache_moosend', CACHE_TEMPORARY);
     }
     catch (Exception $e) {
       watchdog('moosend','An error occurred. "%message"', array('%message' => $e->getMessage()),WATCHDOG_ERROR);
@@ -386,8 +383,10 @@ function moosend_delete_mailing_list($list_id){
  *
  */
 function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
+
   $subscribers = moosend_get_active_list_subscibers($list_id,NULL,$cache);
   $emails = array_column($subscribers,'email');/* >= PHP 5.5.0*/
+
   return in_array($email, $emails);
 }
 
@@ -487,7 +486,7 @@ function moosend_subscriber_params($email, $name, $custom_fields) {
  *
  */
 function moosend_unsubscribe_subscriber($email, $campaing_id = NULL, $list_id) {
-  $result = TRUE;
+  $status = TRUE;
    try {
     $moosendApiKey = initialize_moosend_api();
     $moosendApiKey->subscribers->unsubscribe($email, $campaing_id, $list_id);
@@ -505,11 +504,8 @@ catch (Exception $e) {
       '%message' => $e->getMessage(),
     ), WATCHDOG_ERROR);
 }
-  return $result;
+  return $status;
 }
-
-
-
 
 
 
@@ -520,7 +516,7 @@ catch (Exception $e) {
  * @return [type]          [description]
  */
 function moosend_remove_subscriber($list_id, $email) {
-  $result = TRUE;
+  $status = TRUE;
    try {
     $moosendApiKey = initialize_moosend_api();
     $moosendApiKey->subscribers->removeSubscriber($list_id,$email);
@@ -537,7 +533,7 @@ catch (Exception $e) {
       '%message' => $e->getMessage(),
     ), WATCHDOG_ERROR);
 }
-  return $result;
+  return $status;
 }
 
 
@@ -636,3 +632,284 @@ function moosend_fields_to_drupal_elements($fields) {
   return $elements;
 }
 
+
+
+//SEGMENT API ------------------------------------------------
+
+function moosend_get_list_segments($mailingListID){
+  $segments = array();
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $segmentsResponse = $moosendApiKey->segments->getSegments($mailingListID);
+    foreach ($segmentsResponse as $key => $segment) {
+      $segments[$key]['id'] = $segment->getID();
+      $segments[$key]['name'] = $segment->getName();
+    }
+  }
+  catch (Exception $e) {
+    watchdog('moosend', 'An error occurred getting segments for list @list. "%message"', array(
+      '@list' => $mailingListID,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+  }
+
+  return $segments;
+}
+
+
+
+function moosend_get_list_segment_details($mailingListID, $segmentID){
+  $segment_details = array();
+  $criteria = array();
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $segmentDetailsResponse = $moosendApiKey->segments->getDetails($mailingListID, $segmentID);
+    $segment_details['id'] = $segmentDetailsResponse->getID();
+    $segment_details['name'] = $segmentDetailsResponse->getName();
+    foreach ($segmentDetailsResponse->getCriteria() as $key => $value) {
+      $criteria[$key]['id'] = $value->getID();
+      $criteria[$key]['segment_id'] = $value->getSegmentID();
+      $criteria[$key]['field'] = $value->getField();
+      $criteria[$key]['custom_field_id'] = $value->getCustomFieldID();
+      $criteria[$key]['field'] = $value->getField();
+      $criteria[$key]['comparer'] = $value->getComparer();
+      $criteria[$key]['value'] = $value->getValue();
+      $criteria[$key]['date_from'] = $value->getDateFrom();
+      $criteria[$key]['date_to'] = $value->getDateTo();
+      $criteria[$key]['properties'] = $value->getProperties();
+    }
+    $segment_details['criteria'] = $criteria;
+    $segment_details['match_type'] = $segmentDetailsResponse->getMatchType();
+    $segment_details['created_by'] = $segmentDetailsResponse->getCreatedBy();
+    $segment_details['created_on'] = _moosend_parse_date_response($segmentDetailsResponse->getCreatedOn());
+    $segment_details['updated_by'] = $segmentDetailsResponse->getUpdatedBy();
+    $segment_details['updated_on'] = _moosend_parse_date_response($segmentDetailsResponse->getUpdatedOn());
+  }
+  catch (Exception $e) {
+    watchdog('moosend', 'An error occurred getting segment details for ID@segmentID. "%message"', array(
+      '@segmentID' => $segmentID,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+  }
+
+  return $segment_details;
+}
+
+
+
+function moosend_get_list_segment_subscribers($mailingListID, $segmentID, $status = 'Subscribed', $page = 1, $pagesize = 500 ){
+  $subscribers = NULL;
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $subscribers = $moosendApiKey->segments->getSubscribers($mailingListID, $segmentID, $status, $page, $pagesize);
+  } catch (Exception $e) {
+    watchdog('moosend', 'An error occurred getting subscribers for Segment ID @segmentID. "%message"', array(
+      '@segmentID' => $segmentID,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+  }
+  return $subscribers;
+}
+
+
+
+function moosend_create_segment($mailingListID, $name, $matchType = 'All'){
+  $createSegmentResponse = NULL;
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $createSegmentResponse = $moosendApiKey->segments->create($mailingListID, $name, $matchType);
+    watchdog('moosend', 'Segment  "@name" was created for list @list.',
+      array('@name' => $name, '@list' => $mailingListID),
+      WATCHDOG_NOTICE);
+  }
+  catch (Exception $e) {
+    watchdog('moosend', 'An error occurred creating "@name" for list @list. "%message"', array(
+      '@name' => $name,
+      '@list' => $mailingListID,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+  }
+
+  return $createSegmentResponse;
+}
+
+
+
+function moosend_update_segment($mailingListID, $name, $matchType){
+  $status = TRUE;
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $updateSegmentResponse = $moosendApiKey->segments->update($mailingListID, $name, $matchType);
+    watchdog('moosend', 'Segment  "@name" was updated for list @list.',
+      array('@name' => $name, '@list' => $mailingListID),
+      WATCHDOG_NOTICE);
+  }
+  catch (Exception $e) {
+    $status = FALSE;
+    watchdog('moosend', 'An error occurred updating "@name" for list @list. "%message"', array(
+      '@name' => $name,
+      '@list' => $mailingListID,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+  }
+
+  return $status;
+}
+
+
+
+function moosend_delete_segment($mailingListID, $segmentID){
+  $status = TRUE;
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $segments_ids = array();
+
+    foreach (moosend_get_list_segments($mailingListID) as $segment) {
+        $segments_ids[] = $segment['id'];
+    }
+
+    if(in_array($segmentID, $segments_ids)){
+      $deleteSegmentResponse = $moosendApiKey->segments->delete($mailingListID, $segmentID);
+      watchdog('moosend', 'Segment  "@id" was deleted for list @list.',
+        array('@name' => $segmentID, '@list' => $mailingListID),
+        WATCHDOG_NOTICE);
+      }
+  }
+  catch (Exception $e) {
+    $status = FALSE;
+    watchdog('moosend', 'An error occurred deleting "@name" for list @list. "%message"', array(
+      '@name' => $name,
+      '@list' => $mailingListID,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+  }
+
+  return $status;
+}
+
+
+
+
+function moosend_add_criteria_to_segment($mailingListID, $segmentID, $field, $comparer, $value, $dateFrom = NULL, $dateTo = NULL){
+    $status = TRUE;
+    $error_message = NULL;
+    try {
+      $moosendApiKey = initialize_moosend_api();
+
+      $moosendApiKey->segments->addCriteria($mailingListID, $segmentID, $field, $comparer, $value, $dateFrom, $dateTo);
+
+      watchdog('moosend', 'A new Criteria added to segment "@segment_id" for list @list.',
+        array('@segment_id' => $segmentID, '@list' => $mailingListID),
+        WATCHDOG_NOTICE);
+
+    } catch (Exception $e) {
+      $status = FALSE;
+
+      watchdog('moosend', 'An error occurred adding criteria to segment "@segment_id" for list @list. "%message"', array(
+      '@segment_id' => $segmentID,
+      '@list' => $mailingListID,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+      $error_message = $e->getMessage();
+
+    }
+
+    return array('status' => $status,'error_message' => $error_message);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Create Optgroup Select field
+ * @param  boolean $append_mailing_list_fields [description]
+ * @return [type]                              [description]
+ */
+function _moosend_criteria_fields($append_mailing_list_fields = TRUE){
+
+  $criteria_fields = array( 'Custom Fields' =>
+      drupal_map_assoc(array('DateAdded','RecipientName','RecipientEmail','CampaignsOpened','LinksClicked','CampaignName','LinkURL')),
+    );
+
+  if($append_mailing_list_fields){
+    foreach (moosend_get_active_lists_details(array(),FALSE) as $key => $list) {
+      foreach(moosend_get_active_list_custom_fields($key) as $field){
+        $custom_fields[$field->ID] = $field->Name;
+      }
+      if(!empty($custom_fields)) {
+        $criteria_fields['"'.$list['Name'] . '" Mailing List' ] = $custom_fields;
+      }
+    }
+  }
+
+  return $criteria_fields;
+}
+
+
+
+
+function _moosend_criteria_comparer($check_field = 'ALL'){
+
+  if($check_field == 'DateAdded' ) {
+
+    $comparer = array('Is','IsNot','IsBefore','IsAfter');
+
+  }elseif($check_field == 'RecipientName' || $check_field == 'RecipientEmail'){
+
+    $comparer = array('Is','IsNot','Contains','DoesNotContain','StartsWith','DoesNotStartWith','EndsWith','DoesNotEndWith','IsEmpty','IsNotEmpty');
+
+  }elseif($check_field == 'CampaignName'){
+
+    $comparer = array('Is','IsNot','Contains','DoesNotContain','StartsWith','DoesNotStartWith','EndsWith','DoesNotEndWith');
+
+  }elseif($check_field == 'CampaignsOpened' ||  $check_field == 'LinksClicked'){
+
+    $comparer = array('Is','IsNot','IsGreaterThan','IsGreaterThanOrEqualTo','IsLessThan','IsLessThanOrEqualTo');
+
+  }elseif($check_field == 'LinkURL'){
+
+    $comparer = array('Is','IsNot');
+
+  }elseif($check_field == 'ALL') {
+
+    $comparer = array(
+    'Is','IsNot','Contains','DoesNotContain','StartsWith','DoesNotStartWith','EndsWith','DoesNotEndWith','IsGreaterThan','IsGreaterThanOrEqualTo',
+    'IsLessThan','IsLessThanOrEqualTo','IsBefore','IsAfter','IsEmpty','IsNotEmpty','IsTrue','IsFalse'
+    );
+
+  }
+
+
+  return drupal_map_assoc($comparer);
+}
+
+
+
+function _moosend_parse_date_response($date){
+   $date = trim(substr($date,6));
+   $milliseconds = substr($date,0,-2);
+   $timestamp = round( $milliseconds / 1000 ); // convert to seconds
+
+   return new DateTime('@'.$timestamp);
+}

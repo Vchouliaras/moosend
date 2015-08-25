@@ -4,6 +4,7 @@
 
 /**
  * Implements hook_menu().
+ *
  */
 function moosend_lists_menu() {
 
@@ -17,6 +18,7 @@ function moosend_lists_menu() {
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_LOCAL_TASK,
   );
+
   $items['admin/config/services/moosend/lists/add'] = array(
     'title' => 'Add a Mailing List',
     'description' => 'Add a new Moosend Mailing List.',
@@ -25,6 +27,18 @@ function moosend_lists_menu() {
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_LOCAL_ACTION,
+    'weight' => 5
+  );
+
+  $items['admin/config/services/moosend/lists/segment'] = array(
+    'title' => 'Add Segments',
+    'description' => 'Add a new Segment to Mailing List.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('moosend_lists_add_list_segments'),
+    'access arguments' => array('administer moosend'),
+    'file' => 'includes/moosend_lists.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 6
   );
 
   $items['admin/config/services/moosend/lists/clear_cache'] = array(
@@ -45,4 +59,17 @@ function moosend_lists_menu() {
     'type' => MENU_CALLBACK,
   );
   return $items;
+}
+
+
+
+/**
+ * Implements hook_date_popup_process_alter().
+ *
+ */
+function moosend_lists_date_popup_process_alter(&$element, $form_state, $context){
+  if($context['form']['#form_id'] === 'moosend_lists_add_list_segments'){
+    $element['#theme_wrappers'] = array('form_element');
+    unset($element['date']['#title']);
+  }
 }

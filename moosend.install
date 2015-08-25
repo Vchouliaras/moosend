@@ -1,16 +1,14 @@
 <?php
 
-
 /**
  * Implements hook_schema().
  *
  */
 function moosend_schema() {
   $schema['cache_moosend'] = drupal_get_schema_unprocessed('system', 'cache');
-  $schema['cache_moosend']['description'] = 'Cache table for the Moosend module to store a list of subsribers';
+  $schema['cache_moosend']['description'] = 'Cache table for the Moosend module to store a list of subscribers';
   return $schema;
 }
-
 
 /**
  * Implements hook_uninstall().
@@ -18,4 +16,5 @@ function moosend_schema() {
  */
 function moosend_uninstall() {
   variable_del('moosend_api_key');
+  variable_del('moosend_user_domain');
 }

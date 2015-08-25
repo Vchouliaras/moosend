@@ -3,19 +3,19 @@
 
 class MoosendSubscriptions extends Entity {
 
-  /**
-   * Override this in order to implement a custom default URI and specify
-   * 'entity_class_uri' as 'uri callback' hook_entity_info().
-   */
-    protected function defaultUri() {
-      return array(
-        'path' => 'admin/config/services/moosend/subscriptions/manage/' . $this->identifier(),
-        'options' => array(
-          'entity_type' => $this->entityType,
-          'entity' => $this,
-        ),
-      );
-    }
+/**
+  * Override this in order to implement a custom default URI and specify
+  * 'entity_class_uri' as 'uri callback' hook_entity_info().
+  */
+  protected function defaultUri() {
+    return array(
+      'path' => 'admin/config/services/moosend/subscriptions/manage/' . $this->identifier(),
+      'options' => array(
+        'entity_type' => $this->entityType,
+        'entity' => $this,
+      ),
+    );
+  }
 }
 
 

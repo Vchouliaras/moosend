@@ -4,6 +4,7 @@ define('MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY',1);
 define('MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY',2);
 define('MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK',3);
 
+
 /**
  * Implements hook_menu().
  */
@@ -187,7 +188,6 @@ function moosend_subscriptions_block_view($delta = ''){
  */
 function moosend_subscriptions_form_page($id) {
   $subscription = moosend_subscriptions_load($id);
-  kpr($subscription);
   return drupal_get_form('moosend_subscriptions_page_id_' . $id . '_form', $subscription,'is_a_page');
 }
 
@@ -220,7 +220,7 @@ function moosend_subscriptions_forms($form_id, $args) {
  */
 function moosend_subscriptions_form_factory($form, &$form_state, $subscription, $mode) {
     global $conf;
-    kpr($conf);
+
     $wrapper = 'moosend_form_' . $subscription->sub_id;
     $form['moosend'][$wrapper] = array(
         '#prefix' => '<div id="moosend-newsletter-' . $subscription->sub_id . '">',
