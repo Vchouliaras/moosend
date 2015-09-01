@@ -13,7 +13,7 @@ function moosend_lists_admin_page(){
       );
 
     //Retrieve list from moosend_cache
-    $lists = moosend_get_active_lists_details(array(),FALSE);
+    $lists = moosend_get_active_lists_details(array());
 
     if ( empty($lists) ) {
       $message = t('Your mailing lists are empty. You should go to !moosend and create some mailing lists',
@@ -26,6 +26,7 @@ function moosend_lists_admin_page(){
           )
         );
       drupal_set_message($message,'warning', FALSE);
+
       //Render array
       return $build = array(
           'mailing_list_table' => array(
@@ -33,6 +34,7 @@ function moosend_lists_admin_page(){
             '#header' => $header,
         ),
       );
+
     }
 
     $rows = array();
@@ -128,7 +130,7 @@ function moosend_lists_cache_clear($form, &$form_state) {
  *
  */
 function moosend_lists_cache_clear_submit($form, &$form_state) {
-  moosend_get_active_lists_details(array(),FALSE);
+  moosend_get_active_lists_details(array());
   drupal_set_message(t('Moosend Lists cache cleared.'));
 }
 
@@ -144,7 +146,7 @@ function moosend_lists_cache_clear_submit($form, &$form_state) {
  */
 function moosend_lists_delete($form,&$form_state,$list_id) {
   $delete_list_destination = 'admin/config/services/moosend/lists';
-  $list_detail = moosend_get_active_lists_details(array($list_id),TRUE);
+  $list_detail = moosend_get_active_lists_details(array($list_id));
   $list_detail = reset($list_detail);
   $form_state['list'] = array(
     'Id' => $list_id,
@@ -170,7 +172,7 @@ function moosend_lists_delete_submit($form, &$form_state) {
   else{
     drupal_set_message(t('An error occurred.Please check Recent log messages, for further information.'));
   }
-  //Clear moosend cache
+  //Clear cache
   moosend_get_active_lists_details(array(),FALSE);
 }
 
@@ -240,7 +242,7 @@ function moosend_lists_add_list_segments($form, &$form_state){
     drupal_get_path('module', 'moosend_lists') . '/css/form.css',
   );
 
-  $lists_details = moosend_get_active_lists_details(array(),FALSE);
+  $lists_details = moosend_get_active_lists_details(array());
   $options = array();
   foreach ($lists_details as $key => $list) {
     $options[$key] = $list['Name'];
