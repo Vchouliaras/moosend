@@ -7,17 +7,18 @@
  */
 function moosend_lists_admin_page(){
 
-     $domain_prefix = variable_get('moosend_user_domain');
-     $header = array(
-        t('Mailing List'),t('Active Subscribers'),t('Unsubscribed'),t('Custom Fields'),t('Segments'),t('Operations')
-      );
-
     //Retrieve list from moosend_cache
-    $lists = moosend_get_active_lists_details(array());
+    $lists = moosend_get_active_lists_details();
 
-    if ( empty($lists) ) {
-      $message = t('Your mailing lists are empty. You should go to !moosend and create some mailing lists',
-          array('!moosend' => l(t('Moosend'),'https://.' . $domain_prefix . '.moosend.com/',
+    $domain_prefix = variable_get('moosend_user_domain');
+
+    $header = array(
+      t('Mailing List'),t('Active Subscribers'),t('Unsubscribed'),t('Custom Fields'),t('Segments'),t('Operations')
+    );
+
+    if (empty($lists)) {
+      $message = t('Your mailing lists are empty. Click the link bellow or go to !moosend and create some mailing lists',
+          array('!moosend' => l(t('Moosend'),'https://' . $domain_prefix . '.moosend.com/',
               array(
                 'attributes' => array('target' => '_blank'),
                 'fragment' => '/mailing-lists',
@@ -25,6 +26,7 @@ function moosend_lists_admin_page(){
             )
           )
         );
+
       drupal_set_message($message,'warning', FALSE);
 
       //Render array
@@ -34,7 +36,6 @@ function moosend_lists_admin_page(){
             '#header' => $header,
         ),
       );
-
     }
 
     $rows = array();

@@ -2,7 +2,9 @@ name = Moosend Subscription Forms
 description = Manage Moosend subscription forms
 package = Moosend
 core = 7.x
+
 dependencies[] = moosend
+dependencies[] = libraries ( >=2 )
 dependencies[] = entity
 
 configure = admin/config/services/moosend/subscriptions

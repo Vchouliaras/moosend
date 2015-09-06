@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * Implements hook_menu().
  *
@@ -14,6 +13,7 @@ function moosend_lists_menu() {
     'title' => 'Mailing Lists',
     'description' => 'Display Moosend Lists',
     'page callback' => 'moosend_lists_admin_page',
+    'access callback' => 'moosend_api_is_ready',
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_LOCAL_TASK,
@@ -24,6 +24,7 @@ function moosend_lists_menu() {
     'description' => 'Add a new Moosend Mailing List.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('moosend_lists_add_lists_form'),
+    'access callback' => 'moosend_api_is_ready',
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_LOCAL_ACTION,
@@ -35,6 +36,7 @@ function moosend_lists_menu() {
     'description' => 'Add a new Segment to Mailing List.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('moosend_lists_add_list_segments'),
+    'access callback' => 'moosend_api_is_ready',
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_LOCAL_ACTION,
@@ -45,6 +47,7 @@ function moosend_lists_menu() {
     'title' => 'Moosend lists clear cache',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('moosend_lists_cache_clear'),
+    'access callback' => 'moosend_api_is_ready',
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_CALLBACK,
@@ -54,6 +57,7 @@ function moosend_lists_menu() {
     'title' => 'Moosend delete List',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('moosend_lists_delete',6),
+    'access callback' => 'moosend_api_is_ready',
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',
     'type' => MENU_CALLBACK,
@@ -61,6 +65,17 @@ function moosend_lists_menu() {
   return $items;
 }
 
+
+
+/**
+ * Access callback for mailchimp submodule menu items.
+ */
+function moosend_api_is_ready($permission) {
+  if (initialize_moosend_api() && user_access($permission)) {
+    return TRUE;
+  }
+  return FALSE;
+}
 
 
 /**

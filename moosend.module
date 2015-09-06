@@ -19,7 +19,6 @@ function moosend_libraries_info() {
     'path' => 'src/moosend',
     'version arguments' => array(
       'file' => 'composer.json',
-      //Version 1.0.0
       'pattern' => '/\"version": \"((\d+)\.(\d+)\.(\d+))\",/',
     ),
     'files' => array(
@@ -99,9 +98,6 @@ function initialize_moosend_api(){
   $moosend_api = variable_get('moosend_api_key','');
 
   if ( !strlen($moosend_api) ) {
-    $msg = t('Api key cannot be blank');
-    watchdog('moosend', $msg, NULL, WATCHDOG_ERROR);
-    drupal_set_message($msg, 'error');
     return NULL;
   }
 
@@ -127,24 +123,31 @@ function initialize_moosend_api(){
  *  An array of all Moosend Lists
  */
 function moosend_get_active_lists($page = 1, $page_size = 10, $cache = TRUE) {
+  $lists = array();
+
   if ($cache) {
-    return cache_get('lists', 'cache_moosend')->data;
+    if (!empty(cache_get('lists', 'cache_moosend'))) {
+      $lists = cache_get('lists', 'cache_moosend')->data;
+
+      return $lists;
+    } else{
+      moosend_get_active_lists($page, $page_size, FALSE); //Recursive
+    }
   }
-  else {
-    try {
-      cache_clear_all('lists','cache_moosend');
-      $moosendApi = initialize_moosend_api();
-      $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page, $page_size);
-      $lists = array();
-      foreach ($activeMailingLists as $key => $activeMailingList) {
-        $lists[$key] = $activeMailingList->getID();
-      }
-      cache_set('lists', $lists, 'cache_moosend');
+
+  try {
+    cache_clear_all('list', 'cache_moosend', TRUE);
+    $moosendApi = initialize_moosend_api();
+    $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page, $page_size);
+    foreach ($activeMailingLists as $key => $activeMailingList) {
+      $lists[$key] = $activeMailingList->getID();
     }
-    catch (Exception $e) {
-      watchdog('moosend','An error occurred. "%message"', array('%message' => $e->getMessage()),WATCHDOG_ERROR);
-    }
-    return $lists;
+    cache_set('lists', $lists, 'cache_moosend');
+  }
+  catch (Exception $e) {
+    watchdog('moosend','An error occurred. "%message"',
+      array('%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
   }
 }
 
@@ -165,16 +168,22 @@ function moosend_get_active_lists_details($lists_ids = array(), $cache = TRUE){
 
   if ( $cache && is_array($lists_ids) ) {
     foreach ($lists_ids as $key => $list_id) {
-      $cache = cache_get( 'details-' . $list_id, 'cache_moosend');
+      $cache = cache_get( 'list-' . $list_id, 'cache_moosend');
       $details[$list_id] = $cache->data;
       unset($lists_ids[$key]);
     }
    return $details;
   }
+  // if($cache){
+  //   $details = moosend_get_active_lists_details($lists_ids, $cache);
+  //   if (empty($details)) {
+  //     moosend_get_active_lists_details($lists_ids, $cache);
+  //   }
+  // }
 
   if ( is_array($lists_ids) && count($lists_ids) != 0 ) {
     $moosendApi = initialize_moosend_api();
-    cache_clear_all('details' , 'cache_moosend' ,TRUE);
+    cache_clear_all('list' , 'cache_moosend' ,TRUE);
     $last_list_id = NULL;
     try {
       foreach ($lists_ids as $key => $list_id) {
@@ -192,7 +201,7 @@ function moosend_get_active_lists_details($lists_ids = array(), $cache = TRUE){
           $details[$last_list_id]['CustomFieldsDefinition'][$key] = (object)(array)$field; //Cast to stdClass object
         }
 
-        cache_set('details-' . $last_list_id, $details[$last_list_id], 'cache_moosend');
+        cache_set('list-' . $last_list_id, $details[$last_list_id], 'cache_moosend');
 
       }
     }
@@ -221,7 +230,6 @@ function moosend_get_active_list_details($list_id, $cache = TRUE){
     return reset($active_list);
   }
 }
-
 
 
 
@@ -707,9 +715,9 @@ function moosend_get_list_segment_details($mailingListID, $segmentID){
     $segment_details['criteria'] = $criteria;
     $segment_details['match_type'] = $segmentDetailsResponse->getMatchType();
     $segment_details['created_by'] = $segmentDetailsResponse->getCreatedBy();
-    $segment_details['created_on'] = _moosend_parse_date_response($segmentDetailsResponse->getCreatedOn());
+    $segment_details['created_on'] = _moosend_parse_date($segmentDetailsResponse->getCreatedOn());
     $segment_details['updated_by'] = $segmentDetailsResponse->getUpdatedBy();
-    $segment_details['updated_on'] = _moosend_parse_date_response($segmentDetailsResponse->getUpdatedOn());
+    $segment_details['updated_on'] = _moosend_parse_date($segmentDetailsResponse->getUpdatedOn());
   }
   catch (Exception $e) {
     watchdog('moosend', 'An error occurred getting segment details for ID@segmentID. "%message"', array(
@@ -821,7 +829,6 @@ function moosend_add_criteria_to_segment($mailingListID, $segmentID, $field, $co
     $error_message = NULL;
     try {
       $moosendApiKey = initialize_moosend_api();
-
       $moosendApiKey->segments->addCriteria($mailingListID, $segmentID, $field, $comparer, $value, $dateFrom, $dateTo);
 
       watchdog('moosend', 'A new Criteria added to segment "@segment_id" for list @list.',
@@ -842,6 +849,159 @@ function moosend_add_criteria_to_segment($mailingListID, $segmentID, $field, $co
 
     return array('status' => $status,'error_message' => $error_message);
 }
+
+
+
+
+//Moosend Campaing API---------------------------------------------------------------------------
+
+
+function moosend_get_campaings($page = 1, $page_size = 100, $sortBy = 'CreatedOn', $SortMethod = 'ASC', $cache = TRUE){
+  $campaings_details = $campaings_ids = array();
+
+  if ($cache) {
+     if (!empty(cache_get('campaigns', 'cache_moosend'))) {
+      $campaings_ids = cache_get('campaigns', 'cache_moosend') -> data;
+      foreach ($campaings_ids as $id) {
+        $campaings_details[] = cache_get('campaign-' . $id, 'cache_moosend')->data;
+      }
+
+      return $campaings_details;
+
+     } else {
+        moosend_get_campaings($page, $page_size, $sortBy, $SortMethod, FALSE);
+     }
+  }
+
+  try {
+      $moosendApiKey = initialize_moosend_api();
+      $campaigns = $moosendApiKey->campaigns->getCampaigns($page, $page_size, $sortBy, $SortMethod);
+      if (!empty($campaigns)) {
+        cache_clear_all('campaign', 'cache_moosend', TRUE);
+        foreach ($campaigns as $campaign) {
+          $campaigns_details[$campaign_id]['ID'] = $campaign_id = $campaign->getID();
+          $campaigns_details[$campaign_id]['Name'] = $campaign->getName();
+          $campaigns_details[$campaign_id]['Subject'] = $campaign->getSubject();
+          $campaigns_details[$campaign_id]['SiteName'] = $campaign->getSiteName();
+          $campaigns_details[$campaign_id]['ConfirmationTo'] = $campaign->getConfirmationTo();
+          $campaigns_details[$campaign_id]['CreatedOn'] =_moosend_parse_date($campaign->getCreatedOn());
+          $campaigns_details[$campaign_id]['HoursToTest'] = $campaign->getABHoursToTest();
+          $campaigns_details[$campaign_id]['ABCampaignType'] = $campaign->getABCampaignType();
+          $campaigns_details[$campaign_id]['ABWinnerSelectionType'] = $campaign->getABWinnerSelectionType();
+          $campaigns_details[$campaign_id]['Status'] = $campaign->getStatus();
+          $campaigns_details[$campaign_id]['DeliveredOn'] = _moosend_parse_date($campaign->getDeliveredOn());
+          $campaigns_details[$campaign_id]['ScheduledFor'] = _moosend_parse_date($campaign->getScheduledFor());
+          $campaigns_details[$campaign_id]['ScheduledForTimezone'] = $campaign->getScheduledForTimezone();
+          $campaigns_details[$campaign_id]['MailingListID'] = $campaign->getMailingListID();
+          $campaigns_details[$campaign_id]['MailingListName'] = $campaign->getMailingListName();
+          $campaigns_details[$campaign_id]['SegmentID'] = $campaign->getSegmentID();
+          $campaigns_details[$campaign_id]['SegmentName'] = $campaign->getSegmentName();
+          $campaigns_details[$campaign_id]['MailingListStatus'] = $campaign->getMailingListStatus();
+          $campaigns_details[$campaign_id]['TotalSent'] = $campaign->getTotalSent();
+          $campaigns_details[$campaign_id]['TotalOpens'] = $campaign->getTotalOpens();
+          $campaigns_details[$campaign_id]['UniqueOpens'] = $campaign->getUniqueOpens();
+          $campaigns_details[$campaign_id]['TotalBounces'] = $campaign->getTotalBounces();
+          $campaigns_details[$campaign_id]['TotalForwards'] = $campaign->getTotalForwards();
+          $campaigns_details[$campaign_id]['UniqueForwards'] = $campaign->getUniqueForwards();
+          $campaigns_details[$campaign_id]['TotalLinkClicks'] = $campaign->getTotalLinkClicks();
+          $campaigns_details[$campaign_id]['UniqueLinkClicks'] = $campaign->getUniqueLinkClicks();
+          $campaigns_details[$campaign_id]['RecipientsCount'] = $campaign->getRecipientsCount();
+          $campaigns_details[$campaign_id]['IsTransactional'] = $campaign->getIsTransactional();
+          $campaigns_details[$campaign_id]['TotalComplaints'] = $campaign->getTotalComplaints();
+          $campaigns_details[$campaign_id]['TotalUnsubscribes'] = $campaign->getTotalUnsubscribes();
+          cache_set('campaign-' . $campaign_id, $campaigns_details[$campaign_id], 'cache_moosend');
+        }
+        cache_set('campaigns', array_keys($campaigns_details), 'cache_moosend');
+      }
+
+    return $campaigns_details;
+
+  } catch (Exception $e) {
+    watchdog('moosend', 'An error occurred retrieving details for Campaigns."%message"', array(
+    '%message' => $e->getMessage()),
+    WATCHDOG_ERROR);
+  }
+}
+
+
+function moosend_get_active_senders(){
+  $moosend_senders = array();
+  try {
+      $moosendApiKey = initialize_moosend_api();
+      $senders = $moosendApiKey->campaigns->getAllSenders();
+      foreach ($senders as $key => $sender) {
+        $moosend_senders[$sender_id]['ID'] = $sender_id = $sender->getID();
+        $moosend_senders[$sender_id]['Name'] = $sender->getName();
+        $moosend_senders[$sender_id]['Email'] = $sender->getEmail();
+        $moosend_senders[$sender_id]['Email'] = $sender->getEmail();
+        $moosend_senders[$sender_id]['CreatedOn'] = _moosend_parse_date($sender->getCreatedOn());
+        $moosend_senders[$sender_id]['IsEnabled'] = $sender->getIsEnabled();
+        $moosend_senders[$sender_id]['SpfVerified'] = $sender->getSpfVerified();
+        $moosend_senders[$sender_id]['DkimVerified'] = $sender->getDkimVerified();
+        $moosend_senders[$sender_id]['DkimPublic'] = $sender->getDkimPublic();
+      }
+    } catch (Exception $e) {
+      watchdog('moosend', 'An error occurred retrieving Moosend acount senders."%message"', array(
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+    }
+  return  $moosend_senders;
+}
+
+// dsm(moosend_get_active_senders());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -898,9 +1058,7 @@ function _moosend_criteria_fields($append_mailing_list_fields = TRUE){
 function _moosend_criteria_comparer($check_field = 'ALL'){
 
   if($check_field == 'DateAdded' ) {
-
     $comparer = array('Is','IsNot','IsBefore','IsAfter');
-
   }elseif($check_field == 'RecipientName' || $check_field == 'RecipientEmail'){
 
     $comparer = array('Is','IsNot','Contains','DoesNotContain','StartsWith','DoesNotStartWith','EndsWith','DoesNotEndWith','IsEmpty','IsNotEmpty');
@@ -931,11 +1089,25 @@ function _moosend_criteria_comparer($check_field = 'ALL'){
 }
 
 
+function _moosend_parse_date($date){
+  if(!empty($date)) {
+    $date = preg_match('/\d+\+\d+/', $date,$matches);
+    $date_parts = explode('+', $matches[0]);
 
-function _moosend_parse_date_response($date){
-   $date = trim(substr($date,6));
-   $milliseconds = substr($date,0,-2);
-   $timestamp = round( $milliseconds / 1000 ); // convert to seconds
+    // convert to seconds
+    $timestamp = round( $date_parts[0] / 1000 );
+    //$timezone = new DateTimeZone($date_parts[1]);
 
    return new DateTime('@'.$timestamp);
+  }
+}
+
+
+
+
+/**
+ * Implements hook_flush_caches().
+ */
+function moosend_flush_caches() {
+  return array('cache_moosend');
 }

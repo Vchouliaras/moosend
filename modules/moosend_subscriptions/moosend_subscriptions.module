@@ -7,8 +7,10 @@ define('MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK',3);
 
 /**
  * Implements hook_menu().
+ *
  */
 function moosend_subscriptions_menu() {
+  $items = array();
   foreach (moosend_subscriptions_load_multiple() as $subscription) {
     if (intval($subscription->mode) == MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY || intval($subscription->mode) == MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK) {
       $items[$subscription->settings['page_url']] = array(
@@ -101,10 +103,12 @@ function moosend_subscriptions_permission() {
  *
  */
 function moosend_subscriptions_access_callback($op, $subscriptions = NULL, $account = NULL){
+  if (initialize_moosend_api()) {
     if (user_access('administer moosend subscriptions',$account) && user_access('administer moosend',$account)) {
       return TRUE;
     }
-    return FALSE;
+  }
+  return FALSE;
 }
 
 
