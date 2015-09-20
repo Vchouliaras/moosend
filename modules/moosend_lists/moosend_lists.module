@@ -46,7 +46,7 @@ function moosend_lists_menu() {
   $items['admin/config/services/moosend/lists/clear_cache'] = array(
     'title' => 'Moosend lists clear cache',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('moosend_lists_cache_clear'),
+    'page arguments' => array('moosend_lists_clear_cache'),
     'access callback' => 'moosend_api_is_ready',
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend_lists.admin.inc',

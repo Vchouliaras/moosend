@@ -1,5 +1,10 @@
 <?php
 
+
+// vasilis.chouliaras+moosend@gmail.com = email
+// vasilis.chouliaras+moosend = pass
+// vasilismoosend = domain
+
 define('NUMBER_FIELD', 0);
 define('TEXT_FIELD', 1);
 define('DATETIME_FIELD', 2);
@@ -23,9 +28,9 @@ function moosend_libraries_info() {
     ),
     'files' => array(
       'php' => array(
-        'MoosendApi.php',
+        'MoosendApi.php' => array(),
         'Models/SubscriberParams.php',
-        'Models/CampaignParams.php'
+        'Models/CampaignParams.php',
       ),
     ),
   );
@@ -33,18 +38,19 @@ function moosend_libraries_info() {
   return $libraries;
 }
 
-
 /**
  * Implements hook_menu().
  *
  */
 function moosend_menu() {
+
   $items = array();
+
   $items['admin/config/services/moosend'] = array(
     'title' => 'Moosend',
     'description' => 'Manage Moosend Settings.',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('moosend_admin_settings'),
+    'page arguments' => array('moosend_admin_configuration'),
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend.admin.inc',
     'type' => MENU_NORMAL_ITEM,
@@ -54,6 +60,7 @@ function moosend_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -1,
   );
+
   return $items;
 }
 
@@ -87,6 +94,7 @@ function initialize_moosend_api(){
   }
 
   $library = libraries_load('moosend');
+  // dsm()
 
   if ( empty($library['installed']) || !$library['installed'] ) {
     $msg = t('Failed to load Moosend PHP Wrapper. Please refer to README.txt');
@@ -122,34 +130,34 @@ function initialize_moosend_api(){
  * @return array
  *  An array of all Moosend Lists
  */
-function moosend_get_active_lists($page = 1, $page_size = 10, $cache = TRUE) {
-  $lists = array();
+// function moosend_get_active_lists($page = 1, $page_size = 10, $cache = TRUE) {
+//   $lists = array();
 
-  if ($cache) {
-    if (!empty(cache_get('lists', 'cache_moosend'))) {
-      $lists = cache_get('lists', 'cache_moosend')->data;
+//   if ($cache) {
+//     if (!empty(cache_get('lists', 'cache_moosend'))) {
+//       $lists = cache_get('lists', 'cache_moosend')->data;
 
-      return $lists;
-    } else{
-      moosend_get_active_lists($page, $page_size, FALSE); //Recursive
-    }
-  }
+//       return $lists;
+//     } else{
+//       moosend_get_active_lists($page, $page_size, FALSE); //Recursive
+//     }
+//   }
 
-  try {
-    cache_clear_all('list', 'cache_moosend', TRUE);
-    $moosendApi = initialize_moosend_api();
-    $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page, $page_size);
-    foreach ($activeMailingLists as $key => $activeMailingList) {
-      $lists[$key] = $activeMailingList->getID();
-    }
-    cache_set('lists', $lists, 'cache_moosend');
-  }
-  catch (Exception $e) {
-    watchdog('moosend','An error occurred. "%message"',
-      array('%message' => $e->getMessage()),
-      WATCHDOG_ERROR);
-  }
-}
+//   try {
+//     cache_clear_all('list', 'cache_moosend', TRUE);
+//     $moosendApi = initialize_moosend_api();
+//     $activeMailingLists = $moosendApi->mailingLists->getActiveMailingLists($page, $page_size);
+//     foreach ($activeMailingLists as $key => $activeMailingList) {
+//       $lists[$key] = $activeMailingList->getID();
+//     }
+//     cache_set('lists', $lists, 'cache_moosend');
+//   }
+//   catch (Exception $e) {
+//     watchdog('moosend','An error occurred. "%message"',
+//       array('%message' => $e->getMessage()),
+//       WATCHDOG_ERROR);
+//   }
+// }
 
 
 
@@ -160,61 +168,112 @@ function moosend_get_active_lists($page = 1, $page_size = 10, $cache = TRUE) {
  * @return [type]            [description]
  *
  */
-function moosend_get_active_lists_details($lists_ids = array(), $cache = TRUE){
+// function moosend_get_active_lists_details($lists_ids = array(), $cache = TRUE){
 
-  $lists_ids = empty($lists_ids) ? moosend_get_active_lists(1, 10, $cache) : $lists_ids;
+//   $lists_ids = empty($lists_ids) ? moosend_get_active_lists(1, 10, $cache) : $lists_ids;
 
-  $details = array();
+//   $details = array();
 
-  if ( $cache && is_array($lists_ids) ) {
-    foreach ($lists_ids as $key => $list_id) {
-      $cache = cache_get( 'list-' . $list_id, 'cache_moosend');
-      $details[$list_id] = $cache->data;
-      unset($lists_ids[$key]);
-    }
-   return $details;
-  }
-  // if($cache){
-  //   $details = moosend_get_active_lists_details($lists_ids, $cache);
-  //   if (empty($details)) {
-  //     moosend_get_active_lists_details($lists_ids, $cache);
-  //   }
-  // }
+//   if ( $cache && is_array($lists_ids) ) {
+//     foreach ($lists_ids as $key => $list_id) {
+//       $cache = cache_get( 'list-' . $list_id, 'cache_moosend');
+//       $details[$list_id] = $cache->data;
+//       unset($lists_ids[$key]);
+//     }
+//    return $details;
+//   }
+//   // if($cache){
+//   //   $details = moosend_get_active_lists_details($lists_ids, $cache);
+//   //   if (empty($details)) {
+//   //     moosend_get_active_lists_details($lists_ids, $cache);
+//   //   }
+//   // }
 
-  if ( is_array($lists_ids) && count($lists_ids) != 0 ) {
-    $moosendApi = initialize_moosend_api();
-    cache_clear_all('list' , 'cache_moosend' ,TRUE);
-    $last_list_id = NULL;
-    try {
-      foreach ($lists_ids as $key => $list_id) {
-        $last_list_id = $list_id;
-        $mailingListDetail = $moosendApi->mailingLists->getDetails($last_list_id);
-        $details[$last_list_id]['Name'] =  $mailingListDetail->getName();
-        $details[$last_list_id]['ActiveMemberCount'] =  $mailingListDetail->getActiveMemberCount();
-        $details[$last_list_id]['BouncedMemberCount'] =  $mailingListDetail->getBouncedMemberCount();
-        $details[$last_list_id]['RemovedMemberCount'] =  $mailingListDetail->getRemovedMemberCount();
-        $details[$last_list_id]['UnsubscribedMemberCount'] =  $mailingListDetail->getUnsubscribedMemberCount();
-        $details[$last_list_id]['Status'] =  $mailingListDetail->getStatus();
-        $details[$last_list_id]['CreatedOn'] =  $mailingListDetail->getCreatedOn();
-        $details[$last_list_id]['UpdatedOn'] =  $mailingListDetail->getUpdatedOn();
-        foreach ($mailingListDetail->getCustomFieldsDefinition() as $key => $field) {
-          $details[$last_list_id]['CustomFieldsDefinition'][$key] = (object)(array)$field; //Cast to stdClass object
-        }
+//   if ( is_array($lists_ids) && count($lists_ids) != 0 ) {
+//     $moosendApi = initialize_moosend_api();
+//     cache_clear_all('list' , 'cache_moosend' ,TRUE);
+//     $last_list_id = NULL;
+//     try {
+//       foreach ($lists_ids as $key => $list_id) {
+//         $last_list_id = $list_id;
+//         $mailingListDetail = $moosendApi->mailingLists->getDetails($last_list_id);
+//         $details[$last_list_id]['Name'] =  $mailingListDetail->getName();
+//         $details[$last_list_id]['ActiveMemberCount'] =  $mailingListDetail->getActiveMemberCount();
+//         $details[$last_list_id]['BouncedMemberCount'] =  $mailingListDetail->getBouncedMemberCount();
+//         $details[$last_list_id]['RemovedMemberCount'] =  $mailingListDetail->getRemovedMemberCount();
+//         $details[$last_list_id]['UnsubscribedMemberCount'] =  $mailingListDetail->getUnsubscribedMemberCount();
+//         $details[$last_list_id]['Status'] =  $mailingListDetail->getStatus();
+//         $details[$last_list_id]['CreatedOn'] =  $mailingListDetail->getCreatedOn();
+//         $details[$last_list_id]['UpdatedOn'] =  $mailingListDetail->getUpdatedOn();
+//         foreach ($mailingListDetail->getCustomFieldsDefinition() as $key => $field) {
+//           $details[$last_list_id]['CustomFieldsDefinition'][$key] = (object)(array)$field; //Cast to stdClass object
+//         }
 
-        cache_set('list-' . $last_list_id, $details[$last_list_id], 'cache_moosend');
+//         cache_set('list-' . $last_list_id, $details[$last_list_id], 'cache_moosend');
 
+//       }
+//     }
+//     catch (Exception $e) {
+//       watchdog('moosend', 'An error occurred requesting data for List @list. "%message"', array(
+//         '@list' => $last_list_id,
+//         '%message' => $e->getMessage(),
+//       ), WATCHDOG_ERROR);
+//     }
+//     return $details;
+//   }
+// }
+
+
+
+function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id = NULL, $cache = TRUE){
+
+  $lists_details = $lists_ids = array();
+
+  if ($cache) {
+     if (!empty(cache_get('lists', 'cache_moosend'))) {
+      $lists_ids = cache_get('lists', 'cache_moosend') -> data;
+      foreach ($lists_ids as $id) {
+        $lists_details[$id] = cache_get('list-' . $id, 'cache_moosend')->data;
       }
-    }
-    catch (Exception $e) {
-      watchdog('moosend', 'An error occurred requesting data for List @list. "%message"', array(
-        '@list' => $last_list_id,
-        '%message' => $e->getMessage(),
-      ), WATCHDOG_ERROR);
-    }
-    return $details;
+      return !empty($list_id) ? $lists_details[$list_id] : $lists_details ;
+
+     } else {
+        moosend_get_active_lists_details($page, $page_size, $list_id, FALSE);
+     }
+  }
+
+  try {
+      $moosendApiKey = initialize_moosend_api();
+      $activeMailingLists = $moosendApiKey->mailingLists->getActiveMailingLists($page, $page_size);
+      if (!empty($activeMailingLists)) {
+        foreach ($activeMailingLists as $activeMailingList) {
+          $lists_details[$mailing_list_id]['ID'] = $mailing_list_id = $activeMailingList->getID();
+          $lists_details[$mailing_list_id]['Name'] =  $activeMailingList->getName();
+          $lists_details[$mailing_list_id]['ActiveMemberCount'] =  $activeMailingList->getActiveMemberCount();
+          $lists_details[$mailing_list_id]['BouncedMemberCount'] =  $activeMailingList->getBouncedMemberCount();
+          $lists_details[$mailing_list_id]['RemovedMemberCount'] =  $activeMailingList->getRemovedMemberCount();
+          $lists_details[$mailing_list_id]['UnsubscribedMemberCount'] =  $activeMailingList->getUnsubscribedMemberCount();
+          $lists_details[$mailing_list_id]['Status'] =  $activeMailingList->getStatus();
+          $lists_details[$mailing_list_id]['CreatedOn'] =  $activeMailingList->getCreatedOn();
+          $lists_details[$mailing_list_id]['UpdatedOn'] =  $activeMailingList->getUpdatedOn();
+          foreach ($activeMailingList->getCustomFieldsDefinition() as $key => $field) {
+            $lists_details[$mailing_list_id]['CustomFieldsDefinition'][$key] = (object)(array)$field; //Cast to stdClass object
+          }
+          cache_clear_all('list-' . $mailing_list_id, 'cache_moosend');
+          cache_set('list-' . $mailing_list_id, $lists_details[$mailing_list_id], 'cache_moosend');
+        }
+        cache_clear_all('lists', 'cache_moosend');
+        cache_set('lists', array_keys($lists_details), 'cache_moosend');
+      }
+
+    return !empty($list_id) ? $lists_details[$list_id] : $lists_details ;
+
+  } catch (Exception $e) {
+    watchdog('moosend', 'An error occurred retrieving details for Mailing Lists."%message"', array(
+    '%message' => $e->getMessage()),
+    WATCHDOG_ERROR);
   }
 }
-
 
 
 
@@ -224,12 +283,12 @@ function moosend_get_active_lists_details($lists_ids = array(), $cache = TRUE){
  * @param  boolean $cache   [description]
  * @return [type]           [description]
  */
-function moosend_get_active_list_details($list_id, $cache = TRUE){
-  if(!empty($list_id)){
-    $active_list = moosend_get_active_lists_details(array($list_id),$cache);
-    return reset($active_list);
-  }
-}
+// function moosend_get_active_list_details($list_id, $cache = TRUE){
+//   if(!empty($list_id)){
+//     $active_list = moosend_get_active_lists_details(1, 10, $list_id, $cache);
+//     return $active_list;
+//   }
+// }
 
 
 
@@ -239,9 +298,9 @@ function moosend_get_active_list_details($list_id, $cache = TRUE){
  * @param  boolean $cache   [description]
  * @return [type]           [description]
  */
-function moosend_get_active_list_custom_fields($list_id,$cache = TRUE){
+function moosend_get_active_list_custom_fields($list_id, $cache = TRUE){
   $fields = array();
-  $active_list = moosend_get_active_list_details($list_id,$cache);
+  $active_list = moosend_get_active_lists_details(1, 10, $list_id, $cache);
   if(isset($active_list['CustomFieldsDefinition'])){
     foreach ($active_list['CustomFieldsDefinition'] as $key => $field) {
       $fields[$field->Name] = (object)(array)$field; //Cast to stdClass object
@@ -863,7 +922,7 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sortBy = 'CreatedOn
      if (!empty(cache_get('campaigns', 'cache_moosend'))) {
       $campaings_ids = cache_get('campaigns', 'cache_moosend') -> data;
       foreach ($campaings_ids as $id) {
-        $campaings_details[] = cache_get('campaign-' . $id, 'cache_moosend')->data;
+        $campaings_details[$id] = cache_get('campaign-' . $id, 'cache_moosend')->data;
       }
 
       return $campaings_details;
@@ -872,7 +931,6 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sortBy = 'CreatedOn
         moosend_get_campaings($page, $page_size, $sortBy, $SortMethod, FALSE);
      }
   }
-
   try {
       $moosendApiKey = initialize_moosend_api();
       $campaigns = $moosendApiKey->campaigns->getCampaigns($page, $page_size, $sortBy, $SortMethod);
@@ -953,18 +1011,91 @@ function moosend_get_active_senders(){
 
 
 
+function moosend_delete_campaign($campaign_id) {
+  $status = TRUE;
+  try {
+    $moosendApiKey = initialize_moosend_api();
+    $campaign_deleted = $moosendApiKey->campaigns->delete($campaign_id);
+    $campaigns = moosend_get_campaings();
+      watchdog('moosend', 'Campaing "@Name" was deleted succefully.',
+      array('@Name' => $campaigns[$campaign_id]['Name']),
+      WATCHDOG_NOTICE);
+  }
+  catch (Exception $e) {
+    $status = FALSE;
+    watchdog('moosend', 'An error occurred deleting Campaing "@Name" . "%message"',
+      array('@Name' => $campaigns[$campaign_id]['Name'],
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+  }
+
+  return $status;
+}
+
+// $draftParams = new CampaignParams();
+// $draftParams->Name = 'draft name before';
+// $draftParams->Subject = 'draft Subject before';
+// $draftParams->SenderEmail = 'jtourkos@gmail.com';
+// $draftParams->ReplyToEmail = 'jtourkos@hotmail.com';
+// $draftParams->MailingListID = 'c673e294-a68a-46de-bdbf-e2ead42679c5';
+// $draftParams->ConfirmationToEmail = 'jtourkos@hotmail.com';
+// $draftParams->ReplyToEmail = 'jtourkos@gmail.com';
+// $draftParams->WebLocation = 'https://github.com/moo
+// send/dotnetwrapper/blob/master/Models/CampaignParams.cs';
+// $draftID = $moosendApiGiannis->campaigns->createDraft($draftParams);
+// var_dump($draftID);
+
+$params['Name'] = 'Vasilis Campaign2';
+$params['Subject'] = 'Vasilis Sub';
+$params['SenderEmail'] = 'vasilis.chouliaras@gmail.com';
+$params['ReplyToEmail'] = 'vasilis.chouliaras@gmail.com';
+$params['ConfirmationToEmail'] = 'vasilis.chouliaras@gmail.com';
+$params['MailingListID'] = 'db69cf99-a902-4adb-b510-f34851df9fb9';
+$params['WebLocation'] = 'https://github.com/moosend/dotnetwrapper/blob/master/Models/CampaignParams.cs';
+
+
+function moosend_create_campaign_draft($params){
+  $draft_id = '';
+  if (!empty($params) && is_array($params)) {
+    try{
+      $moosend_api_key = initialize_moosend_api();
+      $draftParams = new moosend\Models\CampaignParams();
+      foreach ($params as $key => $value) {
+        $draftParams->{$key} = $value;
+      }
+      dsm($draftParams);
+      $draft_id = $moosend_api_key->campaigns->createDraft($draftParams);
+    }
+    catch (Exception $e) {
+    watchdog('moosend', 'An error occurred creating draft Campaing "@Name". "%message"',
+      array('@Name' => $draftParams->Name,
+      '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+    }
+    return $draft_id;
+  }
+}
 
 
 
-
-
-
-
-
-
-
-
-
+function moosend_get_campaign_status_name($code){
+  $status = NULL;
+  switch ($code) {
+    case CAMPAIGN_DRAFT:
+      $status = t('Draft');
+      break;
+    case CAMPAIGN_READY_TO_SEND:
+      $status = t('Ready to Send');
+      break;
+    case CAMPAIGN_SEND:
+      $status = t('Sent');
+      break;
+    case CAMPAIGN_SENDING:
+      $status = t('Sending');
+    break;
+  }
+  return $status;
+}
 
 
 
@@ -1039,7 +1170,7 @@ function _moosend_criteria_fields($append_mailing_list_fields = TRUE){
     );
 
   if($append_mailing_list_fields){
-    foreach (moosend_get_active_lists_details(array()) as $key => $list) {
+    foreach (moosend_get_active_lists_details() as $key => $list) {
       foreach(moosend_get_active_list_custom_fields($key) as $field){
         $custom_fields[$field->ID] = $field->Name;
       }
@@ -1108,6 +1239,6 @@ function _moosend_parse_date($date){
 /**
  * Implements hook_flush_caches().
  */
-function moosend_flush_caches() {
-  return array('cache_moosend');
-}
+// function moosend_flush_caches() {
+//   return array('cache_moosend');
+// }

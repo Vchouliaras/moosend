@@ -67,7 +67,7 @@ function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
       '#group' => 'moosend_vertical_tabs',
     );
 
-    $lists_details = moosend_get_active_lists_details(array(),FALSE);
+    $lists_details = moosend_get_active_lists_details();
     $options = array();
     foreach ($lists_details as $key => $list) {
       $options[$key] = $list['Name'];

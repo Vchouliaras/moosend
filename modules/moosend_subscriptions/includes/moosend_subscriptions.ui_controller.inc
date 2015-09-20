@@ -115,10 +115,10 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
 
     $created_at = format_date($entity->created_at, 'custom', 'j M Y, H:G');
-    $mailing_list = moosend_get_active_lists_details(array($entity->list),FALSE);
+    $mailing_list = moosend_get_active_lists_details(1, 10 , $entity->list);
     $domain_prefix = variable_get('moosend_user_domain');
 
-    $mailing_list = l($mailing_list[$entity->list]['Name'],'https://' . $domain_prefix . '.moosend.com/',
+    $mailing_list = l($mailing_list['Name'],'https://' . $domain_prefix . '.moosend.com/',
       array(
         'attributes' => array('target' => '_blank'),
         'fragment' => '/mailing-lists/'.$entity->list.'/view-list',

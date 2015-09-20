@@ -41,13 +41,16 @@ function moosend_lists_admin_page(){
     $rows = array();
     foreach ($lists as $list_id => $list_detail) {
 
+     //Get List ID
+     // $list_id = $list_detail['ID'];
+
      //Get CustomFieldDefinitions
-     if ( !empty($list_detail['CustomFieldsDefinition'])) {
-        $customFieldsDefinitions = array();
-        foreach ($list_detail['CustomFieldsDefinition'] as $key=>$field) {
+    $customFieldsDefinitions = array();
+     if (!empty($list_detail['CustomFieldsDefinition'])) {
+        foreach ($list_detail['CustomFieldsDefinition'] as $key => $field) {
           $customFieldsDefinitions[] = $field->Name;
         }
-        $customFieldsDefinitions = implode(', ',$customFieldsDefinitions);
+      $customFieldsDefinitions = implode(', ',$customFieldsDefinitions);
      }
 
      //Get Lists Segments
@@ -115,7 +118,7 @@ function moosend_lists_admin_page(){
  * Moosend List cache clear form.
  *
  */
-function moosend_lists_cache_clear($form, &$form_state) {
+function moosend_lists_clear_cache($form, &$form_state) {
   $cache_clear_destination = 'admin/config/services/moosend/lists';
   return confirm_form($form,
     t('Reset Moosend mailing lists'),
@@ -130,8 +133,8 @@ function moosend_lists_cache_clear($form, &$form_state) {
  * Handler for lists cache clear form.
  *
  */
-function moosend_lists_cache_clear_submit($form, &$form_state) {
-  moosend_get_active_lists_details(array());
+function moosend_lists_clear_cache_submit($form, &$form_state) {
+  moosend_get_active_lists_details(1, 10, NULL, FALSE);
   drupal_set_message(t('Moosend Lists cache cleared.'));
 }
 
@@ -147,10 +150,9 @@ function moosend_lists_cache_clear_submit($form, &$form_state) {
  */
 function moosend_lists_delete($form,&$form_state,$list_id) {
   $delete_list_destination = 'admin/config/services/moosend/lists';
-  $list_detail = moosend_get_active_lists_details(array($list_id));
-  $list_detail = reset($list_detail);
+  $list_detail = moosend_get_active_lists_details(1, 10, $list_id);
   $form_state['list'] = array(
-    'Id' => $list_id,
+    'ID' => $list_detail['ID'],
     'Name' => $list_detail['Name']
     );
   return confirm_form($form,
@@ -167,14 +169,14 @@ function moosend_lists_delete($form,&$form_state,$list_id) {
  *
  */
 function moosend_lists_delete_submit($form, &$form_state) {
-  if ( $status = moosend_delete_mailing_list($form_state['list']['Id']) ) {
-    drupal_set_message(t('Succefully deleted mailing list "'.$form_state['list']['Name'].'"'));
+  if ( $status = moosend_delete_mailing_list($form_state['list']['ID']) ) {
+    drupal_set_message(t('Succefully deleted mailing list "@name" ',array( '@name' => $form_state['list']['Name'])));
   }
   else{
-    drupal_set_message(t('An error occurred.Please check Recent log messages, for further information.'));
+    drupal_set_message(t('An error occurred.Please check recent log messages, for further information.'),'error');
   }
   //Clear cache
-  moosend_get_active_lists_details(array(),FALSE);
+  moosend_get_active_lists_details(1, 10, NULL, FALSE);
 }
 
 
@@ -226,7 +228,7 @@ function moosend_lists_add_lists_form_submit($form,&$form_state){
   $list_name = $form_state['values']['moosend_list_name'];
   $new_list_id = moosend_create_mailing_list(check_plain($list_name));
   if (!empty($new_list_id)) {
-    moosend_get_active_lists_details(array(),FALSE); // Clear Cache
+    moosend_get_active_lists_details(1, 10, NULL, FALSE); // Clear Cache
     drupal_set_message(t('Mailing List "@list" created with ID @id',
       array('@list'=>$list_name,'@id' => $new_list_id)),
       'status',
@@ -243,7 +245,8 @@ function moosend_lists_add_list_segments($form, &$form_state){
     drupal_get_path('module', 'moosend_lists') . '/css/form.css',
   );
 
-  $lists_details = moosend_get_active_lists_details(array());
+  $lists_details = moosend_get_active_lists_details();
+
   $options = array();
   foreach ($lists_details as $key => $list) {
     $options[$key] = $list['Name'];

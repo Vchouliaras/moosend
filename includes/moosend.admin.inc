@@ -10,7 +10,7 @@
  * Return the MailChimp global settings form.
  *
  */
-function moosend_admin_settings() {
+function moosend_admin_configuration() {
   $form = array();
 
   $form['moosend_api_key'] = array(
@@ -27,8 +27,13 @@ function moosend_admin_settings() {
     '#title' => t('Moosend Domain prefix'),
     '#required' => TRUE,
     '#default_value' => variable_get('moosend_user_domain'),
-    '#description' => t('The Domain prefix of your Moosend account, e.g. vchouliaras.moosend.com.'),
+    '#description' => t('The Domain prefix of your Moosend account, e.g. mydomain.moosend.com.'),
   );
 
-  return system_settings_form($form);
+  $form['actions'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Configuration'),
+  );
+
+  return $form;
 }
