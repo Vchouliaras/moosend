@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Moosend module admin settings.
+ * Moosend module admin Configuration Settings.
  */
 
 
 /**
- * Return the MailChimp global settings form.
+ * Return the Moosend configuration form.
  *
  */
 function moosend_admin_configuration() {
@@ -36,4 +36,20 @@ function moosend_admin_configuration() {
   );
 
   return $form;
+}
+
+
+/**
+ *  Submit Handler
+ *
+ */
+function moosend_admin_configuration_submit($form, &$form_state) {
+  $moosend_api_key = $form_state['values']['moosend_api_key'];
+  variable_set('moosend_api_key', $moosend_api_key);
+
+  if (!initialize_moosend_api())  {
+    drupal_set_message(t('Could not initialize connection with Moosend API. Please check your configuration settings.'), 'error');
+    variable_del('moosend_api_key');
+  }
+  cache_clear_all('*','cache_moosend',TRUE);
 }

@@ -87,29 +87,29 @@ function moosend_permission() {
  *
  */
 function initialize_moosend_api(){
-  $moosendApi = &drupal_static(__FUNCTION__);
+  $moosend_api = &drupal_static(__FUNCTION__);
 
   if (isset($moosend_api) ) {
     return $moosend_api;
   }
 
   $library = libraries_load('moosend');
-  // dsm()
-
   if ( empty($library['installed']) || !$library['installed'] ) {
-    $msg = t('Failed to load Moosend PHP Wrapper. Please refer to README.txt');
-    watchdog('moosend', $msg, NULL, WATCHDOG_ERROR);
-    drupal_set_message($msg, 'error');
-    return NULL;
+    watchdog('moosend', t('Failed to load Moosend PHP Wrapper. Please refer to README.txt')
+      , NULL, WATCHDOG_ERROR);
+    return FALSE;
   }
 
-  $moosend_api = variable_get('moosend_api_key','');
-
-  if ( !strlen($moosend_api) ) {
-    return NULL;
+  try {
+    $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key',''));
+  } catch (Exception $e) {
+     watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
+    '%message' => $e->getMessage()),
+      WATCHDOG_ERROR);
+     return FALSE;
   }
 
-  return new moosend\MoosendApi($moosend_api);
+  return $moosend_api;
 }
 
 
