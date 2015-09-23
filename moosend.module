@@ -101,7 +101,7 @@ function initialize_moosend_api(){
   }
 
   try {
-    $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key',''));
+    // $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key',''));
   } catch (Exception $e) {
      watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
     '%message' => $e->getMessage()),
@@ -1006,9 +1006,6 @@ function moosend_get_active_senders(){
   return  $moosend_senders;
 }
 
-// dsm(moosend_get_active_senders());
-
-
 
 
 function moosend_delete_campaign($campaign_id) {
@@ -1045,13 +1042,13 @@ function moosend_delete_campaign($campaign_id) {
 // $draftID = $moosendApiGiannis->campaigns->createDraft($draftParams);
 // var_dump($draftID);
 
-$params['Name'] = 'Vasilis Campaign2';
-$params['Subject'] = 'Vasilis Sub';
-$params['SenderEmail'] = 'vasilis.chouliaras@gmail.com';
-$params['ReplyToEmail'] = 'vasilis.chouliaras@gmail.com';
-$params['ConfirmationToEmail'] = 'vasilis.chouliaras@gmail.com';
-$params['MailingListID'] = 'db69cf99-a902-4adb-b510-f34851df9fb9';
-$params['WebLocation'] = 'https://github.com/moosend/dotnetwrapper/blob/master/Models/CampaignParams.cs';
+// $params['Name'] = 'Vasilis Campaign2';
+// $params['Subject'] = 'Vasilis Sub';
+// $params['SenderEmail'] = 'vasilis.chouliaras@gmail.com';
+// $params['ReplyToEmail'] = 'vasilis.chouliaras@gmail.com';
+// $params['ConfirmationToEmail'] = 'vasilis.chouliaras@gmail.com';
+// $params['MailingListID'] = 'db69cf99-a902-4adb-b510-f34851df9fb9';
+// $params['WebLocation'] = 'https://github.com/moosend/dotnetwrapper/blob/master/Models/CampaignParams.cs';
 
 
 function moosend_create_campaign_draft($params){
@@ -1063,7 +1060,6 @@ function moosend_create_campaign_draft($params){
       foreach ($params as $key => $value) {
         $draftParams->{$key} = $value;
       }
-      dsm($draftParams);
       $draft_id = $moosend_api_key->campaigns->createDraft($draftParams);
     }
     catch (Exception $e) {
@@ -1075,7 +1071,6 @@ function moosend_create_campaign_draft($params){
     return $draft_id;
   }
 }
-
 
 
 function moosend_get_campaign_status_name($code){
@@ -1090,8 +1085,17 @@ function moosend_get_campaign_status_name($code){
     case CAMPAIGN_SEND:
       $status = t('Sent');
       break;
+    case CAMPAIGN_NOT_ENOUGH_CREDITS:
+      $status = t('No Credits');
+      break;
     case CAMPAIGN_SENDING:
       $status = t('Sending');
+    break;
+    case CAMPAIGN_SELECTING_WINNER:
+      $status = t('Selecting Winner');
+    break;
+    case CAMPAIGN_ARCHIVED:
+      $status = t('Archived');
     break;
   }
   return $status;
@@ -1242,3 +1246,10 @@ function _moosend_parse_date($date){
 // function moosend_flush_caches() {
 //   return array('cache_moosend');
 // }
+
+
+// vasilis
+// vasilis100
+
+// moosend
+// CaE9kcCua0Zu

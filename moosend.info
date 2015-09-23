@@ -3,5 +3,9 @@ description = Intergration of Moosend email services
 package = Moosend
 core = 7.x
 
+dependencies[] = moosend_lists
+dependencies[] = moosend_campaigns
+dependencies[] = moosend_subscriptions
 dependencies[] = libraries ( >=2 )
+
 configure = admin/config/services/moosend

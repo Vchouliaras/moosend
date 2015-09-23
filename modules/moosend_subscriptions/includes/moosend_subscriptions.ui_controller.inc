@@ -130,7 +130,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
         $mode = l(t('Block'), 'admin/structure/block');
         break;
       case MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY:
-        $mode = t('Page');
+        $mode =  l(t('Page'),$entity->settings['page_url']);
         break;
       case MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK:
         $mode = l(t('Block'), 'admin/structure/block') . ' & ' . l(t('Page'),$entity->settings['page_url']);
