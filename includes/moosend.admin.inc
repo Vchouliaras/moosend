@@ -44,8 +44,10 @@ function moosend_admin_configuration() {
  *
  */
 function moosend_admin_configuration_submit($form, &$form_state) {
+
   $moosend_api_key = $form_state['values']['moosend_api_key'];
   $moosend_user_domain = $form_state['values']['moosend_user_domain'];
+
   variable_set('moosend_api_key', $moosend_api_key);
   variable_set('moosend_user_domain', $moosend_user_domain);
 

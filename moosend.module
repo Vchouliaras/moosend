@@ -101,7 +101,7 @@ function initialize_moosend_api(){
   }
 
   try {
-    // $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key',''));
+    $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key',''));
   } catch (Exception $e) {
      watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
     '%message' => $e->getMessage()),
