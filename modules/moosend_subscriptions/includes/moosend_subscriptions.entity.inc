@@ -20,29 +20,8 @@ class MoosendSubscriptions extends Entity {
 
 
 class MoosendSubscriptionsController extends EntityAPIController{
-
     public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $build = parent::buildContent($entity, $view_mode, $langcode, $content);
-
-    // if ( $view_mode === 'member' ) {
-
-    //   $build['embedcode'] = array(
-    //     '#type' => 'markup',
-    //     '#markup' => '<iframe width="560" height="315" src="http://www.youtube.com/embed/'. $entity->embedcode . '" frameborder="0" allowfullscreen></iframe>',
-    //   );
-    // }
-    // else{
-
-    //     $build['embedcode'] = array(
-    //       '#type' => 'markup',
-    //       '#markup' => '<p><a href="http://www.youtube.com/watch?v="'.$entity->embedcode.'">Link to Youtube Video</a></p>'
-    //     );
-    // }
-
-    // $build['duration'] = array(
-    //   '#type' => 'markup',
-    //   '#markup' => format_interval($entity->duration),
-    // );
 
     return $build;
   }
@@ -63,6 +42,5 @@ class MoosendSubscriptionsController extends EntityAPIController{
       $entity->updated_at = REQUEST_TIME;
       return parent::save($entity,$transaction);
   }
-
 
 }

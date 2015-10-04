@@ -284,8 +284,8 @@ function moosend_subscriptions_form_factory_submit($form, &$form_state) {
   $email = $form_state['values']['email'];
   $custom_fields = array_filter($form_state['values']['custom_fields'][0]);
 
-  $status =  moosend_add_subscriber($list_id, $email, $name, $custom_fields);
-  if(count($status)) {
+  $status =  moosend_subscribe_member($list_id, $email, $name, $custom_fields);
+  if($status) {
     if(strlen($subscriptions->settings['confirm_message'])) {
       drupal_set_message(t($subscriptions->settings['confirm_message']));
     }
@@ -296,4 +296,3 @@ function moosend_subscriptions_form_factory_submit($form, &$form_state) {
     drupal_set_message(t('There was a problem with your newsletter signup.'),'warning');
   }
 }
-

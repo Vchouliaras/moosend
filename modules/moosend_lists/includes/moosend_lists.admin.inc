@@ -18,14 +18,11 @@ function moosend_lists_admin_page(){
 
     if (empty($lists)) {
       $message = t('Your mailing lists are empty. Click the link bellow or go to !moosend and create some mailing lists',
-          array('!moosend' => l(t('Moosend'),'https://' . $domain_prefix . '.moosend.com/',
-              array(
-                'attributes' => array('target' => '_blank'),
-                'fragment' => '/mailing-lists',
-              )
-            )
+        array('!moosend' => l(t('Moosend'),'https://' . $domain_prefix . '.moosend.com/',
+            array('attributes' => array('target' => '_blank'), 'fragment' => '/mailing-lists')
           )
-        );
+        )
+      );
 
       drupal_set_message($message,'warning', FALSE);
 
@@ -293,7 +290,6 @@ function moosend_lists_add_list_segments($form, &$form_state){
     $form_state['num_criteria'] = 1;
   }
 
-
   for ($i = 0; $i < $form_state['num_criteria']; $i++) {
 
     $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['starts'] = array(
@@ -333,7 +329,7 @@ function moosend_lists_add_list_segments($form, &$form_state){
         '#type' => 'textfield',
         '#size' => 30,
         '#maxlength' => 100,
-        '#description' => t('eg. 24/08/2015'),
+        '#description' => t('eg. @current_date',array('@current_day' => date('d/m/Y'))),
       );
     }
 
@@ -345,35 +341,31 @@ function moosend_lists_add_list_segments($form, &$form_state){
         '#title' => t('Compare'),
         '#options' => _moosend_criteria_comparer($criteria_field),
       );
-
     $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_value'][$i] = array('#title' => t('Value')) + $element;
 
-    }elseif($criteria_field === 'CampaignsOpened' || $criteria_field === 'LinksClicked') {
+    } elseif($criteria_field === 'CampaignsOpened' || $criteria_field === 'LinksClicked') {
 
       $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_comparer'][$i] = array(
         '#type' => 'select',
         '#title' => t('Compare'),
         '#options' => _moosend_criteria_comparer($criteria_field),
       );
-
      $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_value'][$i] = array(
       '#type' => 'textfield',
       '#title' => t('Value'),
       '#size' => 10,
       '#maxlength' => 100,
       );
-
      $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['date_from'][$i] = array('#title' => t('Date From')) + $element;
      $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['date_to'][$i] = array('#title' => t('Date To')) + $element;
 
-    }elseif($criteria_field === 'LinkURL'){
+    } elseif($criteria_field === 'LinkURL') {
 
       $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_comparer'][$i] = array(
         '#type' => 'select',
         '#title' => t('Compare'),
         '#options' => _moosend_criteria_comparer($criteria_field),
       );
-
       $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_value'][$i] = array(
         '#type' => 'textfield',
         '#title' => t('Value'),
@@ -381,30 +373,25 @@ function moosend_lists_add_list_segments($form, &$form_state){
         '#maxlength' => 128,
       );
 
-    }else {
+    } else {
 
       $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_comparer'][$i] = array(
         '#type' => 'select',
         '#title' => t('Compare'),
         '#options' => _moosend_criteria_comparer(),
       );
-
       $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_value'][$i] = array(
         '#type' => 'textfield',
         '#title' => t('Value'),
         '#size' => 35,
         '#maxlength' => 128,
       );
-
     }
-
 
     $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['ends'] = array(
       '#markup' => '</div>',
     );
-
   }
-
 
   $form['criteria_fieldset']['add_criteria'] = array(
     '#type' => 'submit',
@@ -415,7 +402,6 @@ function moosend_lists_add_list_segments($form, &$form_state){
       'wrapper' => 'moosend-criteria-fieldset-wrapper',
     ),
   );
-
 
   if($form_state['num_criteria'] > 1) {
     $form['criteria_fieldset']['remove_criteria'] = array(
@@ -439,9 +425,13 @@ function moosend_lists_add_list_segments($form, &$form_state){
 
 
 
-
-function ajax_date_added_criteria_callback($form, &$form_state){
-  $row = substr($form_state['triggering_element']['#name'],0,-1);
+/**
+ * Callback for "Add Criteria" button.
+ *
+ * ;Selects and returns the fieldset with the names in it.
+ */
+function ajax_date_added_criteria_callback($form, &$form_state) {
+  $row = substr($form_state['triggering_element']['#name'], 0, -1);
   $row = substr($row,-1);
 
   return $form['criteria_fieldset']['criteria_wrapper-'. $row .''];
@@ -452,7 +442,7 @@ function ajax_date_added_criteria_callback($form, &$form_state){
 /**
  * Callback for "Add Criteria" button.
  *
- * Selects and returns the fieldset with the names in it.
+ * ;Selects and returns the fieldset with the names in it.
  */
 function ajax_add_more_criteria_callback($form, &$form_state) {
   return $form['criteria_fieldset'];
@@ -463,7 +453,7 @@ function ajax_add_more_criteria_callback($form, &$form_state) {
 /**
  * Submit handler for the "Add Criteria" button.
  *
- * Increments the max counter and causes a rebuild.
+ * ;Increments the max counter and causes a rebuild.
  */
 function ajax_add_more_criteria_add_one($form, &$form_state) {
   $form_state['num_criteria'] ++;
@@ -475,12 +465,13 @@ function ajax_add_more_criteria_add_one($form, &$form_state) {
 /**
  * Submit handler for the "Remove one" button.
  *
- * Decrements the max counter and causes a form rebuild.
+ * ;Decrements the max counter and causes a form rebuild.
  */
 function ajax_add_more_criteria_remove_one($form, &$form_state) {
   if ($form_state['num_criteria'] > 1) {
-    $form_state['num_criteria']--;
+    $form_state['num_criteria'] --;
   }
+
   $form_state['rebuild'] = TRUE;
 }
 
@@ -490,7 +481,7 @@ function ajax_add_more_criteria_remove_one($form, &$form_state) {
  * Submit handler for moosend_lists_add_list_segments.
  *
  */
-function moosend_lists_add_list_segments_submit($form,&$form_state){
+function moosend_lists_add_list_segments_submit($form,&$form_state) {
 
   $mailingListID = $form_state['values']['mailing_list'];
   $segment_name = $form_state['values']['segment_name'];
@@ -500,11 +491,9 @@ function moosend_lists_add_list_segments_submit($form,&$form_state){
   //Create Segment
   $segmentID = moosend_create_segment($mailingListID, $segment_name, $match_criteria);
 
-  if(isset($segmentID) && is_numeric($segmentID)) {
-
+  if (isset($segmentID) && is_numeric($segmentID)) {
     foreach($criteria as $wrapper => $value) {
-
-      if(strpos($wrapper, 'criteria_wrapper-') !== false) {
+      if (strpos($wrapper, 'criteria_wrapper-') !== false) {
 
         $dateFrom = NULL;
         $dateTo = NULL;
@@ -512,29 +501,31 @@ function moosend_lists_add_list_segments_submit($form,&$form_state){
         $comparer = reset($value['criteria_comparer']);
         $criteria_value = reset($value['criteria_value']);
 
-        if(isset($value['date_from']) && isset($value['date_to'])) {
-          $dateFrom = reset($value['date_from']);
-          $dateTo =reset($value['date_to']);
-          $dateFrom = DateTime::createFromFormat('Y-m-d',$dateFrom);
-          $dateTo = DateTime::createFromFormat('Y-m-d',$dateTo);
+        if (isset($value['date_from']) && isset($value['date_to'])) {
+          $dateFrom = DateTime::createFromFormat('Y-m-d', reset($value['date_from']));
+          $dateTo = DateTime::createFromFormat('Y-m-d', reset($value['date_to']));
         }
 
-        //Add Criteria to Segment.
-        $response = moosend_add_criteria_to_segment($mailingListID, $segmentID, $criteria_field, $comparer, $criteria_value, $dateFrom, $dateTo);
-
-        if(!$response['status']){
-          drupal_set_message(t('An error occured with Criteria creation.@error_message.',array( '@error_message' => $response['error_message'])), 'error', FALSE);
-          moosend_delete_segment($mailingListID, $segmentID);
-          return;
+        if (!empty($criteria_value)) {
+          // Add Criteria to Segment.
+          $response = moosend_add_criteria_to_segment($mailingListID, $segmentID, $criteria_field, $comparer, $criteria_value, $dateFrom, $dateTo);
+          if(!$response['status']){
+            drupal_set_message(t('An error occured with Criteria creation.@error_message.'
+              ,array( '@error_message' => $response['error_message'])),
+               'error', FALSE);
+            moosend_delete_segment($mailingListID, $segmentID);
+            return;
+          }
         }
       }
     }
-  }else{
+  } else {
      drupal_set_message(t('An error occured with Segment creation.Please try again.'), 'error', FALSE);
       return;
   }
 
-  drupal_set_message(t('Segment with name "@name", created succefully for Mailing List ID @mailingList.',array('@name' => $segment_name,'@mailingList' => $mailingListID)), 'status', FALSE);
+  drupal_set_message(t('Segment with name "@name", created succefully for Mailing List ID @mailingList.',
+    array('@name' => $segment_name,'@mailingList' => $mailingListID)), 'status', FALSE);
+
   $form_state['redirect'][] = 'admin/config/services/moosend/lists';
 }
-

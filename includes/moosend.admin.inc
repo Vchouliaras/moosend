@@ -30,6 +30,13 @@ function moosend_admin_configuration() {
     '#description' => t('The Domain prefix of your Moosend account, e.g. mydomain.moosend.com.'),
   );
 
+  $form['moosend_cron'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Use Drupal cron system.',
+    '#description' => 'Use Drupal cron system to perform all operations for Moosend members (Subscribe,Unsuscribe,Remove).<i> Note: May cause confusion if caches are cleared, as requested changes will appear to have failed until cron is run.</i>',
+    '#default_value' => variable_get('moosend_cron', FALSE),
+  );
+
   $form['actions'] = array(
     '#type' => 'submit',
     '#value' => t('Save Configuration'),
@@ -44,17 +51,19 @@ function moosend_admin_configuration() {
  *
  */
 function moosend_admin_configuration_submit($form, &$form_state) {
-
   $moosend_api_key = $form_state['values']['moosend_api_key'];
   $moosend_user_domain = $form_state['values']['moosend_user_domain'];
+  $moosend_cron = $form_state['values']['moosend_cron'];
 
   variable_set('moosend_api_key', $moosend_api_key);
   variable_set('moosend_user_domain', $moosend_user_domain);
+  ($moosend_cron) ? variable_set('moosend_cron',TRUE) : variable_set('moosend_cron',FALSE);
 
   if (!initialize_moosend_api())  {
     drupal_set_message(t('Could not initialize connection with Moosend API. Please check your configuration settings.'), 'error');
     variable_del('moosend_api_key');
     variable_del('moosend_user_domain');
+    variable_del('moosend_cron');
   }
 
   cache_clear_all('*', 'cache_moosend', TRUE);
