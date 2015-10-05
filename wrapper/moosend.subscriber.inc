@@ -15,8 +15,8 @@
  *
  */
 function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
-  $subscribers = moosend_get_active_list_subscibers($list_id,NULL,$cache);
-  $emails = array_column($subscribers,'email');/* >= PHP 5.5.0*/
+  $subscribers = moosend_get_active_list_subscibers($list_id, NULL, $cache);
+  $emails = array_column($subscribers, 'email');/* >= PHP 5.5.0*/
 
   return in_array($email, $emails);
 }
@@ -26,15 +26,15 @@ function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
  * [_moosend_member_operations description]
  * @return [type] [description]
  */
-function _moosend_member_operations(){
-  return drupal_map_assoc(array('Subscribe','Unsubscribe','Remove'));
+function _moosend_member_operations() {
+  return drupal_map_assoc(array('Subscribe', 'Unsubscribe', 'Remove'));
 }
 
 /**
  * [moosend_pre_operate_member description]
  * @return [type] [description]
  */
-function moosend_pre_operate_member(){
+function moosend_pre_operate_member() {
   $args = func_get_args();
   $operation_value = end($args);
   $operation_key = key($args);
@@ -43,7 +43,7 @@ function moosend_pre_operate_member(){
     $function = strtolower('moosend_' . $operation_value . '_member');
     unset($args[$operation_key]);
 
-    if (variable_get('moosend_use_cron',FALSE)) {
+    if (variable_get('moosend_use_cron', FALSE)) {
       return moosend_add_to_cron_queue($function, $args);
     }
 
@@ -67,7 +67,7 @@ function moosend_subscribe_member($list_id, $email, $name, $custom_fields = arra
     $member = moosend_subscriber_params($email, $name, $custom_fields);
 
     $moosend_api_key->subscribers->addSubscriber($list_id, $member);
-    cache_clear_all($list_id.'-subscribers', 'cache_moosend');
+    cache_clear_all($list_id . '-subscribers', 'cache_moosend');
 
     watchdog('moosend', '@email was subscribed to list @list.',
         array('@email' => $email, '@list' => $list_id),
@@ -98,10 +98,10 @@ function moosend_subscribe_member($list_id, $email, $name, $custom_fields = arra
 function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
   $status = TRUE;
    try {
-    $moosendApiKey = initialize_moosend_api();
+    $moosend_api_key = initialize_moosend_api();
 
-    $moosendApiKey->subscribers->unsubscribe($email, $campaing_id, $list_id);
-    cache_clear_all($list_id.'-subscribers', 'cache_moosend');
+    $moosend_api_key->subscribers->unsubscribe($email, $campaing_id, $list_id);
+    cache_clear_all($list_id . '-subscribers', 'cache_moosend');
 
     watchdog('moosend', '@email was unsubscribe from list @list.',
         array('@email' => $email, '@list' => $list_id),
@@ -130,10 +130,10 @@ function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
 function moosend_remove_member($list_id, $email) {
   $status = TRUE;
    try {
-    $moosendApiKey = initialize_moosend_api();
+    $moosend_api_key = initialize_moosend_api();
 
-    $moosendApiKey->subscribers->removeSubscriber($list_id,$email);
-    cache_clear_all($list_id.'-subscribers', 'cache_moosend');
+    $moosend_api_key->subscribers->removeSubscriber($list_id, $email);
+    cache_clear_all($list_id . '-subscribers', 'cache_moosend');
 
     watchdog('moosend', '@email was removed from list @list.',
         array('@email' => $email, '@list' => $list_id),
@@ -166,9 +166,9 @@ function moosend_subscriber_params($email, $name, $custom_fields) {
     $member->email = $email;
     $member->name= $name;
     $fields = array();
-    if(!empty($custom_fields)) {
+    if (!empty($custom_fields)) {
       foreach ($custom_fields as $key => $field) {
-       $fields[] =  $key. '=' . $field; //Create fields with proper format
+       $fields[] =  $key . '=' . $field; //Create fields with proper format
       }
     }
     $member->customFields = $fields;

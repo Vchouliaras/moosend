@@ -1,9 +1,17 @@
 <?php
 
+/**
+* @file
+*  Moosend Lists Module for Admin Interface.
+*
+*/
+
 
 /**
- * [moosend_lists_admin_page description]
- * @return [type] [description]
+ * Page Callback: Display the Moosend Lists page
+ *
+ * @return array
+ *
  */
 function moosend_lists_admin_page(){
 
@@ -13,18 +21,18 @@ function moosend_lists_admin_page(){
     $domain_prefix = variable_get('moosend_user_domain');
 
     $header = array(
-      t('Mailing List'),t('Active Subscribers'),t('Unsubscribed'),t('Custom Fields'),t('Segments'),t('Operations')
+      t('Mailing List'), t('Active Subscribers'), t('Unsubscribed'), t('Custom Fields'), t('Segments'), t('Operations')
     );
 
     if (empty($lists)) {
       $message = t('Your mailing lists are empty. Click the link bellow or go to !moosend and create some mailing lists',
-        array('!moosend' => l(t('Moosend'),'https://' . $domain_prefix . '.moosend.com/',
+        array('!moosend' => l(t('Moosend'), 'https://' . $domain_prefix . '.moosend.com/',
             array('attributes' => array('target' => '_blank'), 'fragment' => '/mailing-lists')
           )
         )
       );
 
-      drupal_set_message($message,'warning', FALSE);
+      drupal_set_message($message, 'warning', FALSE);
 
       //Render array
       return $build = array(
@@ -38,24 +46,21 @@ function moosend_lists_admin_page(){
     $rows = array();
     foreach ($lists as $list_id => $list_detail) {
 
-     //Get List ID
-     // $list_id = $list_detail['ID'];
-
      //Get CustomFieldDefinitions
-    $customFieldsDefinitions = array();
+    $custom_fields_definitions = array();
      if (!empty($list_detail['CustomFieldsDefinition'])) {
         foreach ($list_detail['CustomFieldsDefinition'] as $key => $field) {
-          $customFieldsDefinitions[] = $field->Name;
+          $custom_fields_definitions[] = $field->Name;
         }
-      $customFieldsDefinitions = implode(', ',$customFieldsDefinitions);
+      $custom_fields_definitions = implode(', ', $custom_fields_definitions);
      }
 
      //Get Lists Segments
      $segments = moosend_get_list_segments($list_id);
-     if(!empty($segments)){
+     if (!empty($segments)) {
       $list_segements = array();
       foreach ($segments as $key => $segment) {
-        $list_segements[] = l($segment['name'],'https://' . $domain_prefix . '.moosend.com/',
+        $list_segements[] = l($segment['name'], 'https://' . $domain_prefix . '.moosend.com/',
             array(
               'attributes' => array('target' => '_blank'),
               'fragment' => '/mailing-lists/' . $list_id . '/segments/'
@@ -63,7 +68,7 @@ function moosend_lists_admin_page(){
         );
       }
       $render_segments = implode(', ',$list_segements);
-     }else{
+     } else {
       $render_segments = t('None');
      }
 
@@ -73,15 +78,15 @@ function moosend_lists_admin_page(){
         $list_detail['Name'],
         $list_detail['ActiveMemberCount'],
         $list_detail['UnsubscribedMemberCount'],
-        !empty($customFieldsDefinitions) ? $customFieldsDefinitions : t('None'),
+        !empty($custom_fields_definitions) ? $custom_fields_definitions : t('None'),
         $render_segments,
         //Attributes on the cell
-        l(t('Edit'),'https://' . $domain_prefix . '.moosend.com/',
+        l(t('Edit'), 'https://' . $domain_prefix . '.moosend.com/',
             array(
               'attributes' => array('target' => '_blank'),
               'fragment' => '/mailing-lists/' . $list_id . '/view-list',
             )
-          ).' | '.
+          ) . ' | ' .
           l(t('Delete'),'admin/config/services/moosend/lists/delete/' . $list_id,
             array(
               'query' => array('destination' => 'admin/config/services/moosend/lists')

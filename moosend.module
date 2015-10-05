@@ -1,5 +1,12 @@
 <?php
 
+
+/**
+* @file
+*  Moosend Module
+*
+*/
+
 define('MOOSEND_CRON_QUEUE', 'moosend');
 define('NUMBER_FIELD', 0);
 define('TEXT_FIELD', 1);
@@ -84,25 +91,25 @@ function moosend_permission() {
 /**
  * Initialize Moosend Api
  *
- * @return object moosend_api
+ * @return
+ *   object moosend_api
  *
  */
-function initialize_moosend_api(){
+function initialize_moosend_api() {
   $moosend_api = &drupal_static(__FUNCTION__);
-
   if (isset($moosend_api) ) {
     return $moosend_api;
   }
 
   $library = libraries_load('moosend');
   if ( empty($library['installed']) || !$library['installed'] ) {
-    watchdog('moosend', t('Failed to load Moosend PHP Wrapper. Please refer to README.txt')
-      , NULL, WATCHDOG_ERROR);
+    watchdog('moosend', t('Failed to load Moosend PHP Wrapper. Please refer to README.txt'),
+        NULL, WATCHDOG_ERROR);
     return FALSE;
   }
 
   try {
-    $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key',''));
+    $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key', ''));
   } catch (Exception $e) {
      watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
     '%message' => $e->getMessage()),
@@ -188,12 +195,12 @@ function moosend_fields_to_drupal_elements($fields) {
               '#type' => 'select'
             );
             if (!empty($field->Context)) {
-              preg_match_all('/\<value\>[a-zA-Z]*\d\<\/value\>/i',$field->Context,$matches);
-              if(!empty($matches[0])){
+              preg_match_all('/\<value\>[a-zA-Z]*\d\<\/value\>/i', $field->Context, $matches);
+              if (!empty($matches[0])) {
                foreach ($matches[0] as $name => $value) {
-                  $tmp = substr($value,7); //<value>
+                  $tmp = substr($value, 7); //<value>
                   $length = strlen($tmp) - 8; // </value>
-                  $options[] = substr($tmp,0,$length);
+                  $options[] = substr($tmp, 0, $length);
                  }
               }
               $elements[$key] +=  array(
@@ -219,16 +226,16 @@ function moosend_fields_to_drupal_elements($fields) {
  * @param  [type] $date [description]
  * @return [type]       [description]
  */
-function _moosend_parse_date($date){
-  if(!empty($date)) {
-    $date = preg_match('/\d+\+\d+/', $date,$matches);
+function _moosend_parse_date($date) {
+  if (!empty($date)) {
+    $date = preg_match('/\d+\+\d+/', $date, $matches);
     $date_parts = explode('+', $matches[0]);
 
     // convert to seconds
     $timestamp = round( $date_parts[0] / 1000 );
     //$timezone = new DateTimeZone($date_parts[1]);
 
-   return new DateTime('@'.$timestamp);
+   return new DateTime('@' . $timestamp);
   }
 }
 

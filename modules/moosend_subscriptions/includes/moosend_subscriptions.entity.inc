@@ -1,5 +1,10 @@
 <?php
 
+/**
+* @file
+*  Moosend Subscription Module for extending Entity API
+*
+*/
 
 class MoosendSubscriptions extends Entity {
 
@@ -40,7 +45,7 @@ class MoosendSubscriptionsController extends EntityAPIController{
         $entity->created_at = REQUEST_TIME;
       }
       $entity->updated_at = REQUEST_TIME;
-      return parent::save($entity,$transaction);
+      return parent::save($entity, $transaction);
   }
 
 }

@@ -1,6 +1,12 @@
 <?php
 
-
+/**
+ * [moosend_subscriptions_form description]
+ * @param  [type] $form          [description]
+ * @param  [type] &$form_state   [description]
+ * @param  [type] $subscriptions [description]
+ * @return [type]                [description]
+ */
 function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
 
   $form['title'] = array(
@@ -113,10 +119,13 @@ function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
       $selected_list_custom_fields = moosend_get_active_list_custom_fields($selected_list_key);
       if (!empty($selected_list_custom_fields)) {
             foreach ($selected_list_custom_fields as $key => $field) {
+
               $form['list_settings']['custom_fields'][$field->Name] = array(
                 '#type' => 'checkbox',
-                '#title' => $field->Name,
-                '#default_value' => var_export($field->IsRequired,TRUE) === 'true' ? 1 : '',
+                '#title' => check_plain($field->Name),
+                '#default_value' =>
+                (var_export($field->IsRequired,TRUE) === 'true') || isset($subscriptions->settings['custom_fields'][$field->Name])
+                  ? 1 : '',
                 '#required' => var_export($field->IsRequired,TRUE) === 'true' ? TRUE : FALSE,
                 '#disabled' => var_export($field->IsRequired,TRUE) === 'true' ? TRUE : FALSE,
             );
@@ -139,6 +148,7 @@ function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
       '#weight' => -97,
       '#group' => 'moosend_vertical_tabs',
     );
+
      $path_prefix = url(NULL, array('absolute' => TRUE)) . (variable_get('clean_url', 0) ? '' : '?q=');
 
      $form['customize_subscriptions']['page_url'] = array(
@@ -146,7 +156,6 @@ function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
       '#size' => 35,
       '#title' => t('Subscription Page Url'),
       '#maxlength' => 80,
-      // '#required' => TRUE,
       '#description' => t('Path to the subscription page. ie "newsletter/subscribe".'),
       '#default_value' => isset($subscriptions->settings['page_url']) ? $subscriptions->settings['page_url'] : '',
       '#field_prefix' => $path_prefix,

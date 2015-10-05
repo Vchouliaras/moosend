@@ -57,7 +57,7 @@ function moosend_admin_configuration_submit($form, &$form_state) {
 
   variable_set('moosend_api_key', $moosend_api_key);
   variable_set('moosend_user_domain', $moosend_user_domain);
-  ($moosend_cron) ? variable_set('moosend_cron',TRUE) : variable_set('moosend_cron',FALSE);
+  ($moosend_cron) ? variable_set('moosend_cron', TRUE) : variable_set('moosend_cron', FALSE);
 
   if (!initialize_moosend_api())  {
     drupal_set_message(t('Could not initialize connection with Moosend API. Please check your configuration settings.'), 'error');
