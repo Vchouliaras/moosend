@@ -1,7 +1,14 @@
 <?php
 
+/**
+ * @file
+ * Provides a controller for building an Subscription Entity overview form.
+ */
 
 class MoosendSubscriptionsUIController extends EntityDefaultUIController{
+
+  //Override pager
+  public $overviewPagerLimit = MOOSEND_PAGER;
 
     /**
    * Overrides parent::hook_menu().
@@ -29,7 +36,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
     $append_header[]  = t('Mailling List');
     $append_header[]  = t('Display Mode');
     $append_header[]  = t('Custom Form Fields');
-    $header = array_merge($header,$append_header);
+    $header = array_merge($header, $append_header);
 
     // Add operations with the right colspan.
     $header[] = array('data' => t('Operations'), 'colspan' => $this->operationCount());
@@ -51,10 +58,10 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
     $mailing_list = moosend_get_active_lists_details(1, 10 , $entity->list);
     $domain_prefix = variable_get('moosend_user_domain');
 
-    $mailing_list = l($mailing_list['Name'],'https://' . $domain_prefix . '.moosend.com/',
+    $mailing_list = l($mailing_list['Name'], 'https://' . $domain_prefix . '.moosend.com/',
       array(
         'attributes' => array('target' => '_blank'),
-        'fragment' => '/mailing-lists/'.$entity->list.'/view-list',
+        'fragment' => '/mailing-lists/' . $entity->list . '/view-list',
       )
     );
     $mode = NULL;
@@ -63,10 +70,10 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
         $mode = l(t('Block'), 'admin/structure/block');
         break;
       case MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY:
-        $mode =  l(t('Page'),$entity->settings['page_url']);
+        $mode =  l(t('Page'), $entity->settings['page_url']);
         break;
       case MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK:
-        $mode = l(t('Block'), 'admin/structure/block') . ' & ' . l(t('Page'),$entity->settings['page_url']);
+        $mode = l(t('Block'), 'admin/structure/block') . ' & ' . l(t('Page'), $entity->settings['page_url']);
         break;
     }
 
@@ -75,7 +82,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
         foreach ($entity->settings['custom_fields'] as $key => $field) {
           $customFields[] = $field->Name;
         }
-        $customFields = !empty($customFields) ? implode(', ',$customFields) : t('None');
+        $customFields = !empty($customFields) ? implode(', ', $customFields) : t('None');
      }
 
     $additional_cols[] = $created_at;

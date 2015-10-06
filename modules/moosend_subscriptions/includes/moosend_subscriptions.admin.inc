@@ -1,13 +1,19 @@
 <?php
 
 /**
+* @file
+*  Moosend Subscriptions Admin Interface form.
+*
+*/
+
+/**
  * [moosend_subscriptions_form description]
  * @param  [type] $form          [description]
  * @param  [type] &$form_state   [description]
  * @param  [type] $subscriptions [description]
  * @return [type]                [description]
  */
-function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
+function moosend_subscriptions_form($form, &$form_state, $subscriptions = NULL) {
 
   $form['title'] = array(
     '#type' => 'textfield',
@@ -124,16 +130,16 @@ function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
                 '#type' => 'checkbox',
                 '#title' => check_plain($field->Name),
                 '#default_value' =>
-                (var_export($field->IsRequired,TRUE) === 'true') || isset($subscriptions->settings['custom_fields'][$field->Name])
+                (var_export($field->IsRequired, TRUE) === 'true') || isset($subscriptions->settings['custom_fields'][$field->Name])
                   ? 1 : '',
-                '#required' => var_export($field->IsRequired,TRUE) === 'true' ? TRUE : FALSE,
-                '#disabled' => var_export($field->IsRequired,TRUE) === 'true' ? TRUE : FALSE,
+                '#required' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
+                '#disabled' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
             );
           }
         }
         else{
             $form['list_settings']['custom_fields'] = array(
-              '#prefix' => '<div id="custom-fields-wrapper">'.t('No specified fields for this list.'),
+              '#prefix' => '<div id="custom-fields-wrapper">' . t('No specified fields for this list.'),
               '#suffix' => '</div>',
           );
         }
@@ -207,7 +213,7 @@ function moosend_subscriptions_form($form,&$form_state,$subscriptions = NULL){
  *  Select custom fields
  *
  */
-function moosend_subscriptions_custom_fields_callback($form,$form_state){
+function moosend_subscriptions_custom_fields_callback($form, $form_state) {
     return $form['list_settings']['custom_fields'];
 }
 
@@ -233,15 +239,15 @@ function moosend_subscriptions_form_submit($form, &$form_state) {
       }
     }
   }
-  if(!empty($values['customize_subscriptions']['page_url'])){
+  if (!empty($values['customize_subscriptions']['page_url'])) {
      $subscriptions->settings['page_url']   = $values['customize_subscriptions']['page_url'];
      menu_rebuild();
   }
   $subscriptions->settings['confirm_message'] = $values['customize_subscriptions']['confirm_message'];
   $subscriptions->settings['redirect_page'] = $values['customize_subscriptions']['redirect_page'];
-  if ($subscriptions->save()){
+  if ($subscriptions->save()) {
      drupal_set_message(t('Subscription form @label has been saved successfully.',
-      array('@label' => $subscriptions->name)),'status', FALSE);
+      array('@label' => $subscriptions->name)), 'status', FALSE);
      $form_state['redirect'] = 'admin/config/services/moosend/subscriptions';
   }
   else{
@@ -250,6 +256,6 @@ function moosend_subscriptions_form_submit($form, &$form_state) {
 }
 
 
-function moosend_subscriptions_form_delete($form, &$form_state){
+function moosend_subscriptions_form_delete($form, &$form_state) {
   $form_state['redirect'] = 'admin/config/services/moosend/subscriptions/' . $form_state['subscriptions']->identifier() . '/delete';
 }
