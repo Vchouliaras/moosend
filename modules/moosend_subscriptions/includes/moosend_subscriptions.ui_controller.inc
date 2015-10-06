@@ -3,6 +3,9 @@
 
 class MoosendSubscriptionsUIController extends EntityDefaultUIController{
 
+  //Override pager
+  public $overviewPagerLimit = MOOSEND_PAGER;
+
     /**
    * Overrides parent::hook_menu().
    */
@@ -54,7 +57,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
     $mailing_list = l($mailing_list['Name'],'https://' . $domain_prefix . '.moosend.com/',
       array(
         'attributes' => array('target' => '_blank'),
-        'fragment' => '/mailing-lists/'.$entity->list.'/view-list',
+        'fragment' => '/mailing-lists/' . $entity->list . '/view-list',
       )
     );
     $mode = NULL;
@@ -63,7 +66,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
         $mode = l(t('Block'), 'admin/structure/block');
         break;
       case MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY:
-        $mode =  l(t('Page'),$entity->settings['page_url']);
+        $mode =  l(t('Page'), $entity->settings['page_url']);
         break;
       case MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK:
         $mode = l(t('Block'), 'admin/structure/block') . ' & ' . l(t('Page'),$entity->settings['page_url']);

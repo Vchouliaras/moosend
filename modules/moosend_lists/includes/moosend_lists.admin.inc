@@ -31,10 +31,8 @@ function moosend_lists_admin_page(){
           )
         )
       );
-
       drupal_set_message($message, 'warning', FALSE);
-
-      //Render array
+      //Render Table
       return $build = array(
           'mailing_list_table' => array(
             '#theme' => 'table',
@@ -95,19 +93,29 @@ function moosend_lists_admin_page(){
       );
     }
 
+    // Initialize Pager
+    $current_page = pager_default_initialize(count($rows), MOOSEND_PAGER);
+
+    // Split list into page sized chunks
+    $chunks = array_chunk($rows, MOOSEND_PAGER, TRUE);
+
     $build = array(
         'mailing_list_table' => array(
-           '#theme' => 'table',
-           '#header' => $header,
-           '#rows' => $rows,
-          ),
+          '#theme' => 'table',
+          '#header' => $header,
+          '#rows' => $chunks[$current_page],
+        ),
         'refresh_link' => array(
           '#type' => 'markup',
           '#markup' => l(t('Refresh Mailing Lists'),
             'admin/config/services/moosend/lists/clear_cache',
             array('query' => array('destination' => 'admin/config/services/moosend/lists'))
-            )
           )
+        ),
+        'moosend_pager' => array(
+          '#theme' => 'pager',
+          '#quantity' => count($rows),
+        )
       );
 
     return $build;

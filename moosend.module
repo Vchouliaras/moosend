@@ -8,6 +8,8 @@
 */
 
 define('MOOSEND_CRON_QUEUE', 'moosend');
+define('MOOSEND_PAGER' ,15);
+
 define('NUMBER_FIELD', 0);
 define('TEXT_FIELD', 1);
 define('DATETIME_FIELD', 2);
