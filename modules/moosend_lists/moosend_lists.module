@@ -87,3 +87,51 @@ function moosend_lists_date_popup_process_alter(&$element, $form_state, $context
     unset($element['date']['#title']);
   }
 }
+
+
+/**
+ * Implements hook_action_info().
+ *
+ */
+function moosend_lists_action_info() {
+  return array(
+    '_moosend_lists_user_action' => array(
+      'type' => 'users',
+      'label' => t('Subscribe users to Moosend'),
+      'triggers' => array('user_update'),
+      'vbo_configurable' => TRUE,
+    ),
+  );
+}
+
+
+
+function _moosend_lists_user_action_form($settings, &$form_state) {
+  $form = array();
+  $form['hero'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose your super hero'),
+    '#options' => array(
+      'Iron Man' => t('Iron Man'),
+      'Bat Man' => t('Bat Man'),
+    ),
+    '#default_value' => !empty($options['hero']) ? $options['hero'] : '',
+  );
+
+  return $form;
+}
+
+
+
+function _moosend_lists_user_action_submit($form, $form_state) {
+    $return = array();
+  $return['hero'] = $form_state['values']['hero'];
+  return $return; //Note, return value here must be an array.
+}
+
+
+
+
+function _moosend_lists_user_action(&$user, $context){
+  drupal_set_message('Vasileios added');
+}

@@ -150,9 +150,6 @@ function moosend_lists_clear_cache_submit($form, &$form_state) {
 }
 
 
-
-
-
 /**
  * Menu Callback
  *
@@ -295,6 +292,7 @@ function moosend_lists_add_list_segments($form, &$form_state) {
   $form['criteria_fieldset'] = array(
     '#type' => 'fieldset',
     '#title' => t('Add Your Criteria'),
+    '#description' => t('Add criteria to specialize your Segment'),
     '#prefix' => '<div id="moosend-criteria-fieldset-wrapper">',
     '#suffix' => '</div>',
   );
@@ -321,24 +319,28 @@ function moosend_lists_add_list_segments($form, &$form_state) {
     );
 
     //if  Date Criteria Field selected
-    if(!empty($form_state['values']['criteria_fieldset']['criteria_wrapper-' . $i ]['criteria_field'][$i])) {
+    if (!empty($form_state['values']['criteria_fieldset']['criteria_wrapper-' . $i ]['criteria_field'][$i])) {
       $criteria_field = $form_state['values']['criteria_fieldset']['criteria_wrapper-' . $i ]['criteria_field'][$i];
-    }else{
+    }
+    else {
+      //set default value
       $criteria_field = 'DateAdded';
     }
 
     //Check for Date Module and set date textfield
-    if(module_exists('date_popup')) {
+    if (module_exists('date_popup')) {
       $element = array(
         '#type' => 'date_popup',
         '#date_format' => 'd/m/Y',
       );
-    }elseif(module_exists('date')){
+    }
+    elseif (module_exists('date')) {
       $element = array(
         '#type' => 'date_select',
         '#date_format' => 'd/m/Y',
       );
-    }else{
+    }
+    else {
       $element = array(
         '#type' => 'textfield',
         '#size' => 30,
@@ -347,14 +349,13 @@ function moosend_lists_add_list_segments($form, &$form_state) {
       );
     }
 
-
     if( $criteria_field === 'DateAdded')  {
-
       $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_comparer'][$i] = array(
         '#type' => 'select',
         '#title' => t('Compare'),
         '#options' => _moosend_criteria_comparer($criteria_field),
       );
+
     $form['criteria_fieldset']['criteria_wrapper-'. $i .'']['criteria_value'][$i] = array('#title' => t('Value')) + $element;
 
     } elseif($criteria_field === 'CampaignsOpened' || $criteria_field === 'LinksClicked') {
