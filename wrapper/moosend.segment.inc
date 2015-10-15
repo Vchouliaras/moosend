@@ -260,7 +260,6 @@ function _moosend_criteria_fields($append_mailing_list_fields = TRUE){
 }
 
 
-
 /**
  * [_moosend_criteria_comparer description]
  * @param  string $check_field [description]
@@ -291,7 +290,7 @@ function _moosend_criteria_comparer($check_field = 'ALL'){
           'IsLessThan','IsLessThanOrEqualTo','IsBefore','IsAfter','IsEmpty','IsNotEmpty','IsTrue','IsFalse'
       );
       break;
+    }
 
-    return drupal_map_assoc($comparer);
-  }
+  return drupal_map_assoc($comparer);
 }
