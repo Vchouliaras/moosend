@@ -17,12 +17,6 @@ define('DROPDOWN_FIELD', 3);
 define('CHECKBOX_FIELD', 5);
 
 
-module_load_include('inc', 'moosend', 'wrapper/moosend.list');
-module_load_include('inc', 'moosend', 'wrapper/moosend.segment');
-module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
-module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
-
-
 /**
  *  Implements hook_libraries_info().
  *
@@ -33,10 +27,7 @@ function moosend_libraries_info() {
     'vendor url' => 'http://moosend.com/api',
     'download url' => 'https://github.com/moosend/phpwrapper/archive/master.zip',
     'path' => 'src/moosend',
-    'version arguments' => array(
-      'file' => 'composer.json',
-      'pattern' => '/\"version": \"((\d+)\.(\d+)\.(\d+))\",/',
-    ),
+    'version' => 2,
     'files' => array(
       'php' => array(
         'MoosendApi.php' => array(),
@@ -66,11 +57,6 @@ function moosend_menu() {
     'file' => 'includes/moosend.admin.inc',
     'type' => MENU_NORMAL_ITEM,
   );
-  $items['admin/config/services/moosend/settings'] = array(
-    'title' => 'Moosend Settings',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -1,
-  );
 
   return $items;
 }
@@ -90,6 +76,12 @@ function moosend_permission() {
 }
 
 
+module_load_include('inc', 'moosend', 'wrapper/moosend.list');
+module_load_include('inc', 'moosend', 'wrapper/moosend.segment');
+module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
+module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
+
+
 /**
  * Initialize Moosend Api
  *
@@ -104,19 +96,24 @@ function initialize_moosend_api() {
   }
 
   $library = libraries_load('moosend');
+  dsm($library);
+
   if ( empty($library['installed']) || !$library['installed'] ) {
     watchdog('moosend', t('Failed to load Moosend PHP Wrapper. Please refer to README.txt'),
         NULL, WATCHDOG_ERROR);
     return FALSE;
   }
 
-  try {
-    $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key', ''));
-  } catch (Exception $e) {
-     watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
-    '%message' => $e->getMessage()),
+  if (!empty(variable_get('moosend_api_key'))) {
+    try {
+      $moosend_api = new moosend\MoosendApi(variable_get('moosend_api_key'));
+    } catch (Exception $e) {
+       watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
+      '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
+
      return FALSE;
+    }
   }
 
   return $moosend_api;
@@ -243,6 +240,5 @@ function _moosend_parse_date($date) {
 
 // vasilis
 // vasilis100
-
 // moosend
 // CaE9kcCua0Zu
