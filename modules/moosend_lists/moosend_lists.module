@@ -171,23 +171,20 @@ function moosend_lists_member_action_form($settings, &$form_state) {
         );
       }
 
-
-        $form['take_control_fb_roles_fieldset']['token_tree'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Replacement patterns'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    'global_types' => NULL,
-    '#description' => theme('token_tree', array('token_types' => array('user'))),
-    // '#weight' => 10,
-  );
-
-
+      $form['take_control_fb_roles_fieldset']['token_tree'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Replacement patterns'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        'global_types' => NULL,
+        '#description' => theme('token_tree', array('token_types' => array('user'))),
+      );
 
       $form['custom_fields_desc'] = array(
         '#prefix' => '<div class="description">' .t('Please provide some value for the fields above. Not required fields can be left blank.'),
         '#suffix' => '</div>',
       );
+
     }
     else
     {
