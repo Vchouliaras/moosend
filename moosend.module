@@ -108,7 +108,6 @@ function initialize_moosend_api() {
        watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
-
      return FALSE;
     }
   }

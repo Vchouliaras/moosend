@@ -33,7 +33,7 @@ function moosend_admin_configuration() {
   $form['moosend_cron'] = array(
     '#type' => 'checkbox',
     '#title' => 'Use Drupal cron system.',
-    '#description' => 'Use Drupal cron system to perform all operations for Moosend members (Subscribe,Unsuscribe,Remove).<i> Note: May cause confusion if caches are cleared, as requested changes will appear to have failed until cron is run.</i>',
+    '#description' => 'Leverage Drupal\'s Queue Api to operate on a large amounts of Moosend operations (Subscribe, Unsuscribe, Remove).<br/><i> Caution: May cause confusion if caches are cleared, as requested changes will appear to have failed until cron is run.</i>',
     '#default_value' => variable_get('moosend_cron', FALSE),
   );
 

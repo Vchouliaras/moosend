@@ -6,11 +6,9 @@
 *
 */
 
-
 define('MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY', 1);
 define('MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY', 2);
 define('MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK', 3);
-
 
 /**
  * Implements hook_menu().

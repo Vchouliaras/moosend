@@ -167,18 +167,18 @@ function moosend_remove_member($list_id, $email) {
  */
 function moosend_subscriber_params($email, $name, $custom_fields) {
   $member = NULL;
+  $fields = array();
   $custom_fields = !empty($custom_fields) ? $custom_fields : array();
   $member = new moosend\Models\SubscriberParams();
   $member->email = $email;
   $member->name= $name;
-  $fields = array();
   if (!empty($custom_fields)) {
     foreach ($custom_fields as $key => $field) {
       //Create fields with proper format
      $fields[] =  $key . '=' . $field;
     }
   }
-  $member->customFields = $fields;
 
+  $member->customFields = $fields;
   return $member;
 }

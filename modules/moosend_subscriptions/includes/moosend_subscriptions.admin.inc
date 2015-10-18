@@ -109,40 +109,46 @@ function moosend_subscriptions_form($form, &$form_state, $subscriptions = NULL) 
         '#group' => 'moosend_vertical_tabs',
     );
 
-    if ( !empty($form_state['values']['lists']) || isset($subscriptions->list)) {
+    //Get the Subscription List
+    if ( isset($subscriptions->list) && !isset($form_state['triggering_element']['#name'])) {
+      $selected_list_key = $subscriptions->list;
+    }
+    elseif (!empty($form_state['values']['lists'])) {
+      $selected_list_key =$form_state['values']['lists'];
+    }
+    else {
+      $selected_list_key = key($options);
+    }
 
-      $form['list_settings']['custom_fields'] = array(
-        '#type' => 'fieldset',
-        '#tree' => TRUE,
-        '#id' => 'custom-fields-wrapper',
-        '#title' => t('Custom Fields Display'),
-        '#description' => t('Select the custom fields to show on subscription  forms. Required fields are automatically selected.'),
-        '#collapsible' => TRUE,
-        '#collapsed' => FALSE,
-      );
+    $form['list_settings']['custom_fields'] = array(
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+      '#id' => 'custom-fields-wrapper',
+      '#title' => t('Custom Fields Display'),
+      '#description' => t('Select the custom fields to show on subscription  forms. Required fields are automatically selected.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
 
-      $selected_list_key = !empty($form_state['values']['lists']) ? $form_state['values']['lists'] : $subscriptions->list ;
-      $selected_list_custom_fields = moosend_get_active_list_custom_fields($selected_list_key);
-      if (!empty($selected_list_custom_fields)) {
-            foreach ($selected_list_custom_fields as $key => $field) {
-
-              $form['list_settings']['custom_fields'][$field->Name] = array(
-                '#type' => 'checkbox',
-                '#title' => check_plain($field->Name),
-                '#default_value' =>
-                (var_export($field->IsRequired, TRUE) === 'true') || isset($subscriptions->settings['custom_fields'][$field->Name])
-                  ? 1 : '',
-                '#required' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
-                '#disabled' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
-            );
-          }
-        }
-        else{
-            $form['list_settings']['custom_fields'] = array(
-              '#prefix' => '<div id="custom-fields-wrapper">' . t('No specified fields for this list.'),
-              '#suffix' => '</div>',
+    $selected_list_custom_fields = moosend_get_active_list_custom_fields($selected_list_key);
+    if (!empty($selected_list_custom_fields)) {
+          foreach ($selected_list_custom_fields as $key => $field) {
+            $form['list_settings']['custom_fields'][$field->Name] = array(
+              '#type' => 'checkbox',
+              '#title' => check_plain($field->Name),
+              '#default_value' =>
+              (var_export($field->IsRequired, TRUE) === 'true') || isset($subscriptions->settings['custom_fields'][$field->Name])
+                ? 1 : '',
+              '#required' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
+              '#disabled' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
           );
         }
+      }
+      else{
+          $form['list_settings']['custom_fields'] = array(
+            '#prefix' => '<div id="custom-fields-wrapper">' . t('No specified fields for this list.'),
+            '#suffix' => '</div>',
+        );
       }
 
      $form['customize_subscriptions'] = array(
