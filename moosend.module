@@ -40,12 +40,9 @@ function moosend_libraries_info() {
 }
 
 
-/**
- * Implements hook_menu().
- *
- */
 function moosend_menu() {
   $items = array();
+
   $items['admin/config/services/moosend'] = array(
     'title' => 'Moosend',
     'description' => 'Manage Moosend Settings.',
@@ -54,6 +51,11 @@ function moosend_menu() {
     'access arguments' => array('administer moosend'),
     'file' => 'includes/moosend.admin.inc',
     'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/services/moosend/settings'] = array(
+    'title' => 'Moosend Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -1,
   );
 
   return $items;
@@ -73,12 +75,10 @@ function moosend_permission() {
   );
 }
 
-
 module_load_include('inc', 'moosend', 'wrapper/moosend.list');
 module_load_include('inc', 'moosend', 'wrapper/moosend.segment');
 module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
 module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
-
 
 /**
  * Initialize Moosend Api
