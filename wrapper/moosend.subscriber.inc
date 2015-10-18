@@ -30,23 +30,29 @@ function _moosend_member_operations() {
   return drupal_map_assoc(array('Subscribe', 'Unsubscribe', 'Remove'));
 }
 
+
 /**
  * [moosend_pre_operate_member description]
  * @return [type] [description]
  */
 function moosend_pre_operate_member() {
-  $args = func_get_args();
+  if (count(func_get_args()) === 1) {
+    $args = func_get_args();
+    $args = reset($args);
+  } else {
+    $args = func_get_args();
+  }
   $operation_value = end($args);
-  $operation_key = key($args);
 
   if (in_array($operation_value, _moosend_member_operations())) {
     $function = strtolower('moosend_' . $operation_value . '_member');
-    unset($args[$operation_key]);
+
+    //Remove operation argument
+    array_pop($args);
 
     if (variable_get('moosend_use_cron', FALSE)) {
       return moosend_add_to_cron_queue($function, $args);
     }
-
     return call_user_func_array($function, $args);
   }
 }
@@ -139,15 +145,15 @@ function moosend_remove_member($list_id, $email) {
         array('@email' => $email, '@list' => $list_id),
         WATCHDOG_NOTICE
       );
- }
-catch (Exception $e) {
-    $status = FALSE;
-    watchdog('moosend', 'An error occurred removing @email from list @list. "%message"', array(
-      '@email' => $email,
-      '@list' => $list_id,
-      '%message' => $e->getMessage(),
-    ), WATCHDOG_ERROR);
-}
+  }
+  catch (Exception $e) {
+      $status = FALSE;
+      watchdog('moosend', 'An error occurred removing @email from list @list. "%message"', array(
+        '@email' => $email,
+        '@list' => $list_id,
+        '%message' => $e->getMessage(),
+      ), WATCHDOG_ERROR);
+  }
   return $status;
 }
 
@@ -160,18 +166,19 @@ catch (Exception $e) {
  * @return [type]                [description]
  */
 function moosend_subscriber_params($email, $name, $custom_fields) {
-    $member = NULL;
-    $custom_fields = !empty($custom_fields) ? $custom_fields : array();
-    $member = new moosend\Models\SubscriberParams();
-    $member->email = $email;
-    $member->name= $name;
-    $fields = array();
-    if (!empty($custom_fields)) {
-      foreach ($custom_fields as $key => $field) {
-       $fields[] =  $key . '=' . $field; //Create fields with proper format
-      }
+  $member = NULL;
+  $custom_fields = !empty($custom_fields) ? $custom_fields : array();
+  $member = new moosend\Models\SubscriberParams();
+  $member->email = $email;
+  $member->name= $name;
+  $fields = array();
+  if (!empty($custom_fields)) {
+    foreach ($custom_fields as $key => $field) {
+      //Create fields with proper format
+     $fields[] =  $key . '=' . $field;
     }
-    $member->customFields = $fields;
+  }
+  $member->customFields = $fields;
 
-    return $member;
+  return $member;
 }

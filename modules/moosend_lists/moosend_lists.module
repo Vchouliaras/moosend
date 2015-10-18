@@ -89,15 +89,17 @@ function moosend_lists_date_popup_process_alter(&$element, $form_state, $context
 }
 
 
+
+
 /**
  * Implements hook_action_info().
  *
  */
 function moosend_lists_action_info() {
   return array(
-    'moosend_lists_user_action' => array(
-      'type' => 'user',
-      'label' => t('Subscribe users to Moosend'),
+    'moosend_lists_member_action' => array(
+      'label' => t('Moosend operations to members'),
+      'type' => 'entity',
       'triggers' => array('any'),
       'configurable' => TRUE,
       'vbo_configurable' => TRUE,
@@ -106,32 +108,133 @@ function moosend_lists_action_info() {
 }
 
 
+/**
+ * Implements hook_views_bulk_operations_form().
+ *
+ * Configuration option for adding VBO action
+ *
+ */
+function moosend_lists_member_action_views_bulk_operations_form($options, $entity_type, $dom_id) {
 
-function moosend_lists_user_action_form($settings, &$form_state) {
-  $form = array();
-  $form['hero'] = array(
+  $operations = _moosend_member_operations();
+  $form['moosend_operation'] = array(
     '#type' => 'select',
-    '#title' => t('Choose your super hero'),
-    '#options' => array(
-      'Iron Man' => t('Iron Man'),
-      'Bat Man' => t('Bat Man'),
-    ),
-    '#default_value' => !empty($options['hero']) ? $options['hero'] : '',
+    '#title' => t('Select Moosend Operations'),
+    '#options' => $operations,
+    '#default_value' => isset($options['moosend_operation']) ? $options['moosend_operation'] : $operations[0],
+  );
+
+  $list_options = array();
+  foreach (moosend_get_active_lists_details() as $key => $list) {
+    $list_options[$key] = $list['Name'];
+  }
+
+  $form['moosend_list'] = array(
+    '#type' => 'select',
+    '#title' => t('Select Moosend Mailing List'),
+    '#options' => $list_options,
+    '#default_value' => isset($options['moosend_list']) ? $options['moosend_list'] : $list_options[0],
   );
 
   return $form;
 }
 
 
+/**
+ * An action configuration form for Moosend Operations
+ *
+ */
+function moosend_lists_member_action_form($settings, &$form_state) {
+  $form = array();
+  $list_id = $settings['settings']['moosend_list'];
+  $operation = strtolower($settings['settings']['moosend_operation']);
+  $list_custom_fields = moosend_get_active_list_custom_fields($list_id);
 
-function moosend_lists_user_action_submit($form, $form_state) {
-    $return = array();
-  $return['hero'] = $form_state['values']['hero'];
-  return $return; //Note, return value here must be an array.
+  $form['#tree'] = TRUE;
+
+  $list = moosend_get_active_lists_details(1,10, $list_id);
+  $form['mailing_list_fields'] = array(
+      '#prefix' => '<div>' . t('You have selected to perform the Moosend operation <b>@operation</b> in the mailing list "@list_name".',
+        array('@operation' => ucfirst($operation), '@list_name' => $list['Name'])),
+      '#suffix' => '</div>',
+  );
+
+ //Search for custom fields only for Subscribe operations
+ if ($operation === 'subscribe') {
+    if (!empty($list_custom_fields)) {
+        foreach ($list_custom_fields as $key => $field) {
+          $form['custom_fields'][$field->Name] = array(
+            '#type' => 'textfield',
+            '#title' => check_plain($field->Name),
+            '#required' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
+            '#disabled' => var_export($field->IsRequired, TRUE) === 'true' ? TRUE : FALSE,
+        );
+      }
+
+
+        $form['take_control_fb_roles_fieldset']['token_tree'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Replacement patterns'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    'global_types' => NULL,
+    '#description' => theme('token_tree', array('token_types' => array('user'))),
+    // '#weight' => 10,
+  );
+
+
+
+      $form['custom_fields_desc'] = array(
+        '#prefix' => '<div class="description">' .t('Please provide some value for the fields above. Not required fields can be left blank.'),
+        '#suffix' => '</div>',
+      );
+    }
+    else
+    {
+      $form['custom_fields'] = array(
+        '#prefix' => '<div id="custom-fields-wrapper">' . t('No specified fields for this list.'),
+        '#suffix' => '</div>',
+      );
+    }
+  }
+
+  return $form;
 }
 
 
+/**
+ *  Submit Callback
+ *
+ */
+function moosend_lists_member_action_submit($form, &$form_state) {
+  return $form_state['values'];
+}
 
-function moosend_lists_user_action(&$user, $context){
-  drupal_set_message('Vasileios added');
+
+/**
+ * [moosend_lists_member_action description]
+ * @param  [type] &$entity [description]
+ * @param  [type] $context [description]
+ * @return [type]          [description]
+ */
+function moosend_lists_member_action(&$entity, $context) {
+  if ($context['entity_type'] == 'user') {
+    if ($context['settings']['moosend_operation'] == 'Subscribe') {
+      $args = array(
+        $context['settings']['moosend_list'],
+        $entity->mail,
+        $entity->name,
+        $context['custom_fields'],
+        $context['settings']['moosend_operation']
+      );
+    }
+    else {
+      $args = array(
+        $context['settings']['moosend_list'],
+        $entity->mail,
+        $context['settings']['moosend_operation']
+      );
+    }
+    moosend_pre_operate_member($args);
+  }
 }

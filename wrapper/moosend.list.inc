@@ -23,7 +23,9 @@ function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id =
         $lists_details[$id] = cache_get('list-' . $id, 'cache_moosend')->data;
       }
       return !empty($list_id) ? $lists_details[$list_id] : $lists_details ;
-     } else {
+     }
+     else
+      {
         moosend_get_active_lists_details($page, $page_size, $list_id, FALSE);
      }
   }
