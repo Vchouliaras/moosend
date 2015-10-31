@@ -52,11 +52,6 @@ function moosend_menu() {
     'file' => 'includes/moosend.admin.inc',
     'type' => MENU_NORMAL_ITEM,
   );
-  $items['admin/config/services/moosend/settings'] = array(
-    'title' => 'Moosend Settings',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -1,
-  );
 
   return $items;
 }
@@ -79,6 +74,12 @@ module_load_include('inc', 'moosend', 'wrapper/moosend.list');
 module_load_include('inc', 'moosend', 'wrapper/moosend.segment');
 module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
 module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
+
+module_load_include('inc', 'moosend', 'wrapper/moosend.list');
+module_load_include('inc', 'moosend', 'wrapper/moosend.segment');
+module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
+module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
+
 
 /**
  * Initialize Moosend Api
@@ -108,6 +109,7 @@ function initialize_moosend_api() {
        watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
+
      return FALSE;
     }
   }
