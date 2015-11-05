@@ -58,8 +58,6 @@ function _moosend_drush_download_wrapper() {
 
   // Build full path including filename
   $path = _moosend_build_path($dir);
-  drupal_set_message($path, 'status', FALSE);
-  return;
 
   // If the directory exists and contains a recognized file, we're finished.
   if (file_exists($path)) {
