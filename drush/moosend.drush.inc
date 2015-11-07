@@ -85,9 +85,12 @@ function _moosend_drush_download_wrapper() {
 
 
 /**
- * [_moosend_build_path description]
- * @param  [type] $dir [description]
- * @return [type]      [description]
+ * Helper to get full library path
+ *
+ * @param
+ *   string $dir
+ * @return
+ *   string
  */
 function _moosend_build_path($dir) {
   return drush_trim_path($dir) . drush_normalize_path('/src/moosend/moosendAPI.php');
