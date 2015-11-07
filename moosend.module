@@ -8,7 +8,7 @@
 */
 
 define('MOOSEND_CRON_QUEUE', 'moosend');
-define('MOOSEND_PAGER' ,15);
+define('MOOSEND_PAGER', 15);
 define('NUMBER_FIELD', 0);
 define('TEXT_FIELD', 1);
 define('DATETIME_FIELD', 2);
@@ -104,7 +104,7 @@ function initialize_moosend_api() {
   $library = libraries_load('moosend');
 
   if ( empty($library['installed']) || !$library['installed'] ) {
-    watchdog('moosend', t('Failed to load Moosend PHP Wrapper. Please refer to README.txt'),
+    watchdog('moosend', 'Failed to load Moosend PHP Wrapper. Please refer to README.txt',
         NULL, WATCHDOG_ERROR);
     return FALSE;
   }

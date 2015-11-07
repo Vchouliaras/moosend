@@ -39,7 +39,8 @@ function moosend_pre_operate_member() {
   if (count(func_get_args()) === 1) {
     $args = func_get_args();
     $args = reset($args);
-  } else {
+  }
+  else {
     $args = func_get_args();
   }
   $operation_value = end($args);

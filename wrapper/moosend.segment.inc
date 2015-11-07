@@ -9,22 +9,22 @@
 
 /**
  * [moosend_get_list_segments description]
- * @param  [type] $mailingListID [description]
+ * @param  [type] $mailing_list_id [description]
  * @return [type]                [description]
  */
-function moosend_get_list_segments($mailingListID){
+function moosend_get_list_segments($mailing_list_id) {
   $segments = array();
   try {
     $moosend_api_key = initialize_moosend_api();
-    $segmentsResponse = $moosend_api_key->segments->getSegments($mailingListID);
-    foreach ($segmentsResponse as $key => $segment) {
+    $segments_response = $moosend_api_key->segments->getSegments($mailing_list_id);
+    foreach ($segments_response as $key => $segment) {
       $segments[$key]['id'] = $segment->getID();
       $segments[$key]['name'] = $segment->getName();
     }
   }
   catch (Exception $e) {
     watchdog('moosend', 'An error occurred getting segments for list @list. "%message"', array(
-      '@list' => $mailingListID,
+      '@list' => $mailing_list_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
   }
@@ -35,19 +35,19 @@ function moosend_get_list_segments($mailingListID){
 
 /**
  * [moosend_get_list_segment_details description]
- * @param  [type] $mailingListID [description]
- * @param  [type] $segmentID     [description]
+ * @param  [type] $mailing_list_id [description]
+ * @param  [type] $segment_id     [description]
  * @return [type]                [description]
  */
-function moosend_get_list_segment_details($mailingListID, $segmentID){
+function moosend_get_list_segment_details($mailing_list_id, $segment_id) {
   $segment_details = array();
   $criteria = array();
   try {
     $moosend_api_key = initialize_moosend_api();
-    $segmentDetailsResponse = $moosend_api_key->segments->getDetails($mailingListID, $segmentID);
-    $segment_details['id'] = $segmentDetailsResponse->getID();
-    $segment_details['name'] = $segmentDetailsResponse->getName();
-    foreach ($segmentDetailsResponse->getCriteria() as $key => $value) {
+    $segment_details_response = $moosend_api_key->segments->getDetails($mailing_list_id, $segment_id);
+    $segment_details['id'] = $segment_details_response->getID();
+    $segment_details['name'] = $segment_details_response->getName();
+    foreach ($segment_details_response->getCriteria() as $key => $value) {
       $criteria[$key]['id'] = $value->getID();
       $criteria[$key]['segment_id'] = $value->getSegmentID();
       $criteria[$key]['field'] = $value->getField();
@@ -60,15 +60,15 @@ function moosend_get_list_segment_details($mailingListID, $segmentID){
       $criteria[$key]['properties'] = $value->getProperties();
     }
     $segment_details['criteria'] = $criteria;
-    $segment_details['match_type'] = $segmentDetailsResponse->getMatchType();
-    $segment_details['created_by'] = $segmentDetailsResponse->getCreatedBy();
-    $segment_details['created_on'] = _moosend_parse_date($segmentDetailsResponse->getCreatedOn());
-    $segment_details['updated_by'] = $segmentDetailsResponse->getUpdatedBy();
-    $segment_details['updated_on'] = _moosend_parse_date($segmentDetailsResponse->getUpdatedOn());
+    $segment_details['match_type'] = $segment_details_response->getMatchType();
+    $segment_details['created_by'] = $segment_details_response->getCreatedBy();
+    $segment_details['created_on'] = _moosend_parse_date($segment_details_response->getCreatedOn());
+    $segment_details['updated_by'] = $segment_details_response->getUpdatedBy();
+    $segment_details['updated_on'] = _moosend_parse_date($segment_details_response->getUpdatedOn());
   }
   catch (Exception $e) {
     watchdog('moosend', 'An error occurred getting segment details for ID@segmentID. "%message"', array(
-      '@segmentID' => $segmentID,
+      '@segmentID' => $segment_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
   }
@@ -79,21 +79,21 @@ function moosend_get_list_segment_details($mailingListID, $segmentID){
 
 /**
  * [moosend_get_list_segment_subscribers description]
- * @param  [type]  $mailingListID [description]
- * @param  [type]  $segmentID     [description]
+ * @param  [type]  $mailing_list_id [description]
+ * @param  [type]  $segment_id     [description]
  * @param  string  $status        [description]
  * @param  integer $page          [description]
  * @param  integer $pagesize      [description]
  * @return [type]                 [description]
  */
-function moosend_get_list_segment_subscribers($mailingListID, $segmentID, $status = 'Subscribed', $page = 1, $pagesize = 500 ){
+function moosend_get_list_segment_subscribers($mailing_list_id, $segment_id, $status = 'Subscribed', $page = 1, $pagesize = 500 ) {
   $subscribers = NULL;
   try {
     $moosend_api_key = initialize_moosend_api();
-    $subscribers = $moosend_api_key->segments->getSubscribers($mailingListID, $segmentID, $status, $page, $pagesize);
+    $subscribers = $moosend_api_key->segments->getSubscribers($mailing_list_id, $segment_id, $status, $page, $pagesize);
   } catch (Exception $e) {
     watchdog('moosend', 'An error occurred getting subscribers for Segment ID @segmentID. "%message"', array(
-      '@segmentID' => $segmentID,
+      '@segmentID' => $segment_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
   }
@@ -103,53 +103,53 @@ function moosend_get_list_segment_subscribers($mailingListID, $segmentID, $statu
 
 /**
  * [moosend_create_segment description]
- * @param  [type] $mailingListID [description]
+ * @param  [type] $mailing_list_id [description]
  * @param  [type] $name          [description]
- * @param  string $matchType     [description]
+ * @param  string $match_type     [description]
  * @return [type]                [description]
  */
-function moosend_create_segment($mailingListID, $name, $matchType = 'All'){
-  $createSegmentResponse = NULL;
+function moosend_create_segment($mailing_list_id, $name, $match_type = 'All') {
+  $create_segment_response = NULL;
   try {
     $moosend_api_key = initialize_moosend_api();
-    $createSegmentResponse = $moosend_api_key->segments->create($mailingListID, $name, $matchType);
+    $create_segment_response = $moosend_api_key->segments->create($mailing_list_id, $name, $match_type);
     watchdog('moosend', 'Segment  "@name" was created for list @list.',
-      array('@name' => $name, '@list' => $mailingListID),
+      array('@name' => $name, '@list' => $mailing_list_id),
       WATCHDOG_NOTICE);
   }
   catch (Exception $e) {
     watchdog('moosend', 'An error occurred creating "@name" for list @list. "%message"', array(
       '@name' => $name,
-      '@list' => $mailingListID,
+      '@list' => $mailing_list_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
   }
 
-  return $createSegmentResponse;
+  return $create_segment_response;
 }
 
 
 /**
  * [moosend_update_segment description]
- * @param  [type] $mailingListID [description]
+ * @param  [type] $mailing_list_id [description]
  * @param  [type] $name          [description]
- * @param  [type] $matchType     [description]
+ * @param  [type] $match_type     [description]
  * @return [type]                [description]
  */
-function moosend_update_segment($mailingListID, $name, $matchType){
+function moosend_update_segment($mailing_list_id, $name, $match_type) {
   $status = TRUE;
   try {
     $moosend_api_key = initialize_moosend_api();
-    $updateSegmentResponse = $moosend_api_key->segments->update($mailingListID, $name, $matchType);
+    $update_segment_response = $moosend_api_key->segments->update($mailing_list_id, $name, $match_type);
     watchdog('moosend', 'Segment  "@name" was updated for list @list.',
-      array('@name' => $name, '@list' => $mailingListID),
+      array('@name' => $name, '@list' => $mailing_list_id),
       WATCHDOG_NOTICE);
   }
   catch (Exception $e) {
     $status = FALSE;
     watchdog('moosend', 'An error occurred updating "@name" for list @list. "%message"', array(
       '@name' => $name,
-      '@list' => $mailingListID,
+      '@list' => $mailing_list_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
   }
@@ -160,24 +160,24 @@ function moosend_update_segment($mailingListID, $name, $matchType){
 
 /**
  * [moosend_delete_segment description]
- * @param  [type] $mailingListID [description]
- * @param  [type] $segmentID     [description]
+ * @param  [type] $mailing_list_id [description]
+ * @param  [type] $segment_id     [description]
  * @return [type]                [description]
  */
-function moosend_delete_segment($mailingListID, $segmentID){
+function moosend_delete_segment($mailing_list_id, $segment_id) {
   $status = TRUE;
   try {
     $moosend_api_key = initialize_moosend_api();
     $segments_ids = array();
 
-    foreach (moosend_get_list_segments($mailingListID) as $segment) {
+    foreach (moosend_get_list_segments($mailing_list_id) as $segment) {
         $segments_ids[] = $segment['id'];
     }
 
-    if(in_array($segmentID, $segments_ids)){
-      $deleteSegmentResponse = $moosend_api_key->segments->delete($mailingListID, $segmentID);
+    if (in_array($segment_id, $segments_ids)) {
+      $delete_segment_response = $moosend_api_key->segments->delete($mailing_list_id, $segment_id);
       watchdog('moosend', 'Segment  "@id" was deleted for list @list.',
-        array('@name' => $segmentID, '@list' => $mailingListID),
+        array('@name' => $segment_id, '@list' => $mailing_list_id),
         WATCHDOG_NOTICE);
       }
   }
@@ -185,7 +185,7 @@ function moosend_delete_segment($mailingListID, $segmentID){
     $status = FALSE;
     watchdog('moosend', 'An error occurred deleting "@name" for list @list. "%message"', array(
       '@name' => $name,
-      '@list' => $mailingListID,
+      '@list' => $mailing_list_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
   }
@@ -197,32 +197,32 @@ function moosend_delete_segment($mailingListID, $segmentID){
 
 /**
  * [moosend_add_criteria_to_segment description]
- * @param  [type] $mailingListID [description]
- * @param  [type] $segmentID     [description]
+ * @param  [type] $mailing_list_id [description]
+ * @param  [type] $segment_id     [description]
  * @param  [type] $field         [description]
  * @param  [type] $comparer      [description]
  * @param  [type] $value         [description]
- * @param  [type] $dateFrom      [description]
- * @param  [type] $dateTo        [description]
+ * @param  [type] $date_from      [description]
+ * @param  [type] $date_to        [description]
  * @return [type]                [description]
  */
-function moosend_add_criteria_to_segment($mailingListID, $segmentID, $field, $comparer, $value, $dateFrom = NULL, $dateTo = NULL){
+function moosend_add_criteria_to_segment($mailing_list_id, $segment_id, $field, $comparer, $value, $date_from = NULL, $date_to = NULL) {
     $status = TRUE;
     $error_message = NULL;
     try {
       $moosend_api_key = initialize_moosend_api();
-      $moosend_api_key->segments->addCriteria($mailingListID, $segmentID, $field, $comparer, $value, $dateFrom, $dateTo);
+      $moosend_api_key->segments->addCriteria($mailing_list_id, $segment_id, $field, $comparer, $value, $date_from, $date_to);
 
       watchdog('moosend', 'A new Criteria added to segment "@segment_id" for list @list.',
-        array('@segment_id' => $segmentID, '@list' => $mailingListID),
+        array('@segment_id' => $segment_id, '@list' => $mailing_list_id),
         WATCHDOG_NOTICE);
 
     } catch (Exception $e) {
       $status = FALSE;
 
       watchdog('moosend', 'An error occurred adding criteria to segment "@segment_id" for list @list. "%message"', array(
-      '@segment_id' => $segmentID,
-      '@list' => $mailingListID,
+      '@segment_id' => $segment_id,
+      '@list' => $mailing_list_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
       $error_message = $e->getMessage();
@@ -239,20 +239,21 @@ function moosend_add_criteria_to_segment($mailingListID, $segmentID, $field, $co
  * @param  boolean $append_mailing_list_fields [description]
  * @return [type]                              [description]
  */
-function _moosend_criteria_fields($append_mailing_list_fields = TRUE){
+function _moosend_criteria_fields($append_mailing_list_fields = TRUE) {
 
   $criteria_fields = array( 'Custom Fields' =>
-      drupal_map_assoc(array('DateAdded','RecipientName','RecipientEmail','CampaignsOpened','LinksClicked','CampaignName','LinkURL')),
+      drupal_map_assoc(array('DateAdded', 'RecipientName', 'RecipientEmail', 'CampaignsOpened', 'LinksClicked', 'CampaignName', 'LinkURL')),
     );
 
-  if($append_mailing_list_fields){
+  if ($append_mailing_list_fields) {
     foreach (moosend_get_active_lists_details() as $key => $list) {
-      foreach(moosend_get_active_list_custom_fields($key) as $field){
+      foreach (moosend_get_active_list_custom_fields($key) as $field) {
         $custom_fields[$field->ID] = $field->Name;
       }
-      if(!empty($custom_fields)) {
-        $criteria_fields['"'.$list['Name'] . '" Mailing List' ] = $custom_fields;
+      if (!empty( $custom_fields)) {
+        $criteria_fields['"' . $list['Name'] . '" Mailing List' ] = $custom_fields;
       }
+
     }
   }
 
@@ -265,29 +266,29 @@ function _moosend_criteria_fields($append_mailing_list_fields = TRUE){
  * @param  string $check_field [description]
  * @return [type]              [description]
  */
-function _moosend_criteria_comparer($check_field = 'ALL'){
+function _moosend_criteria_comparer($check_field = 'ALL') {
   switch ($check_field) {
     case 'DateAdded':
-      $comparer = array('Is','IsNot','IsBefore','IsAfter');
+      $comparer = array('Is', 'IsNot', 'IsBefore', 'IsAfter');
       break;
     case 'RecipientName':
     case 'RecipientEmail':
-      $comparer = array('Is','IsNot','Contains','DoesNotContain','StartsWith','DoesNotStartWith','EndsWith','DoesNotEndWith','IsEmpty','IsNotEmpty');
+      $comparer = array('Is', 'IsNot', 'Contains', 'DoesNotContain', 'StartsWith', 'DoesNotStartWith', 'EndsWith', 'DoesNotEndWith', 'IsEmpty', 'IsNotEmpty');
       break;
     case 'CampaignName':
-      $comparer = array('Is','IsNot','Contains','DoesNotContain','StartsWith','DoesNotStartWith','EndsWith','DoesNotEndWith');
+      $comparer = array('Is', 'IsNot', 'Contains', 'DoesNotContain', 'StartsWith', 'DoesNotStartWith', 'EndsWith', 'DoesNotEndWith');
       break;
     case 'CampaignsOpened':
     case 'LinksClicked':
-      $comparer = array('Is','IsNot','IsGreaterThan','IsGreaterThanOrEqualTo','IsLessThan','IsLessThanOrEqualTo');
+      $comparer = array('Is', 'IsNot', 'IsGreaterThan', 'IsGreaterThanOrEqualTo', 'IsLessThan', 'IsLessThanOrEqualTo');
       break;
     case 'LinkURL':
-      $comparer = array('Is','IsNot');
+      $comparer = array('Is', 'IsNot');
       break;
     default:
-      $comparer = array('Is','IsNot','Contains','DoesNotContain','StartsWith',
-          'DoesNotStartWith','EndsWith','DoesNotEndWith','IsGreaterThan','IsGreaterThanOrEqualTo',
-          'IsLessThan','IsLessThanOrEqualTo','IsBefore','IsAfter','IsEmpty','IsNotEmpty','IsTrue','IsFalse'
+      $comparer = array('Is', 'IsNot', 'Contains', 'DoesNotContain', 'StartsWith',
+          'DoesNotStartWith', 'EndsWith', 'DoesNotEndWith', 'IsGreaterThan', 'IsGreaterThanOrEqualTo',
+           'IsLessThan', 'IsLessThanOrEqualTo', 'IsBefore', 'IsAfter', 'IsEmpty', 'IsNotEmpty', 'IsTrue', 'IsFalse'
       );
       break;
     }

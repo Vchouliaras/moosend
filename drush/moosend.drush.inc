@@ -6,13 +6,13 @@
  *
  */
 
-define(MOOSEND_WRAPPER_LINK,'https://github.com/moosend/phpwrapper/archive/master.zip');
+define(MOOSEND_WRAPPER_LINK, 'https://github.com/moosend/phpwrapper/archive/master.zip');
 
 /**
  *  Implements hook_drush_command().
  *
  */
-function moosend_drush_command(){
+function moosend_drush_command() {
   $items = array();
 
   $items['moosend'] = array(
@@ -76,7 +76,8 @@ function _moosend_drush_download_wrapper() {
         drush_delete_dir('phpwrapper-master');
         drush_delete_dir('moosend.zip');
         drush_log(dt('Drush download Moosend PHP Wrapper to @path', array('@path' => $dir)), 'success');
-      } else {
+      }
+      else {
         drush_log(dt('Drush was unable to download Moosend PHP Wrapper  to @path', array('@path' => $dir)), 'error');
       }
     }

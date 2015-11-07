@@ -10,12 +10,12 @@
  * [moosend_get_campaings description]
  * @param  integer $page       [description]
  * @param  integer $page_size  [description]
- * @param  string  $sortBy     [description]
- * @param  string  $SortMethod [description]
+ * @param  string  $sort_by     [description]
+ * @param  string  $sort_method [description]
  * @param  boolean $cache      [description]
  * @return [type]              [description]
  */
-function moosend_get_campaings($page = 1, $page_size = 100, $sortBy = 'CreatedOn', $SortMethod = 'ASC', $cache = TRUE) {
+function moosend_get_campaings($page = 1, $page_size = 100, $sort_by = 'CreatedOn', $sort_method = 'ASC', $cache = TRUE) {
   $campaings_details = $campaings_ids = array();
 
   if ($cache) {
@@ -26,13 +26,14 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sortBy = 'CreatedOn
     }
 
     return $campaings_details;
-    } else {
-      moosend_get_campaings($page, $page_size, $sortBy, $SortMethod, FALSE);
+    }
+    else {
+      moosend_get_campaings($page, $page_size, $sort_by, $sort_method, FALSE);
     }
   }
   try {
-      $moosendApiKey = initialize_moosend_api();
-      $campaigns = $moosendApiKey->campaigns->getCampaigns($page, $page_size, $sortBy, $SortMethod);
+      $moosend_api_key = initialize_moosend_api();
+      $campaigns = $moosend_api_key->campaigns->getCampaigns($page, $page_size, $sort_by, $sort_method);
       if (!empty($campaigns)) {
         cache_clear_all('campaign', 'cache_moosend', TRUE);
         foreach ($campaigns as $campaign) {
@@ -84,11 +85,11 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sortBy = 'CreatedOn
  * [moosend_get_active_senders description]
  * @return [type] [description]
  */
-function moosend_get_active_senders(){
+function moosend_get_active_senders() {
   $moosend_senders = array();
   try {
-      $moosendApiKey = initialize_moosend_api();
-      $senders = $moosendApiKey->campaigns->getAllSenders();
+      $moosend_api_key = initialize_moosend_api();
+      $senders = $moosend_api_key->campaigns->getAllSenders();
       foreach ($senders as $key => $sender) {
         $moosend_senders[$sender_id]['ID'] = $sender_id = $sender->getID();
         $moosend_senders[$sender_id]['Name'] = $sender->getName();
@@ -117,8 +118,8 @@ function moosend_get_active_senders(){
 function moosend_delete_campaign($campaign_id) {
   $status = TRUE;
   try {
-    $moosendApiKey = initialize_moosend_api();
-    $campaign_deleted = $moosendApiKey->campaigns->delete($campaign_id);
+    $moosend_api_key = initialize_moosend_api();
+    $campaign_deleted = $moosend_api_key->campaigns->delete($campaign_id);
     $campaigns = moosend_get_campaings();
       watchdog('moosend', 'Campaing "@Name" was deleted succefully.',
       array('@Name' => $campaigns[$campaign_id]['Name']),
@@ -141,20 +142,20 @@ function moosend_delete_campaign($campaign_id) {
  * @param  [type] $params [description]
  * @return [type]         [description]
  */
-function moosend_create_campaign_draft($params){
+function moosend_create_campaign_draft($params) {
   $draft_id = '';
   if (!empty($params) && is_array($params)) {
     try{
       $moosend_api_key = initialize_moosend_api();
-      $draftParams = new moosend\Models\CampaignParams();
+      $draft_params = new moosend\Models\CampaignParams();
       foreach ($params as $key => $value) {
-        $draftParams->{$key} = $value;
+        $draft_params->{$key} = $value;
       }
-      $draft_id = $moosend_api_key->campaigns->createDraft($draftParams);
+      $draft_id = $moosend_api_key->campaigns->createDraft($draft_params);
     }
     catch (Exception $e) {
     watchdog('moosend', 'An error occurred creating draft Campaing "@Name". "%message"',
-      array('@Name' => $draftParams->Name,
+      array('@Name' => $draft_params->Name,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
     }
@@ -167,7 +168,7 @@ function moosend_create_campaign_draft($params){
  * @param  [type] $code [description]
  * @return [type]       [description]
  */
-function moosend_get_campaign_status_name($code){
+function moosend_get_campaign_status_name($code) {
   $status = NULL;
   switch ($code) {
     case CAMPAIGN_DRAFT:

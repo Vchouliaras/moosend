@@ -14,7 +14,7 @@
  * @param  boolean $cache     [description]
  * @return [type]             [description]
  */
-function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id = NULL, $cache = TRUE){
+function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id = NULL, $cache = TRUE) {
   $lists_details = $lists_ids = array();
   if ($cache) {
      if (!empty(cache_get('lists', 'cache_moosend'))) {
@@ -24,26 +24,25 @@ function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id =
       }
       return !empty($list_id) ? $lists_details[$list_id] : $lists_details ;
      }
-     else
-      {
+     else {
         moosend_get_active_lists_details($page, $page_size, $list_id, FALSE);
      }
   }
   try {
-      $moosendApiKey = initialize_moosend_api();
-      $activeMailingLists = $moosendApiKey->mailingLists->getActiveMailingLists($page, $page_size);
-      if (!empty($activeMailingLists)) {
-        foreach ($activeMailingLists as $activeMailingList) {
-          $lists_details[$mailing_list_id]['ID'] = $mailing_list_id = $activeMailingList->getID();
-          $lists_details[$mailing_list_id]['Name'] =  $activeMailingList->getName();
-          $lists_details[$mailing_list_id]['ActiveMemberCount'] =  $activeMailingList->getActiveMemberCount();
-          $lists_details[$mailing_list_id]['BouncedMemberCount'] =  $activeMailingList->getBouncedMemberCount();
-          $lists_details[$mailing_list_id]['RemovedMemberCount'] =  $activeMailingList->getRemovedMemberCount();
-          $lists_details[$mailing_list_id]['UnsubscribedMemberCount'] =  $activeMailingList->getUnsubscribedMemberCount();
-          $lists_details[$mailing_list_id]['Status'] =  $activeMailingList->getStatus();
-          $lists_details[$mailing_list_id]['CreatedOn'] =  $activeMailingList->getCreatedOn();
-          $lists_details[$mailing_list_id]['UpdatedOn'] =  $activeMailingList->getUpdatedOn();
-          foreach ($activeMailingList->getCustomFieldsDefinition() as $key => $field) {
+      $moosend_api_key = initialize_moosend_api();
+      $active_mailing_lists = $moosend_api_key->mailingLists->getActiveMailingLists($page, $page_size);
+      if (!empty($active_mailing_lists)) {
+        foreach ($active_mailing_lists as $active_mailing_list) {
+          $lists_details[$mailing_list_id]['ID'] = $mailing_list_id = $active_mailing_list->getID();
+          $lists_details[$mailing_list_id]['Name'] =  $active_mailing_list->getName();
+          $lists_details[$mailing_list_id]['ActiveMemberCount'] =  $active_mailing_list->getActiveMemberCount();
+          $lists_details[$mailing_list_id]['BouncedMemberCount'] =  $active_mailing_list->getBouncedMemberCount();
+          $lists_details[$mailing_list_id]['RemovedMemberCount'] =  $active_mailing_list->getRemovedMemberCount();
+          $lists_details[$mailing_list_id]['UnsubscribedMemberCount'] =  $active_mailing_list->getUnsubscribedMemberCount();
+          $lists_details[$mailing_list_id]['Status'] =  $active_mailing_list->getStatus();
+          $lists_details[$mailing_list_id]['CreatedOn'] =  $active_mailing_list->getCreatedOn();
+          $lists_details[$mailing_list_id]['UpdatedOn'] =  $active_mailing_list->getUpdatedOn();
+          foreach ($active_mailing_list->getCustomFieldsDefinition() as $key => $field) {
             $lists_details[$mailing_list_id]['CustomFieldsDefinition'][$key] = (object)(array)$field; //Cast to stdClass object
           }
           cache_clear_all('list-' . $mailing_list_id, 'cache_moosend');
@@ -67,10 +66,10 @@ function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id =
  * @param  boolean $cache   [description]
  * @return [type]           [description]
  */
-function moosend_get_active_list_custom_fields($list_id, $cache = TRUE){
+function moosend_get_active_list_custom_fields($list_id, $cache = TRUE) {
   $fields = array();
   $active_list = moosend_get_active_lists_details(1, 10, $list_id, $cache);
-  if(isset($active_list['CustomFieldsDefinition'])){
+  if (isset($active_list['CustomFieldsDefinition'])) {
     foreach ($active_list['CustomFieldsDefinition'] as $key => $field) {
       $fields[$field->Name] = (object)(array)$field; //Cast to stdClass object
     }
@@ -87,26 +86,25 @@ function moosend_get_active_list_custom_fields($list_id, $cache = TRUE){
  * @return [type]           [description]
  *
  */
-function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FALSE ){
+function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FALSE ) {
 
   $subscribers = array();
   $since = isset($since) ? new DateTime($since) : NULL;
 
   if ( !strlen($list_id) ) {
-    $msg = t('An error occurred requesting subscribers. "List ID can not be blank"');
-    watchdog('moosend',$msg, NULL, WATCHDOG_ERROR);
+    watchdog('moosend', 'An error occurred requesting subscribers. List ID can not be blank', NULL, WATCHDOG_ERROR);
     return NULL;
   }
 
   if ($cache) {
-    $subscribers = cache_get($list_id . '-subscribers','cache_moosend')->data;
+    $subscribers = cache_get($list_id . '-subscribers', 'cache_moosend')->data;
     return $subscribers;
   }
 
-  $moosendApi = initialize_moosend_api();
+  $moosend_api = initialize_moosend_api();
 
   try {
-    $members = $moosendApi->mailingLists->getSubscribers($list_id,'Subscribed',$since);
+    $members = $moosend_api->mailingLists->getSubscribers($list_id, 'Subscribed', $since);
     foreach ($members as $key => $subscriber) {
       $subscribers[$key]['name'] =  empty($subscriber->getName()) ?  t('Anonymous') : $subscriber->getName();
       $subscribers[$key]['email'] =  $subscriber->getEmail();
@@ -127,16 +125,16 @@ function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FA
 /**
  * [moosend_create_mailing_list description]
  * @param  [type] $name                         [description]
- * @param  [type] $confirmationPage             [description]
- * @param  [type] $redirectAfterUnsubscribePage [description]
+ * @param  [type] $confirmation_page             [description]
+ * @param  [type] $redirect_after_unsubscribe_page [description]
  * @return [type]                               [description]
  */
-function moosend_create_mailing_list($name,$confirmationPage = NULL, $redirectAfterUnsubscribePage = NULL){
+function moosend_create_mailing_list($name, $confirmation_page = NULL, $redirect_after_unsubscribe_page = NULL) {
    try {
 
-    $moosendApiKey = initialize_moosend_api();
+    $moosend_api_key = initialize_moosend_api();
 
-    $new_list_id = $moosendApiKey->mailingLists->create($name, $confirmationPage, $redirectAfterUnsubscribePage);
+    $new_list_id = $moosend_api_key->mailingLists->create($name, $confirmation_page, $redirect_after_unsubscribe_page);
     watchdog('moosend', 'A new Mailing List with name "@name" was created',
         array('@name' => $name),
         WATCHDOG_NOTICE
@@ -157,11 +155,11 @@ function moosend_create_mailing_list($name,$confirmationPage = NULL, $redirectAf
  * @param  [type] $list_id [description]
  * @return [type]          [description]
  */
-function moosend_delete_mailing_list($list_id){
+function moosend_delete_mailing_list($list_id) {
     $status = TRUE;
     try {
-    $moosendApiKey = initialize_moosend_api();
-    $moosendApiKey->mailingLists->delete($list_id);
+    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key->mailingLists->delete($list_id);
     watchdog('moosend', 'Mailing List with ID "@ID" deleted',
         array('@ID' => $list_id),
         WATCHDOG_NOTICE
