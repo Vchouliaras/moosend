@@ -345,7 +345,7 @@ function moosend_lists_add_list_segments($form, &$form_state) {
         '#type' => 'textfield',
         '#size' => 30,
         '#maxlength' => 100,
-        '#description' => t('eg. @current_date', array('@current_day' => date('d/m/Y'))),
+        '#description' => t('eg. @current_date', array('@current_date' => date('d/m/Y'))),
       );
     }
 
