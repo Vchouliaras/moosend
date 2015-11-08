@@ -92,5 +92,5 @@ function _moosend_drush_download_wrapper() {
  * @return  string
  */
 function _moosend_build_path($dir) {
-  return drush_trim_path($dir) . drush_normalize_path('/src/moosend/MoosendAPI.php');
+  return drush_trim_path($dir) . drush_normalize_path('/src/moosend/MoosendApi.php');
 }
