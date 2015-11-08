@@ -2,17 +2,17 @@
 
 /**
 * @file
-*  Provides basic functionality for Moosend Subscriptions.
 *
+*  Provides basic functionality for Moosend Subscriptions.
 */
 
 define('MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY', 1);
 define('MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY', 2);
 define('MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK', 3);
 
+
 /**
  * Implements hook_menu().
- *
  */
 function moosend_subscriptions_menu() {
   $items = array();
@@ -108,7 +108,7 @@ function moosend_subscriptions_permission() {
  *
  */
 function moosend_subscriptions_access_callback($op, $subscriptions = NULL, $account = NULL) {
-  if (initialize_moosend_api()) {
+  if (moosend_initialize_api()) {
     if (user_access('administer moosend subscriptions', $account) && user_access('administer moosend', $account)) {
       return TRUE;
     }
@@ -176,7 +176,6 @@ function moosend_subscriptions_block_info() {
 
 /**
  * Implements hook_block_view().
- *
  */
 function moosend_subscriptions_block_view($delta = '') {
   $subscription = moosend_subscriptions_load($delta);
@@ -193,7 +192,6 @@ function moosend_subscriptions_block_view($delta = '') {
 
 /**
  * Menu callback for Moosend Subscriptions form page.
- *
  */
 function moosend_subscriptions_form_page($id) {
   $subscription = moosend_subscriptions_load($id);
@@ -203,7 +201,6 @@ function moosend_subscriptions_form_page($id) {
 
 /**
  * Implements hook_forms().
- *
  */
 function moosend_subscriptions_forms($form_id, $args) {
   $forms = array();
@@ -225,7 +222,6 @@ function moosend_subscriptions_forms($form_id, $args) {
 
 /**
  * Returns a subscription form for Moosend Lists
- *
  */
 function moosend_subscriptions_form_factory($form, &$form_state, $subscription, $mode) {
     global $conf;
@@ -262,8 +258,7 @@ function moosend_subscriptions_form_factory($form, &$form_state, $subscription, 
 
 
 /**
- * Validation handler for moosend_subscriptions_form_factory
- *
+ * Validation handler for moosend_subscriptions_form_factory().
  */
 function moosend_subscriptions_form_factory_validate($form, &$form_state) {
   if ($form_state['values']['email'] && !valid_email_address($form_state['values']['email'])) {
@@ -272,8 +267,7 @@ function moosend_subscriptions_form_factory_validate($form, &$form_state) {
 }
 
 /**
- * Submit handler moosend_subscriptions_form_factory
- *
+ * Submit handler moosend_subscriptions_form_factory().
  */
 function moosend_subscriptions_form_factory_submit($form, &$form_state) {
   $subscriptions = reset($form_state['build_info']['args']);

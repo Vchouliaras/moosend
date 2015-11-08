@@ -29,7 +29,7 @@ function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id =
      }
   }
   try {
-      $moosend_api_key = initialize_moosend_api();
+      $moosend_api_key = moosend_initialize_api();
       $active_mailing_lists = $moosend_api_key->mailingLists->getActiveMailingLists($page, $page_size);
       if (!empty($active_mailing_lists)) {
         foreach ($active_mailing_lists as $active_mailing_list) {
@@ -101,7 +101,7 @@ function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FA
     return $subscribers;
   }
 
-  $moosend_api = initialize_moosend_api();
+  $moosend_api = moosend_initialize_api();
 
   try {
     $members = $moosend_api->mailingLists->getSubscribers($list_id, 'Subscribed', $since);
@@ -132,7 +132,7 @@ function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FA
 function moosend_create_mailing_list($name, $confirmation_page = NULL, $redirect_after_unsubscribe_page = NULL) {
    try {
 
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
 
     $new_list_id = $moosend_api_key->mailingLists->create($name, $confirmation_page, $redirect_after_unsubscribe_page);
     watchdog('moosend', 'A new Mailing List with name "@name" was created',
@@ -158,7 +158,7 @@ function moosend_create_mailing_list($name, $confirmation_page = NULL, $redirect
 function moosend_delete_mailing_list($list_id) {
     $status = TRUE;
     try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $moosend_api_key->mailingLists->delete($list_id);
     watchdog('moosend', 'Mailing List with ID "@ID" deleted',
         array('@ID' => $list_id),

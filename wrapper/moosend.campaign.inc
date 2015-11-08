@@ -32,7 +32,7 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sort_by = 'CreatedO
     }
   }
   try {
-      $moosend_api_key = initialize_moosend_api();
+      $moosend_api_key = moosend_initialize_api();
       $campaigns = $moosend_api_key->campaigns->getCampaigns($page, $page_size, $sort_by, $sort_method);
       if (!empty($campaigns)) {
         cache_clear_all('campaign', 'cache_moosend', TRUE);
@@ -88,7 +88,7 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sort_by = 'CreatedO
 function moosend_get_active_senders() {
   $moosend_senders = array();
   try {
-      $moosend_api_key = initialize_moosend_api();
+      $moosend_api_key = moosend_initialize_api();
       $senders = $moosend_api_key->campaigns->getAllSenders();
       foreach ($senders as $key => $sender) {
         $moosend_senders[$sender_id]['ID'] = $sender_id = $sender->getID();
@@ -118,7 +118,7 @@ function moosend_get_active_senders() {
 function moosend_delete_campaign($campaign_id) {
   $status = TRUE;
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $campaign_deleted = $moosend_api_key->campaigns->delete($campaign_id);
     $campaigns = moosend_get_campaings();
       watchdog('moosend', 'Campaing "@Name" was deleted succefully.',
@@ -146,7 +146,7 @@ function moosend_create_campaign_draft($params) {
   $draft_id = '';
   if (!empty($params) && is_array($params)) {
     try{
-      $moosend_api_key = initialize_moosend_api();
+      $moosend_api_key = moosend_initialize_api();
       $draft_params = new moosend\Models\CampaignParams();
       foreach ($params as $key => $value) {
         $draft_params->{$key} = $value;

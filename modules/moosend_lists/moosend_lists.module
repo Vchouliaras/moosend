@@ -70,7 +70,7 @@ function moosend_lists_menu() {
  *
  */
 function moosend_api_is_ready($permission) {
-  if (initialize_moosend_api() && user_access($permission)) {
+  if (moosend_initialize_api() && user_access($permission)) {
     return TRUE;
   }
   return FALSE;

@@ -1,0 +1,12 @@
+name = Moosend Campaigns
+description = Manage Moosend Campaigns
+package = Moosend
+core = 7.x
+
+dependencies[] = moosend
+dependencies[] = moosend_lists
+dependencies[] = libraries ( >=2 )
+
+configure = admin/config/services/moosend/campaings
+
+

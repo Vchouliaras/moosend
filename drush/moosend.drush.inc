@@ -75,7 +75,7 @@ function _moosend_drush_download_wrapper() {
         drush_shell_exec('mv phpwrapper-master/* .');
         drush_delete_dir('phpwrapper-master');
         drush_delete_dir('moosend.zip');
-        drush_log(dt('Drush download Moosend PHP Wrapper to @path', array('@path' => $dir)), 'success');
+        drush_log(dt('Drush downloaded Moosend PHP Wrapper to @path', array('@path' => $dir)), 'success');
       }
       else {
         drush_log(dt('Drush was unable to download Moosend PHP Wrapper  to @path', array('@path' => $dir)), 'error');
@@ -88,10 +88,8 @@ function _moosend_drush_download_wrapper() {
 /**
  * Helper to get full library path
  *
- * @param
- *   string $dir
- * @return
- *   string
+ * @param string $dir
+ * @return  string
  */
 function _moosend_build_path($dir) {
   return drush_trim_path($dir) . drush_normalize_path('/src/moosend/moosendAPI.php');

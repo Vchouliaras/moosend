@@ -1,0 +1,13 @@
+#moosend-criteria-fieldset-wrapper .form-item{
+  display: inline-block;
+  margin:0 10px 10px;
+}
+
+#moosend-criteria-fieldset-wrapper .form-submit{
+  display: inline-block;
+}
+
+#moosend-criteria-fieldset-wrapper .form-item div.description{
+  display: inline;
+  margin:0;
+}

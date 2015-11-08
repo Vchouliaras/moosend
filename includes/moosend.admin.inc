@@ -2,13 +2,13 @@
 
 /**
  * @file
+ *
  * Moosend module admin Configuration Settings.
  */
 
 
 /**
  * Return the Moosend configuration form.
- *
  */
 function moosend_admin_configuration() {
   $form = array();
@@ -32,8 +32,8 @@ function moosend_admin_configuration() {
 
   $form['moosend_cron'] = array(
     '#type' => 'checkbox',
-    '#title' => 'Use Drupal cron system.',
-    '#description' => 'Leverage Drupal\'s Queue Api to operate on a large amounts of Moosend operations (Subscribe, Unsuscribe, Remove).<br/><i> Caution: May cause confusion if caches are cleared, as requested changes will appear to have failed until cron is run.</i>',
+    '#title' => 'Use Drupal\'s cron Queue API system.',
+    '#description' => t('Leverage Drupal\'s Queue Api to operate on a large amounts of Moosend operations (Subscribe, Unsuscribe, Remove).'),
     '#default_value' => variable_get('moosend_cron', FALSE),
   );
 
@@ -47,8 +47,7 @@ function moosend_admin_configuration() {
 
 
 /**
- *  Submit Handler
- *
+ * Submit Handler
  */
 function moosend_admin_configuration_submit($form, &$form_state) {
   $moosend_api_key = $form_state['values']['moosend_api_key'];
@@ -59,7 +58,7 @@ function moosend_admin_configuration_submit($form, &$form_state) {
   variable_set('moosend_user_domain', $moosend_user_domain);
   ($moosend_cron) ? variable_set('moosend_cron', TRUE) : variable_set('moosend_cron', FALSE);
 
-  if (!initialize_moosend_api())  {
+  if (!moosend_initialize_api()) {
     drupal_set_message(t('Could not initialize connection with Moosend API. Please check your configuration settings.'), 'error');
     variable_del('moosend_api_key');
     variable_del('moosend_user_domain');

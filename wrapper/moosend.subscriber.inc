@@ -70,7 +70,7 @@ function moosend_pre_operate_member() {
 function moosend_subscribe_member($list_id, $email, $name, $custom_fields = array() ) {
   $status = TRUE;
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $member = moosend_subscriber_params($email, $name, $custom_fields);
 
     $moosend_api_key->subscribers->addSubscriber($list_id, $member);
@@ -105,7 +105,7 @@ function moosend_subscribe_member($list_id, $email, $name, $custom_fields = arra
 function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
   $status = TRUE;
    try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
 
     $moosend_api_key->subscribers->unsubscribe($email, $campaing_id, $list_id);
     cache_clear_all($list_id . '-subscribers', 'cache_moosend');
@@ -137,7 +137,7 @@ function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
 function moosend_remove_member($list_id, $email) {
   $status = TRUE;
    try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
 
     $moosend_api_key->subscribers->removeSubscriber($list_id, $email);
     cache_clear_all($list_id . '-subscribers', 'cache_moosend');

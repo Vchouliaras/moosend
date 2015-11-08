@@ -2,12 +2,13 @@
 
 /**
  * @file
+ *
  * Installation functions for the Moosend Subscritpions module.
  */
 
+
 /**
  * Implements hook_schema().
- *
  */
 function moosend_subscriptions_schema() {
   $schema = array();
@@ -64,15 +65,4 @@ function moosend_subscriptions_schema() {
   );
 
   return $schema;
-}
-
-
-/**
- * Implements hook_uninstall().
- *
- */
-function moosend_subscriptions_uninstall() {
-  if (db_table_exists('moosend_subscriptions')) {
-     db_drop_table('moosend_subscriptions');
-  }
 }

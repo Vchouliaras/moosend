@@ -15,7 +15,7 @@
 function moosend_get_list_segments($mailing_list_id) {
   $segments = array();
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $segments_response = $moosend_api_key->segments->getSegments($mailing_list_id);
     foreach ($segments_response as $key => $segment) {
       $segments[$key]['id'] = $segment->getID();
@@ -43,7 +43,7 @@ function moosend_get_list_segment_details($mailing_list_id, $segment_id) {
   $segment_details = array();
   $criteria = array();
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $segment_details_response = $moosend_api_key->segments->getDetails($mailing_list_id, $segment_id);
     $segment_details['id'] = $segment_details_response->getID();
     $segment_details['name'] = $segment_details_response->getName();
@@ -89,7 +89,7 @@ function moosend_get_list_segment_details($mailing_list_id, $segment_id) {
 function moosend_get_list_segment_subscribers($mailing_list_id, $segment_id, $status = 'Subscribed', $page = 1, $pagesize = 500 ) {
   $subscribers = NULL;
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $subscribers = $moosend_api_key->segments->getSubscribers($mailing_list_id, $segment_id, $status, $page, $pagesize);
   } catch (Exception $e) {
     watchdog('moosend', 'An error occurred getting subscribers for Segment ID @segmentID. "%message"', array(
@@ -111,7 +111,7 @@ function moosend_get_list_segment_subscribers($mailing_list_id, $segment_id, $st
 function moosend_create_segment($mailing_list_id, $name, $match_type = 'All') {
   $create_segment_response = NULL;
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $create_segment_response = $moosend_api_key->segments->create($mailing_list_id, $name, $match_type);
     watchdog('moosend', 'Segment  "@name" was created for list @list.',
       array('@name' => $name, '@list' => $mailing_list_id),
@@ -139,7 +139,7 @@ function moosend_create_segment($mailing_list_id, $name, $match_type = 'All') {
 function moosend_update_segment($mailing_list_id, $name, $match_type) {
   $status = TRUE;
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $update_segment_response = $moosend_api_key->segments->update($mailing_list_id, $name, $match_type);
     watchdog('moosend', 'Segment  "@name" was updated for list @list.',
       array('@name' => $name, '@list' => $mailing_list_id),
@@ -167,7 +167,7 @@ function moosend_update_segment($mailing_list_id, $name, $match_type) {
 function moosend_delete_segment($mailing_list_id, $segment_id) {
   $status = TRUE;
   try {
-    $moosend_api_key = initialize_moosend_api();
+    $moosend_api_key = moosend_initialize_api();
     $segments_ids = array();
 
     foreach (moosend_get_list_segments($mailing_list_id) as $segment) {
@@ -210,7 +210,7 @@ function moosend_add_criteria_to_segment($mailing_list_id, $segment_id, $field, 
     $status = TRUE;
     $error_message = NULL;
     try {
-      $moosend_api_key = initialize_moosend_api();
+      $moosend_api_key = moosend_initialize_api();
       $moosend_api_key->segments->addCriteria($mailing_list_id, $segment_id, $field, $comparer, $value, $date_from, $date_to);
 
       watchdog('moosend', 'A new Criteria added to segment "@segment_id" for list @list.',

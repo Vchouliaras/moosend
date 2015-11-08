@@ -2,8 +2,8 @@
 
 /**
 * @file
-*  Moosend Subscriptions Admin Interface form.
 *
+*  Moosend Subscriptions Admin Interface form.
 */
 
 /**
@@ -226,7 +226,6 @@ function moosend_subscriptions_custom_fields_callback($form, $form_state) {
 
 /**
  * Submit handler for subscriptions_form().
- *
  */
 function moosend_subscriptions_form_submit($form, &$form_state) {
   $values = $form_state['values'];

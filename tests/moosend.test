@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ *
+ * Tests for the Moosend module
+ */
+
+class MoosendTestCase extends DrupalWebTestCase {
+
+  /**
+   * Moosend Test metadata
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Moosend',
+      'description' => 'Test Moosend functionallity',
+      'group' => 'Moosend',
+      );
+  }
+
+  public function setUp(){
+    parent::setUp(array());
+  }
+
+  public function testMoosendConfigurationForm(){
+    // $this->drupalGet('admin/config/services/moosend');
+    // $this->assertTitle('Moosend','We are in the Moosend Page');
+    //
+    $variable = FALSE;
+    $this->assertFalse($variable, 'The value is false');
+  }
+
+}

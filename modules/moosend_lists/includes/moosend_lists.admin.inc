@@ -528,7 +528,7 @@ function moosend_lists_add_list_segments_submit($form, &$form_state) {
           // Add Criteria to Segment.
           $response = moosend_add_criteria_to_segment($mailing_list_id, $segment_id, $criteria_field, $comparer, $criteria_value, $date_from, $date_to);
           if (!$response['status']) {
-            drupal_set_message(t('An error occured with Criteria creation.@error_message.'
+            drupal_set_message(t('An error occurred with Criteria creation.@error_message.'
                , array( '@error_message' => $response['error_message'])),
                'error', FALSE);
             moosend_delete_segment($mailing_list_id, $segment_id);
@@ -539,7 +539,7 @@ function moosend_lists_add_list_segments_submit($form, &$form_state) {
     }
   }
   else {
-     drupal_set_message(t('An error occured with Segment creation.Please try again.'), 'error', FALSE);
+     drupal_set_message(t('An error occurred with Segment creation.Please try again.'), 'error', FALSE);
       return;
   }
 

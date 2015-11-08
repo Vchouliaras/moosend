@@ -2,8 +2,8 @@
 
 /**
 * @file
-*  Moosend Subscription Module for extending Entity API
 *
+*  Moosend Subscription Module for extending Entity API
 */
 
 class MoosendSubscriptions extends Entity {
