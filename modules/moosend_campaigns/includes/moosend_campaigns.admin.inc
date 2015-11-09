@@ -274,8 +274,8 @@ function moosend_campaigns_add_form($form, &$form_state, $no_js_use = FALSE) {
         '#required' => TRUE,
       );
       break;
-    case 2:
 
+    case 2:
       $form['step2'] = array(
         '#type' => 'fieldset',
         '#title' => t('Step 2: Select Mailing List'),
@@ -317,6 +317,7 @@ function moosend_campaigns_add_form($form, &$form_state, $no_js_use = FALSE) {
         }
       }
       break;
+
     case 3:
       $form['step3']['WebLocation'] = array(
         '#type' => 'textfield',
@@ -338,7 +339,7 @@ function moosend_campaigns_add_form($form, &$form_state, $no_js_use = FALSE) {
       '#type' => 'submit',
       '#value' => t('Next step'),
       '#ajax' => array(
-        'wrapper' => 'campaigns-form-wrapper',
+        'wrapper' => 'campaigns-add-form-wrapper',
         'callback' => 'moosend_campaigns_add_form_callback',
       ),
     );
@@ -351,7 +352,7 @@ function moosend_campaigns_add_form($form, &$form_state, $no_js_use = FALSE) {
       '#limit_validation_errors' => array(),
       '#submit' => array('moosend_campaigns_add_form_submit'),
       '#ajax' => array(
-        'wrapper' => 'campaigns-form-wrapper',
+        'wrapper' => 'campaigns-add-form-wrapper',
         'callback' => 'moosend_campaigns_add_form_callback',
       ),
     );
