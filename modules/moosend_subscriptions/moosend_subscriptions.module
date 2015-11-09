@@ -287,7 +287,7 @@ function moosend_subscriptions_form_factory_submit($form, &$form_state) {
   $status =  moosend_subscribe_member($list_id, $email, $name, $custom_fields);
   if ($status) {
     if (strlen($subscriptions->settings['confirm_message'])) {
-      drupal_set_message(t('@message', array('@message', $subscriptions->settings['confirm_message'])));
+      drupal_set_message(t('@message', array( '@message' => $subscriptions->settings['confirm_message'])));
     }
     if (!empty($subscriptions->settings['redirect_page'])) {
       $form_state['redirect'] = $subscriptions->settings['redirect_page'];
