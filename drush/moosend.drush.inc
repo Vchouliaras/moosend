@@ -2,8 +2,8 @@
 
 /**
  * @file
- *  Drush integration for Moosend.
  *
+ *  Drush integration for Moosend.
  */
 
 define(MOOSEND_WRAPPER_LINK, 'https://github.com/moosend/phpwrapper/archive/master.zip');

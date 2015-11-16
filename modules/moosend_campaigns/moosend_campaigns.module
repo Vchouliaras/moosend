@@ -16,68 +16,43 @@ define('CAMPAIGN_SELECTING_WINNER',11);
 define('CAMPAIGN_ARCHIVED', 12);
 
 
+
 /**
- * Implements hook_menu().
- *
+ * Implements hook_entity_info().
  */
-function moosend_campaigns_menu() {
-  $items = array();
+function moosend_campaigns_entity_info() {
 
-   $items['admin/config/services/moosend/campaigns'] = array(
-    'title' => t('Campaigns'),
-    'description' => 'Display Moosend Campaigns',
-    'page callback' => 'moosend_campaigns_admin_page',
-    'access callback' => 'moosend_api_is_ready',
-    'access arguments' => array('administer moosend campaigns'),
-    'file' => 'includes/moosend_campaigns.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-  );
+    $info['moosend_campaigns'] = array(
+      'label' => t('Campaigns'),
+      'base table' => 'moosend_campaigns',
+      'entity keys' => array(
+        'id' => 'campaign_id',
+        'label' => 'name'
+      ),
+      'uri callback' => 'entity_class_uri',
+      'entity class' => 'MoosendCampaigns',
+      'controller class' => 'MoosendCampaignsController',
+      'admin ui' => array(
+        'path' => 'admin/config/services/moosend/campaigns',
+        'controller class' => 'MoosendCampaignsUIController',
+        'file' => 'includes/moosend_campaigns.admin.inc'
+        ),
+      'module' => 'moosend_campaigns',
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Full'),
+          'custom settings' => FALSE,
+          ),
+        ),
+      'fieldable' => FALSE,
+      'rules controller class' => FALSE,
+      'access callback' => 'moosend_campaigns_access_callback',
+    );
 
-  $items['admin/config/services/moosend/campaigns/add'] = array(
-    'title' => t('Add a draft Campaign'),
-    'description' => 'Add a Draft Moosend Campaign.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('moosend_campaigns_add_form'),
-    'access callback' => 'moosend_api_is_ready',
-    'access arguments' => array('administer moosend campaigns'),
-    'file' => 'includes/moosend_campaigns.admin.inc',
-    'type' => MENU_LOCAL_ACTION,
-    'weight' => 5
-  );
-
-  $items['admin/config/services/moosend/campaigns/sent'] = array(
-    'title' => t('Sent a Campaign'),
-    'description' => 'Sent a Moosend Campaign.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('moosend_campaigns_sent_form'),
-    'access callback' => 'moosend_api_is_ready',
-    'access arguments' => array('administer moosend campaigns'),
-    'file' => 'includes/moosend_campaigns.admin.inc',
-    'type' => MENU_LOCAL_ACTION,
-    'weight' => 6
-  );
-
-  $items['admin/config/services/moosend/campaigns/clear_cache'] = array(
-    'title' => 'Moosend Campaigns clear cache',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('moosend_campaigns_clear_cache'),
-    'access callback' => 'moosend_api_is_ready',
-    'access arguments' => array('administer moosend campaigns'),
-    'file' => 'includes/moosend_campaigns.admin.inc',
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['admin/config/services/moosend/campaigns/delete/%'] = array(
-    'title' => 'Moosend delete List',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('moosend_campaigns_delete',6),
-    'access callback' => 'moosend_api_is_ready',
-    'access arguments' => array('administer moosend campaigns'),
-    'file' => 'includes/moosend_campaigns.admin.inc',
-    'type' => MENU_CALLBACK,
-  );
-  return $items;
+  return $info;
 }
+
+
 
 /**
  * Implements hook_permission().
@@ -91,3 +66,121 @@ function moosend_campaigns_permission() {
     ),
   );
 }
+
+
+/**
+ * Specify callback permissions
+ *
+ */
+function moosend_campaigns_access_callback($op, $subscriptions = NULL, $account = NULL) {
+  if (moosend_initialize_api()) {
+    if (user_access('administer moosend campaigns', $account) && user_access('administer moosend', $account)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+
+
+/**
+ * Gets the page/menu title for local action operations.
+ *
+ * @param $op
+ *  The current operation. One of 'add' or 'import'.
+ * @param $entity_type
+ *  The entity type.
+ * @param $bundle_name
+ *  (Optional) The name of the bundle. May be NULL if the bundle name is not
+ *  relevant to the current page. If the entity type has only one bundle, or no
+ *  bundles, this will be the same as the entity type.
+ */
+function moosend_entity_ui_title_callback($op, $entity_type, $bundle_name = NULL){
+  $info = entity_get_info($entity_type);
+  switch ($op) {
+    case 'add':
+      return t('Add a draft Campaign');
+    case 'import':
+      return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Implements hook_menu().
+ *
+ */
+// function moosend_campaigns_menu() {
+//   $items = array();
+
+//    $items['admin/config/services/moosend/campaigns'] = array(
+//     'title' => t('Campaigns'),
+//     'description' => 'Display Moosend Campaigns',
+//     'page callback' => 'moosend_campaigns_admin_page',
+//     'access callback' => 'moosend_api_is_ready',
+//     'access arguments' => array('administer moosend campaigns'),
+//     'file' => 'includes/moosend_campaigns.admin.inc',
+//     'type' => MENU_LOCAL_TASK,
+//   );
+
+//   $items['admin/config/services/moosend/campaigns/add'] = array(
+//     'title' => t('Add a draft Campaign'),
+//     'description' => 'Add a Draft Moosend Campaign.',
+//     'page callback' => 'drupal_get_form',
+//     'page arguments' => array('moosend_campaigns_add_form'),
+//     'access callback' => 'moosend_api_is_ready',
+//     'access arguments' => array('administer moosend campaigns'),
+//     'file' => 'includes/moosend_campaigns.admin.inc',
+//     'type' => MENU_LOCAL_ACTION,
+//     'weight' => 5
+//   );
+
+//   $items['admin/config/services/moosend/campaigns/sent'] = array(
+//     'title' => t('Sent a Campaign'),
+//     'description' => 'Sent a Moosend Campaign.',
+//     'page callback' => 'drupal_get_form',
+//     'page arguments' => array('moosend_campaigns_sent_form'),
+//     'access callback' => 'moosend_api_is_ready',
+//     'access arguments' => array('administer moosend campaigns'),
+//     'file' => 'includes/moosend_campaigns.admin.inc',
+//     'type' => MENU_LOCAL_ACTION,
+//     'weight' => 6
+//   );
+
+//   $items['admin/config/services/moosend/campaigns/clear_cache'] = array(
+//     'title' => 'Moosend Campaigns clear cache',
+//     'page callback' => 'drupal_get_form',
+//     'page arguments' => array('moosend_campaigns_clear_cache'),
+//     'access callback' => 'moosend_api_is_ready',
+//     'access arguments' => array('administer moosend campaigns'),
+//     'file' => 'includes/moosend_campaigns.admin.inc',
+//     'type' => MENU_CALLBACK,
+//   );
+
+//   $items['admin/config/services/moosend/campaigns/delete/%'] = array(
+//     'title' => 'Moosend delete List',
+//     'page callback' => 'drupal_get_form',
+//     'page arguments' => array('moosend_campaigns_delete',6),
+//     'access callback' => 'moosend_api_is_ready',
+//     'access arguments' => array('administer moosend campaigns'),
+//     'file' => 'includes/moosend_campaigns.admin.inc',
+//     'type' => MENU_CALLBACK,
+//   );
+//   return $items;
+// }
+
+

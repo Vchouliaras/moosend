@@ -3,10 +3,10 @@
 /**
 * @file
 *
-*  Moosend Subscription Module for extending Entity API
+*  Moosend Campaigns extending Entity API
 */
 
-class MoosendSubscriptions extends Entity {
+class MoosendCampaigns extends Entity {
 
 /**
   * Override this in order to implement a custom default URI and specify
@@ -14,7 +14,7 @@ class MoosendSubscriptions extends Entity {
   */
   protected function defaultUri() {
     return array(
-      'path' => 'admin/config/services/moosend/subscriptions/manage/' . $this->identifier(),
+      'path' => 'admin/config/services/moosend/campaigns/manage/' . $this->identifier(),
       'options' => array(
         'entity_type' => $this->entityType,
         'entity' => $this,
@@ -24,7 +24,13 @@ class MoosendSubscriptions extends Entity {
 }
 
 
-class MoosendSubscriptionsController extends EntityAPIController{
+class MoosendCampaignsController extends EntityAPIController{
+
+  /**
+   * Builds a structured array representing the entity's content.
+   *
+   * @see entity_build_content()
+   */
     public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $build = parent::buildContent($entity, $view_mode, $langcode, $content);
 
@@ -41,11 +47,32 @@ class MoosendSubscriptionsController extends EntityAPIController{
    */
   public function save($entity, DatabaseTransaction $transaction = NULL) {
 
-      if (isset($entity->is_new)) {
+      if (isset($entity->is_new) ) {
         $entity->created_at = REQUEST_TIME;
       }
       $entity->updated_at = REQUEST_TIME;
 
       return parent::save($entity, $transaction);
+  }
+
+
+
+    /**
+   * Implements EntityAPIControllerInterface.
+   *
+   * @param $transaction
+   *   Optionally a DatabaseTransaction object to use. Allows overrides to pass
+   *   in their transaction object.
+   */
+  public function delete($ids, DatabaseTransaction $transaction = NULL) {
+    foreach ($ids as $id) {
+      if(!moosend_delete_campaign($id)) {
+        return FALSE;
+      }
+    }
+    //Clear moosend_cache
+    moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
+
+    return parent::delete($ids, $transaction);
   }
 }

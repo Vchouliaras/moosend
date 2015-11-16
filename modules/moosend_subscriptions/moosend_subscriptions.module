@@ -80,6 +80,7 @@ function moosend_subscriptions_entity_info() {
         ),
       //Levage views API
       //'views controller class' => 'EntityDefaultViewsController'
+      'rules controller class' => FALSE,
       'access callback' => 'moosend_subscriptions_access_callback',
     );
 

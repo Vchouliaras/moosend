@@ -6,7 +6,10 @@ core = 7.x
 dependencies[] = moosend
 dependencies[] = moosend_lists
 dependencies[] = libraries ( >=2 )
+dependencies[] = entity
 
 configure = admin/config/services/moosend/campaings
 
+files[] = includes/moosend_campaigns.entity.inc
+files[] = includes/moosend_campaigns.ui_controller.inc
 

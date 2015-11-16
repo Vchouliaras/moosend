@@ -77,12 +77,6 @@ module_load_include('inc', 'moosend', 'wrapper/moosend.segment');
 module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
 module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
 
-module_load_include('inc', 'moosend', 'wrapper/moosend.list');
-module_load_include('inc', 'moosend', 'wrapper/moosend.segment');
-module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
-module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
-
-
 /**
  * Initialize Moosend Api
  *

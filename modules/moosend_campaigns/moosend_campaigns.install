@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @file
+ *
+ * Define schema for Moosend Campaigns
+ */
+
+
+/**
+ * Implements hook_schema().
+ */
+function moosend_campaigns_schema() {
+  $schema = array();
+  $schema['moosend_campaigns'] = array(
+    'description' => 'Manage Moosend Campaigns',
+    'fields' => array(
+      'campaign_id' => array(
+        'description' => 'Unique Moosend Campaign ID',
+        'type' => 'varchar',
+        'length' => 36,
+        'not null' => TRUE,
+      ),
+     'name' => array(
+        'description' => 'Moosend Campaign Name',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'status' => array(
+        'descritption' => 'Describes the status of Moosend Campaign',
+        'type' => 'int',
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+     'created_at' => array(
+        'description' => 'The Unix timestamp when the Campaign was created.',
+        'type' => 'int',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+      'updated_at' => array(
+        'description' => 'The Unix timestamp when the Campaign was updated.',
+        'type' => 'int',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+      'settings' => array(
+          'description' => 'Serialized object for Campaign settings',
+          'type' => 'blob',
+          'not null' => FALSE,
+          'serialize' => TRUE,
+          'size' => 'big',
+      ),
+    ),
+    'primary key' => array('campaign_id'),
+  );
+
+  return $schema;
+}

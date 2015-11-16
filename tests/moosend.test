@@ -31,4 +31,23 @@ class MoosendTestCase extends DrupalWebTestCase {
     $this->assertFalse($variable, 'The value is false');
   }
 
+
+  public function testMoosendNavigation(){
+
+    $this->drupalGet('content/consectetuer');
+    $this->assertResponse(200, 'The page content/consectetuer exists');
+
+    $this->clickLink('Create new Account');
+    $this->assertUrl('user/register');
+
+  }
+
+
+  public function testForms(){
+     $this->drupalGet('');
+
+     //Find unique fields in a multi form page
+     $this->assertFieldXpath('//form[@id="hola"]//input[@id="name"]');
+  }
+
 }

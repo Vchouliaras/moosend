@@ -143,7 +143,7 @@ function moosend_delete_campaign($campaign_id) {
  * @return [type]         [description]
  */
 function moosend_create_campaign_draft($params) {
-  $draft_id = '';
+  $campaign_id = '';
   if (!empty($params) && is_array($params)) {
     try{
       $moosend_api_key = moosend_initialize_api();
@@ -151,17 +151,71 @@ function moosend_create_campaign_draft($params) {
       foreach ($params as $key => $value) {
         $draft_params->{$key} = $value;
       }
-      $draft_id = $moosend_api_key->campaigns->createDraft($draft_params);
+
+      $campaign_id = $moosend_api_key->campaigns->createDraft($draft_params);
     }
     catch (Exception $e) {
-    watchdog('moosend', 'An error occurred creating draft Campaing "@Name". "%message"',
-      array('@Name' => $draft_params->Name,
-      '%message' => $e->getMessage()),
+    watchdog('moosend', 'An error occurred creating draft Campaing "@Name"',
+      array('@Name' => $draft_params->Name),
       WATCHDOG_ERROR);
     }
-    return $draft_id;
+    return $campaign_id;
   }
 }
+
+
+/**
+ * [moosend_update_campaign_draft description]
+ * @param  [type] $campaign_id [description]
+ * @param  [type] $params      [description]
+ * @return [type]              [description]
+ */
+function moosend_update_campaign_draft($campaign_id, $params){
+$status = TRUE;
+ try{
+      $moosend_api_key = moosend_initialize_api();
+      $campaign = $moosend_api_key->getCampaign($campaign_id);
+      if(is_array($params)) {
+        foreach ($params as $key => $value) {
+          //Normalize specific keys
+          if (strstr($key, 'Sender')) {
+            $key = 'Sender';
+          }
+          if (strstr($key, 'Confirmation')) {
+            $key = 'ConfirmationTo';
+          }
+          if (strstr($key, 'Segment')) {
+            $key = 'Segment';
+          }
+          $method = 'set' . ucfirst($key);
+          $campaign->$method($value);
+        }
+      }
+
+    $moosend_api_key->campaigns->updateDraft($campaign);
+    }
+    catch (Exception $e) {
+    $status = FALSE;
+    watchdog('moosend', 'An error occurred updating draft Campaing "@Name"',
+      array('@Name' => $draft_params->Name),
+      WATCHDOG_ERROR);
+    }
+  return $status;
+}
+
+// setName();
+// setStatus();
+// setSubject();
+// setReplyToEmail(Sender $sender)
+// setMailingList(MailingList $mailingList)
+// setWebLocation($webLocation)
+// setSender(Sender $sender)
+// setConfirmationTo($confirmationTo)
+// setSegment(Segment $segment)
+
+
+
+
 
 /**
  * [moosend_get_campaign_status_name description]
