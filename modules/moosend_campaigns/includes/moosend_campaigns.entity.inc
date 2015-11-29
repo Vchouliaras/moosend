@@ -47,7 +47,7 @@ class MoosendCampaignsController extends EntityAPIController{
    */
   public function save($entity, DatabaseTransaction $transaction = NULL) {
 
-      if (isset($entity->is_new) ) {
+      if (isset($entity->is_new) && empty($entity->created_at)) {
         $entity->created_at = REQUEST_TIME;
       }
       $entity->updated_at = REQUEST_TIME;
@@ -57,7 +57,7 @@ class MoosendCampaignsController extends EntityAPIController{
 
 
 
-    /**
+ /**
    * Implements EntityAPIControllerInterface.
    *
    * @param $transaction
@@ -70,6 +70,7 @@ class MoosendCampaignsController extends EntityAPIController{
         return FALSE;
       }
     }
+
     //Clear moosend_cache
     moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 

@@ -9,9 +9,9 @@
 
 /**
  *  Menu Entity Callback: Moosend Add draft Campaing - Wizard form
- *
  */
 function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
+
 
   // Provide a wrapper around the entire form, since we'll replace the whole
   // thing with each submit.
@@ -55,7 +55,7 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
       foreach ($senders as $sender) {
         $options[$sender['Email']] = $sender['Name'] . ' (' . $sender['Email'] . ')';
       }
-      dsm($campaign);
+
       $form['step1']['SenderEmail'] = array(
         '#type' => 'select',
         '#options' => $options,
@@ -159,10 +159,16 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
       break;
   }
 
-  if ($step == 3) {
-    $form['submit'] = array(
+  if ($step > 1) {
+    $form['prev'] = array(
       '#type' => 'submit',
-      '#value' => isset($campaign->is_new) ? t("Create draft Campaign") : t('Update Campaign'),
+      '#value' => t("Previous step"),
+      '#limit_validation_errors' => array(),
+      '#submit' => array('moosend_campaigns_form_submit'),
+      '#ajax' => array(
+        'wrapper' => 'campaigns-add-form-wrapper',
+        'callback' => '_moosend_campaigns_add_form_callback',
+      ),
     );
   }
 
@@ -177,18 +183,13 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
     );
   }
 
-  if ($step > 1) {
-    $form['prev'] = array(
+  if ($step == 3) {
+    $form['submit'] = array(
       '#type' => 'submit',
-      '#value' => t("Previous step"),
-      '#limit_validation_errors' => array(),
-      '#submit' => array('moosend_campaigns_add_form_submit'),
-      '#ajax' => array(
-        'wrapper' => 'campaigns-add-form-wrapper',
-        'callback' => '_moosend_campaigns_add_form_callback',
-      ),
+      '#value' => isset($campaign->is_new) ? t("Create draft Campaign") : t('Update Campaign'),
     );
   }
+
 
   return $form;
 }
@@ -204,7 +205,7 @@ function _moosend_campaigns_add_form_segments_callback($form, $form_state) {
 
 
 /**
- * Wizard callback function.
+ * Wizard callback function for steps.
  *
  */
 function _moosend_campaigns_add_form_callback($form, $form_state) {
@@ -241,108 +242,107 @@ function moosend_campaigns_form_submit($form, &$form_state) {
     $form_state['storage']['values'][$current_step] = $form_state['values'][$current_step];
   }
 
-  if ($form_state['triggering_element']['#value'] == t('Next step')) {
-    $form_state['storage']['step']++;
-    $step_name = 'step' . $form_state['storage']['step'];
-    if (!empty($form_state['storage']['values'][$step_name])) {
-      $form_state['values'][$step_name] = $form_state['storage']['values'][$step_name];
-    }
-  }
-
-  if ($form_state['triggering_element']['#value'] == t('Previous step')) {
-    $form_state['storage']['step']--;
-    $step_name = 'step' . $form_state['storage']['step'];
-    $form_state['values'][$step_name] = $form_state['storage']['values'][$step_name];
-  }
-
-  dsm($form_state['triggering_element']['#value']);
-  if ($form_state['triggering_element']['#value'] == t('Create draft Campaign')) {
-
-    //Normalize multistep values
-    foreach ($form_state['storage']['values'] as $key => $multistep_values) {
+  //Normalize multistep values
+  foreach ($form_state['storage']['values'] as $key => $multistep_values) {
     foreach ($multistep_values as $key => $value) {
-        if(is_array($value)) {
+      if(is_array($value)) {
           $params[key($value)] = (reset($value) == 'none') ? NULL : reset($value);
-        }
-        else {
-          $params[$key] = $value;
-        }
+      }
+      else {
+        $params[$key] = $value;
       }
     }
-
-    kpr($params);
-    die;
-    kpr(moosend_create_campaign_draft('defba92c-afcc-440d-8396-0053b5241312',$params));
-
-    die;
-    //First try to create Campaing at Moosend
-    if ($campaign_id = moosend_create_campaign_draft($params)) {
-
-      //Clear moosend_cache
-      moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
-
-      //Get Entity
-      $campaign = !isset($form_state['moosend_campaigns']) ?
-      entity_get_controller('moosend_campaigns')->create() : $form_state['moosend_campaigns'];
-
-      //Populate Entity
-      $campaign->campaign_id = $campaign_id;
-      $campaign->status = CAMPAIGN_DRAFT;
-      $campaign->name = $params['Name'];
-      $campaign->settings['Subject'] = $params['Subject'];
-      $campaign->settings['SenderEmail'] = $params['SenderEmail'];
-      $campaign->settings['ReplyToEmail'] = $params['ReplyToEmail'];
-      $campaign->settings['ConfirmationToEmail'] = $params['ConfirmationToEmail'];
-      $campaign->settings['MailingListID'] = $params['MailingListID'];
-      $campaign->settings['SegmentID'] = $params['SegmentID'];
-      $campaign->settings['WebLocation'] = $params['WebLocation'];
-
-      if ($campaign->save()) {
-        drupal_set_message(t('Your Moosend Campaign "@name" has been created successfully!',
-          array('@name' => $params['Name'])));
-      }
-    }
-    else {
-      drupal_set_message(t('Unable to create draft Campaign.See Reports for more info.'), 'error');
-    }
-
-    $form_state['redirect'] = 'admin/config/services/moosend/campaigns';
-    return $form_state['redirect'];
   }
 
-  $form_state['rebuild'] = TRUE;
-}
 
+  switch ($form_state['triggering_element']['#value']) {
 
+    case t('Next step'):
+      $form_state['storage']['step']++;
+      $step_name = 'step' . $form_state['storage']['step'];
+      if (!empty($form_state['storage']['values'][$step_name])) {
+        $form_state['values'][$step_name] = $form_state['storage']['values'][$step_name];
+      }
+      break;
 
-function moosend_campaigns_send_campaign_form($form, &$form_state){
-  dsm(func_get_args());
-  dsm('vasilis second form');
+    case t('Previous step'):
+      $form_state['storage']['step']--;
+      $step_name = 'step' . $form_state['storage']['step'];
+      $form_state['values'][$step_name] = $form_state['storage']['values'][$step_name];
+      break;
 
-  return $form;
-}
+    case t('Create draft Campaign'):
+      //First try to create Campaing at Moosend
+      if ($campaign_id = moosend_create_campaign_draft($params)) {
 
+        //Clear moosend_cache
+        moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
+        //Get Entity
+        $campaign = !isset($form_state['moosend_campaigns']) ?
+        entity_get_controller('moosend_campaigns')->create() : $form_state['moosend_campaigns'];
 
+        //Populate Entity
+        $campaign->campaign_id = $campaign_id;
+        $campaign->status = CAMPAIGN_DRAFT;
+        $campaign->name = $params['Name'];
+        $campaign->settings['Subject'] = $params['Subject'];
+        $campaign->settings['SenderEmail'] = $params['SenderEmail'];
+        $campaign->settings['ReplyToEmail'] = $params['ReplyToEmail'];
+        $campaign->settings['ConfirmationToEmail'] = $params['ConfirmationToEmail'];
+        $campaign->settings['MailingListID'] = $params['MailingListID'];
+        $campaign->settings['SegmentID'] = $params['SegmentID'];
+        $campaign->settings['WebLocation'] = $params['WebLocation'];
 
+        if ($campaign->save()) {
+          drupal_set_message(t('Your Moosend Campaign "@name" has been created successfully!',
+            array('@name' => $params['Name'])));
+        }
+      }
+      else {
+        drupal_set_message(t('Unable to create draft Campaign.Check Reports for more info.'), 'error');
+      }
 
+      $form_state['redirect'] = 'admin/config/services/moosend/campaigns';
+      return $form_state['redirect'];
+      break;
 
-// function moosend_campaigns_send_campaign_form($form, &$form_state, $campaign){
-//   dsm(func_get_args());
-//   dsm('vasilis second form');
-// }
+    case t('Update Campaign'):
+      $campaign_id = $form_state['moosend_campaigns']->campaign_id;
 
+      if (moosend_update_campaign_draft($campaign_id, $params)) {
 
+        //Clear moosend_cache
+        moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
+        //Get Entity
+        $campaign = $form_state['moosend_campaigns'];
 
+        //Populate Entity
+        $campaign->campaign_id = $campaign_id;
+        $campaign->status = CAMPAIGN_DRAFT;
+        $campaign->name = $params['Name'];
+        $campaign->settings['Subject'] = $params['Subject'];
+        $campaign->settings['SenderEmail'] = $params['SenderEmail'];
+        $campaign->settings['ReplyToEmail'] = $params['ReplyToEmail'];
+        $campaign->settings['ConfirmationToEmail'] = $params['ConfirmationToEmail'];
+        $campaign->settings['MailingListID'] = $params['MailingListID'];
+        $campaign->settings['SegmentID'] = $params['SegmentID'];
+        $campaign->settings['WebLocation'] = $params['WebLocation'];
 
+        if ($campaign->save()) {
+          drupal_set_message(t('Your Moosend Campaign "@name" has been updated successfully!',
+            array('@name' => $params['Name'])));
+        }
+      }
+      else {
+        drupal_set_message(t('Unable to update draft Campaign. Check your reports for more info.'), 'error');
+      }
 
+      $form_state['redirect'] = 'admin/config/services/moosend/campaigns';
+      return $form_state['redirect'];
+      break;
+    }
 
-
-
-
-
-
-
-
-
+    $form_state['rebuild'] = TRUE;
+  }

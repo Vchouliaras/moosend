@@ -216,13 +216,12 @@ function moosend_fields_to_drupal_elements($fields) {
  */
 function _moosend_parse_date($date) {
   if (!empty($date)) {
-  // dsm('$date');
     $date = preg_match('/\d+\+\d+/', $date, $matches);
     $date_parts = explode('+', $matches[0]);
 
     // convert to seconds
-    $timestamp = round( $date_parts[0] / 1000 );
-    //$timezone = new DateTimeZone($date_parts[1]);
+    $timestamp = round($date_parts[0] / 1000 ,0);
+
    return new DateTime('@' . $timestamp);
   }
 }

@@ -67,7 +67,7 @@ function _moosend_lists_rules_mailing_lists() {
 
 
 /**
- * Rules Ui form callback
+ * Rules UI form callback
  *
  */
 function moosend_lists_rules_member_operations_form_alter(&$form, &$form_state, $options, RulesAbstractPlugin $element) {
