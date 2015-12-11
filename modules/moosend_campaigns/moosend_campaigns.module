@@ -22,6 +22,7 @@ define('CAMPAIGN_SELECTING_WINNER',11);
 
 define('CAMPAIGN_ARCHIVED', 12);
 
+
 /**
  * Implements hook_enable().
  *

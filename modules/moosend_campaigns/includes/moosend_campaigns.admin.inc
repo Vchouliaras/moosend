@@ -300,7 +300,7 @@ function moosend_campaigns_form_submit($form, &$form_state) {
         }
       }
       else {
-        drupal_set_message(t('Unable to create draft Campaign.Check Reports for more info.'), 'error');
+        drupal_set_message(t('Unable to create draft Campaign. Check Reports for more info.'), 'error');
       }
 
       $form_state['redirect'] = 'admin/config/services/moosend/campaigns';

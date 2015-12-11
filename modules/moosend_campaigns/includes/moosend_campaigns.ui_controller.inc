@@ -112,6 +112,9 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
 
     $row =  parent::overviewTableRow($conditions, $id, $entity, $additional_cols);
 
+    //Create a preview Campaign Link
+    $row[0]['data']['#url']['path'] = url('https://' . $domain_prefix . '.moosend.com/show_campaign/' .$id);
+
     $row[] = l(t('clone'), $this->path . '/manage/' . $id . '/clone');
 
     //Campaign successful Status responses when campaign is send.
