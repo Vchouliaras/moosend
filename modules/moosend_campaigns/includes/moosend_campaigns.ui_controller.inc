@@ -343,7 +343,20 @@ protected function operationFormClone($form, &$form_state, $entity){
           //@TODO Support for Scheduling a Campaign in PHP Wrapper
         }
         case 'clone':
-          if(moosend_campaign_clone($entity->campaign_id)) {
+          $clone = moosend_campaign_clone($entity->campaign_id);
+
+          //Clear campaigns cache
+          $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
+
+          if(!empty($clone)) {
+
+             $entity = clone $entity;
+             $entity->campaign_id = $clone->getID();
+             $entity->is_new = TRUE;
+             $entity->status = CAMPAIGN_DRAFT;
+
+             entity_save($this->entityType, $entity);
+
              return t('Campaign "@name" was cloned successfully',
               array('@name' => $entity->name));
           }

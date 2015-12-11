@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  *  Drush integration for Moosend.
  */
 

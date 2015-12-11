@@ -298,7 +298,7 @@ function moosend_send_test_campaign($campaign_id, $emails) {
 
 
 function moosend_campaign_clone($campaign_id){
-  $status = TRUE;
+  $clone = NULL;
   try {
     $moosend_api_key = moosend_initialize_api();
     $clone = $moosend_api_key->campaigns->cloneCampaign($campaign_id);
@@ -307,14 +307,13 @@ function moosend_campaign_clone($campaign_id){
     WATCHDOG_NOTICE);
   }
   catch (Exception $e) {
-    $status = FALSE;
     watchdog('moosend', 'An error cloning campaign "@Name" . "%message"',
       array('@Name' => $clone->getName(),
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);
   }
 
-  return $status;
+  return $clone;
 }
 
 
