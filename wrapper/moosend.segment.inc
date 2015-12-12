@@ -9,8 +9,8 @@
 
 /**
  * [moosend_get_list_segments description]
- * @param  [type] $mailing_list_id [description]
- * @return [type]                [description]
+ * @param   $mailing_list_id
+ * @return  $segments
  */
 function moosend_get_list_segments($mailing_list_id) {
   $segments = array();
@@ -35,9 +35,9 @@ function moosend_get_list_segments($mailing_list_id) {
 
 /**
  * [moosend_get_list_segment_details description]
- * @param  [type] $mailing_list_id [description]
- * @param  [type] $segment_id     [description]
- * @return [type]                [description]
+ * @param   $mailing_list_id
+ * @param   $segment_id
+ * @return $segment_details
  */
 function moosend_get_list_segment_details($mailing_list_id, $segment_id) {
   $segment_details = array();
@@ -79,12 +79,12 @@ function moosend_get_list_segment_details($mailing_list_id, $segment_id) {
 
 /**
  * [moosend_get_list_segment_subscribers description]
- * @param  [type]  $mailing_list_id [description]
- * @param  [type]  $segment_id     [description]
- * @param  string  $status        [description]
- * @param  integer $page          [description]
- * @param  integer $pagesize      [description]
- * @return [type]                 [description]
+ * @param    $mailing_list_id
+ * @param    $segment_id
+ * @param  string  $status
+ * @param  integer $page
+ * @param  integer $pagesize
+ * @return $subscribers
  */
 function moosend_get_list_segment_subscribers($mailing_list_id, $segment_id, $status = 'Subscribed', $page = 1, $pagesize = 500 ) {
   $subscribers = NULL;
@@ -103,10 +103,10 @@ function moosend_get_list_segment_subscribers($mailing_list_id, $segment_id, $st
 
 /**
  * [moosend_create_segment description]
- * @param  [type] $mailing_list_id [description]
- * @param  [type] $name          [description]
- * @param  string $match_type     [description]
- * @return [type]                [description]
+ * @param   $mailing_list_id
+ * @param   $name
+ * @param  string $match_type
+ * @return $create_segment_response
  */
 function moosend_create_segment($mailing_list_id, $name, $match_type = 'All') {
   $create_segment_response = NULL;
@@ -131,10 +131,10 @@ function moosend_create_segment($mailing_list_id, $name, $match_type = 'All') {
 
 /**
  * [moosend_update_segment description]
- * @param  [type] $mailing_list_id [description]
- * @param  [type] $name          [description]
- * @param  [type] $match_type     [description]
- * @return [type]                [description]
+ * @param   $mailing_list_id
+ * @param   $name
+ * @param   $match_type
+ * @return $status
  */
 function moosend_update_segment($mailing_list_id, $name, $match_type) {
   $status = TRUE;
@@ -160,9 +160,9 @@ function moosend_update_segment($mailing_list_id, $name, $match_type) {
 
 /**
  * [moosend_delete_segment description]
- * @param  [type] $mailing_list_id [description]
- * @param  [type] $segment_id     [description]
- * @return [type]                [description]
+ * @param   $mailing_list_id
+ * @param   $segment_id
+ * @return $status
  */
 function moosend_delete_segment($mailing_list_id, $segment_id) {
   $status = TRUE;
@@ -197,14 +197,14 @@ function moosend_delete_segment($mailing_list_id, $segment_id) {
 
 /**
  * [moosend_add_criteria_to_segment description]
- * @param  [type] $mailing_list_id [description]
- * @param  [type] $segment_id     [description]
- * @param  [type] $field         [description]
- * @param  [type] $comparer      [description]
- * @param  [type] $value         [description]
- * @param  [type] $date_from      [description]
- * @param  [type] $date_to        [description]
- * @return [type]                [description]
+ * @param   $mailing_list_id
+ * @param   $segment_id
+ * @param   $field
+ * @param   $comparer
+ * @param   $value
+ * @param   $date_from
+ * @param   $date_to
+ * @return
  */
 function moosend_add_criteria_to_segment($mailing_list_id, $segment_id, $field, $comparer, $value, $date_from = NULL, $date_to = NULL) {
     $status = TRUE;
@@ -236,8 +236,9 @@ function moosend_add_criteria_to_segment($mailing_list_id, $segment_id, $field, 
 
 /**
  * Create Optgroup Select field
- * @param  boolean $append_mailing_list_fields [description]
- * @return [type]                              [description]
+ *
+ * @param  boolean $append_mailing_list_fields
+ * @return $criteria_fields
  */
 function _moosend_criteria_fields($append_mailing_list_fields = TRUE) {
 
@@ -263,8 +264,8 @@ function _moosend_criteria_fields($append_mailing_list_fields = TRUE) {
 
 /**
  * [_moosend_criteria_comparer description]
- * @param  string $check_field [description]
- * @return [type]              [description]
+ * @param  string $check_field
+ * @return
  */
 function _moosend_criteria_comparer($check_field = 'ALL') {
   switch ($check_field) {

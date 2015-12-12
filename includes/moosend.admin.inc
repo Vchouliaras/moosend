@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Moosend module admin Configuration Settings.
  */
 

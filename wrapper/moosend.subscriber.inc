@@ -8,10 +8,10 @@
 
 /**
  * [moosend_is_a_subscriber description]
- * @param  [type]  $list_id [description]
- * @param  [type]  $email   [description]
- * @param  boolean $cache   [description]
- * @return [type]           [description]
+ * @param   $list_id
+ * @param   $email
+ * @param  boolean $cache
+ * @return
  *
  */
 function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
@@ -24,7 +24,7 @@ function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
 
 /**
  * [_moosend_member_operations description]
- * @return [type] [description]
+ * @return
  */
 function _moosend_member_operations() {
   return drupal_map_assoc(array('Subscribe', 'Unsubscribe', 'Remove'));
@@ -33,7 +33,7 @@ function _moosend_member_operations() {
 
 /**
  * [moosend_pre_operate_member description]
- * @return [type] [description]
+ * @return
  */
 function moosend_pre_operate_member() {
   if (count(func_get_args()) === 1) {
@@ -61,11 +61,11 @@ function moosend_pre_operate_member() {
 
 /**
  * [moosend_add_subscriber description]
- * @param  [type] $list_id       [description]
- * @param  [type] $email         [description]
- * @param  [type] $name          [description]
- * @param  array  $custom_fields [description]
- * @return [type]                [description]
+ * @param  $list_id
+ * @param  $email
+ * @param  $name
+ * @param  array  $custom_fields
+ * @return
  */
 function moosend_subscribe_member($list_id, $email, $name, $custom_fields = array() ) {
   $status = TRUE;
@@ -96,10 +96,10 @@ function moosend_subscribe_member($list_id, $email, $name, $custom_fields = arra
 
 /**
  * [moosend_unsubscribe_subscriber description]
- * @param  [type] $list_id     [description]
- * @param  [type] $email       [description]
- * @param  [type] $campaing_id [description]
- * @return [type]              [description]
+ * @param  $list_id
+ * @param  $email
+ * @param  $campaing_id
+ * @return
  *
  */
 function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
@@ -130,9 +130,9 @@ function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
 
 /**
  * [moosend_remove_subscriber description]
- * @param  [type] $list_id [description]
- * @param  [type] $email   [description]
- * @return [type]          [description]
+ * @param  $list_id
+ * @param  $email
+ * @return
  */
 function moosend_remove_member($list_id, $email) {
   $status = TRUE;
@@ -161,10 +161,10 @@ function moosend_remove_member($list_id, $email) {
 
 /**
  * [moosend_subscriber_params description]
- * @param  [type] $email         [description]
- * @param  [type] $name          [description]
- * @param  [type] $custom_fields [description]
- * @return [type]                [description]
+ * @param  $email
+ * @param  $name
+ * @param  $custom_fields
+ * @return
  */
 function moosend_subscriber_params($email, $name, $custom_fields) {
   $member = NULL;

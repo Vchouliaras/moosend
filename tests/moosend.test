@@ -2,52 +2,6 @@
 
 /**
  * @file
- *
  * Tests for the Moosend module
+ *
  */
-
-class MoosendTestCase extends DrupalWebTestCase {
-
-  /**
-   * Moosend Test metadata
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Moosend',
-      'description' => 'Test Moosend functionallity',
-      'group' => 'Moosend',
-      );
-  }
-
-  public function setUp(){
-    parent::setUp(array());
-  }
-
-  public function testMoosendConfigurationForm(){
-    // $this->drupalGet('admin/config/services/moosend');
-    // $this->assertTitle('Moosend','We are in the Moosend Page');
-    //
-    $variable = FALSE;
-    $this->assertFalse($variable, 'The value is false');
-  }
-
-
-  public function testMoosendNavigation(){
-
-    $this->drupalGet('content/consectetuer');
-    $this->assertResponse(200, 'The page content/consectetuer exists');
-
-    $this->clickLink('Create new Account');
-    $this->assertUrl('user/register');
-
-  }
-
-
-  public function testForms(){
-     $this->drupalGet('');
-
-     //Find unique fields in a multi form page
-     $this->assertFieldXpath('//form[@id="hola"]//input[@id="name"]');
-  }
-
-}

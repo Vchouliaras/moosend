@@ -2,16 +2,16 @@
 
 /**
 * @file
-*
 *  Moosend Subscriptions Admin Interface form.
 */
 
 /**
- * [moosend_subscriptions_form description]
- * @param  [type] $form          [description]
- * @param  [type] &$form_state   [description]
- * @param  [type] $subscriptions [description]
- * @return [type]                [description]
+ * Moosend Subscriptions Admin form
+ *
+ * @param $form
+ * @param &$form_state
+ * @param $subscriptions
+ * @return $form
  */
 function moosend_subscriptions_form($form, &$form_state, $subscriptions = NULL) {
 

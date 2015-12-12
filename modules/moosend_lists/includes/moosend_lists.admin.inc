@@ -6,12 +6,10 @@
 *
 */
 
-
 /**
  * Page Callback: Display the Moosend Lists page
  *
  * @return array
- *
  */
 function moosend_lists_admin_page() {
 
@@ -189,10 +187,11 @@ function moosend_lists_delete_submit($form, &$form_state) {
 
 
 /**
- * [moosend_lists_add_lists_form description]
- * @param  [type] $form        [description]
- * @param  [type] &$form_state [description]
- * @return [type]              [description]
+ *  Moosend List form Callback
+ *
+ * @param   $form
+ * @param   &$form_state
+ * @return
  */
 function moosend_lists_add_lists_form($form, &$form_state) {
 
@@ -213,10 +212,10 @@ function moosend_lists_add_lists_form($form, &$form_state) {
 
 
 /**
- * [moosend_lists_add_lists_form_validate description]
- * @param  [type] $form        [description]
- * @param  [type] &$form_state [description]
- * @return [type]              [description]
+ * Moosend List validation form Callback
+ * @param   $form
+ * @param   &$form_state
+ * @return
  */
 function moosend_lists_add_lists_form_validate($form, &$form_state) {
   if (empty($form_state['values']['moosend_list_name'])) {
@@ -227,10 +226,10 @@ function moosend_lists_add_lists_form_validate($form, &$form_state) {
 
 
 /**
- * [moosend_lists_add_lists_form_submit description]
- * @param  [type] $form        [description]
- * @param  [type] &$form_state [description]
- * @return [type]              [description]
+ * Moosend List submit form Callback
+ * @param   $form
+ * @param   &$form_state
+ * @return
  */
 function moosend_lists_add_lists_form_submit($form, &$form_state) {
   $list_name = $form_state['values']['moosend_list_name'];

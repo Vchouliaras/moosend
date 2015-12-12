@@ -206,10 +206,11 @@ function moosend_lists_member_action_submit($form, &$form_state) {
 
 
 /**
- * [moosend_lists_member_action description]
- * @param  [type] &$entity [description]
- * @param  [type] $context [description]
- * @return [type]          [description]
+ * Action Callback for Moosend operations
+ *
+ * @param &$entity
+ * @param $context
+ * @return
  */
 function moosend_lists_member_action(&$entity, $context) {
   if ($context['entity_type'] == 'user') {

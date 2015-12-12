@@ -26,12 +26,25 @@ define('CAMPAIGN_ARCHIVED', 12);
 /**
  * Implements hook_enable().
  *
- * Syncronize Campaign Entities with Moosend Campaigns
- *
  */
 function moosend_campaigns_enable() {
-  $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
+  _moosend_campaigns_sync();
+}
+
+
+/**
+ * Helper to syncronize Campaigns Entities with Moosend Campaigns
+ *
+ */
+function _moosend_campaigns_sync() {
+
+  //Avoid PHP notice
+  if(!moosend_initialize_api()) {
+    return NULL;
+  }
+
   $entity_campaigns = entity_load('moosend_campaigns');
+  $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
   //Bypass count return value FALSE
   if ($campaigns !== FALSE && $entity_campaigns !== FALSE) {
@@ -53,6 +66,7 @@ function moosend_campaigns_enable() {
     }
   }
 }
+
 
 /**
  * Helper to create Moosend Campaigns Entities
@@ -80,7 +94,7 @@ function _moosend_campaigns_create_entities($campaign_id, $params) {
   $campaign->settings['PlainContent'] = $params['PlainContent'];
 
   if ($campaign->save()) {
-    watchdog('moosend_campaigns', 'A new moosend_campaign entity created in hook_enable with name ."%name"', array(
+    watchdog('moosend_campaigns', 'A new Moosend Campaign entity created in hook_enable with name ."%name"', array(
     '%name' => $campaign->name),
     WATCHDOG_NOTICE);
   }
@@ -94,7 +108,7 @@ function _moosend_campaigns_create_entities($campaign_id, $params) {
  */
 function _moosend_campaigns_delete_entities($campaign) {
   if (entity_delete('moosend_campaigns', $campaign->campaign_id)) {
-    watchdog('moosend_campaigns', 'A moosend_campaign entity deleted in hook_enable with name ."%name"', array(
+    watchdog('moosend_campaigns', 'A Moosend Campaign entity deleted in hook_enable with name ."%name"', array(
     '%name' => $campaign->name),
     WATCHDOG_NOTICE);
   }
@@ -154,7 +168,8 @@ function moosend_campaigns_permission() {
  */
 function moosend_campaigns_access_callback($op, $subscriptions = NULL, $account = NULL) {
   if (moosend_initialize_api()) {
-    if (user_access('administer moosend campaigns', $account) && user_access('administer moosend', $account)) {
+    if (user_access('administer moosend campaigns', $account)
+        && user_access('administer moosend', $account)) {
       return TRUE;
     }
   }
@@ -181,3 +196,8 @@ function moosend_entity_ui_title_callback($op, $entity_type, $bundle_name = NULL
       return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
   }
 }
+
+
+// drush pm-uninstall moosend_campaigns -y; drush pm-uninstall moosend_subscriptions -y; drush pm-uninstall -y moosend_lists;drush pm-uninstall -y moosend
+
+// drush dis moosend_campaigns -y; drush dis moosend_subscriptions -y; drush dis -y moosend_lists;drush dis -y moosend

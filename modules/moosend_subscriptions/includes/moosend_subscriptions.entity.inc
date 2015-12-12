@@ -2,7 +2,6 @@
 
 /**
 * @file
-*
 *  Moosend Subscription Module for extending Entity API
 */
 

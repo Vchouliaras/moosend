@@ -8,12 +8,12 @@
 
 /**
  * [moosend_get_campaings description]
- * @param  integer $page       [description]
- * @param  integer $page_size  [description]
- * @param  string  $sort_by     [description]
- * @param  string  $sort_method [description]
- * @param  boolean $cache      [description]
- * @return [type]              [description]
+ * @param  integer $page
+ * @param  integer $page_size
+ * @param  string  $sort_by
+ * @param  string  $sort_method
+ * @param  boolean $cache
+ * @return
  */
 function moosend_get_campaings($page = 1, $page_size = 100, $sort_by = 'CreatedOn', $sort_method = 'ASC', $cache = TRUE) {
   $campaings_details = $campaings_ids = array();
@@ -97,7 +97,7 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sort_by = 'CreatedO
 
 /**
  * [moosend_get_active_senders description]
- * @return [type] [description]
+ * @return
  */
 function moosend_get_active_senders() {
   $moosend_senders = array();
@@ -126,8 +126,8 @@ function moosend_get_active_senders() {
 
 /**
  * [moosend_delete_campaign description]
- * @param  [type] $campaign_id [description]
- * @return [type]              [description]
+ * @param   $campaign_id
+ * @return
  */
 function moosend_delete_campaign($campaign_id) {
   $status = TRUE;
@@ -153,8 +153,8 @@ function moosend_delete_campaign($campaign_id) {
 
 /**
  * [moosend_create_campaign_draft description]
- * @param  [type] $params [description]
- * @return [type]         [description]
+ * @param   $params
+ * @return
  */
 function moosend_create_campaign_draft($params) {
   $campaign_id = '';
@@ -180,9 +180,9 @@ function moosend_create_campaign_draft($params) {
 
 /**
  * [moosend_update_campaign_draft description]
- * @param  [type] $campaign_id [description]
- * @param  [type] $params      [description]
- * @return [type]              [description]
+ * @param   $campaign_id
+ * @param   $params
+ * @return
  */
 function moosend_update_campaign_draft($campaign_id, $params){
 $status = TRUE;
@@ -243,8 +243,8 @@ $campaign = $moosend_api_key->campaigns->getCampaign($campaign_id);
 
 /**
  * [moosend_send_campaign description]
- * @param  [type] $campaign_id [description]
- * @return [type]              [description]
+ * @param   $campaign_id
+ * @return
  */
 function moosend_send_campaign($campaign_id) {
   $status = TRUE;
@@ -270,9 +270,9 @@ function moosend_send_campaign($campaign_id) {
 
 /**
  * [moosend_send_test_campaign description]
- * @param  [type] $campaign_id [description]
- * @param  [type] $email       [description]
- * @return [type]              [description]
+ * @param   $campaign_id
+ * @param   $email
+ * @return
  */
 function moosend_send_test_campaign($campaign_id, $emails) {
   $status = TRUE;
@@ -319,8 +319,8 @@ function moosend_campaign_clone($campaign_id){
 
 /**
  * [moosend_get_campaign_status_name description]
- * @param  [type] $code [description]
- * @return [type]       [description]
+ * @param   $code
+ * @return
  */
 function moosend_get_campaign_status_name($code) {
   $status = NULL;

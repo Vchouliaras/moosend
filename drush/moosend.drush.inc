@@ -30,7 +30,6 @@ function moosend_drush_command() {
 
 /**
  *  Drush Command Callback
- *
  */
 function _moosend_drush_download_wrapper() {
   $args = func_get_args();
@@ -88,7 +87,8 @@ function _moosend_drush_download_wrapper() {
  * Helper to get full library path
  *
  * @param string $dir
- * @return  string
+ * @return
+ *  Normalize path
  */
 function _moosend_build_path($dir) {
   return drush_trim_path($dir) . drush_normalize_path('/src/moosend/MoosendApi.php');

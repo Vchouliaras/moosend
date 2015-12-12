@@ -119,10 +119,15 @@ function moosend_initialize_api() {
 
 
 /**
- * [moosend_add_to_cron_queue description]
- * @param  [type] $function [description]
- * @param  [type] $args     [description]
- * @return [type]           [description]
+ * Adds items to DrupalQueue for processing
+ *
+ * @param $function
+ *   The name of the function to operate
+ *   i.e subscribe,remove,unsubscribe
+ * @param $args
+ *   Arguments of the function name
+ * @return
+ *  Creates a new record in Queue
  */
 function moosend_add_to_cron_queue($function, $args) {
   $queue = DrupalQueue::get(MOOSEND_CRON_QUEUE);
@@ -160,8 +165,8 @@ function moosend_cron() {
  * Transform Moosend form elements to Drupal elements.
  *
  * @param array $fields
- *
- * @return array
+ * @return $elements
+ *  Drupal specific element types
  */
 function moosend_fields_to_drupal_elements($fields) {
 
@@ -215,9 +220,9 @@ function moosend_fields_to_drupal_elements($fields) {
 
 
 /**
- * [_moosend_parse_date description]
- * @param  [type] $date [description]
- * @return [type]       [description]
+ * Helper to parse date from Moosend repsonse
+ * @param  $data
+ * @return object Datetime
  */
 function _moosend_parse_date($date) {
   if (!empty($date)) {
@@ -230,8 +235,3 @@ function _moosend_parse_date($date) {
    return new DateTime('@' . $timestamp);
   }
 }
-
-// vasilis
-// vasilis100
-// moosend
-// CaE9kcCua0Zu
