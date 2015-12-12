@@ -18,7 +18,7 @@ define('CAMPAIGN_NOT_ENOUGH_CREDITS', 4);
 
 define('CAMPAIGN_SENDING', 6);
 
-define('CAMPAIGN_SELECTING_WINNER',11);
+define('CAMPAIGN_SELECTING_WINNER', 11);
 
 define('CAMPAIGN_ARCHIVED', 12);
 
@@ -34,18 +34,18 @@ function moosend_campaigns_enable() {
   $entity_campaigns = entity_load('moosend_campaigns');
 
   //Bypass count return value FALSE
-  if($campaigns !== FALSE && $entity_campaigns !== FALSE) {
-    if(count($campaigns) !== count($entity_campaigns)) {
-      if(count($campaigns) > count($entity_campaigns)) {
+  if ($campaigns !== FALSE && $entity_campaigns !== FALSE) {
+    if (count($campaigns) !== count($entity_campaigns)) {
+      if (count($campaigns) > count($entity_campaigns)) {
         foreach ($campaigns as $id => $values) {
-          if(!isset($entity_campaigns[$id])) {
+          if (!isset($entity_campaigns[$id])) {
             _moosend_campaigns_create_entities($id, $values);
           }
         }
       }
-      elseif (count($campaigns) < count($entity_campaigns)){
+      elseif (count($campaigns) < count($entity_campaigns)) {
         foreach ($entity_campaigns as $id => $values) {
-         if(!isset($campaigns[$id])) {
+         if (!isset($campaigns[$id])) {
             _moosend_campaigns_delete_entities($values);
           }
         }
@@ -55,12 +55,12 @@ function moosend_campaigns_enable() {
 }
 
 /**
- * [_moosend_campaigns_create_entities description]
- * @param  [type] $campaign_id [description]
- * @param  [type] $params      [description]
- * @return [type]              [description]
+ * Helper to create Moosend Campaigns Entities
+ *
+ * @param  $campaign_id
+ * @param  $params
  */
-function _moosend_campaigns_create_entities($campaign_id, $params){
+function _moosend_campaigns_create_entities($campaign_id, $params) {
   $campaign = entity_get_controller('moosend_campaigns')->create();
 
   //Populate Entity
@@ -86,13 +86,14 @@ function _moosend_campaigns_create_entities($campaign_id, $params){
   }
 }
 
+
 /**
- * [_moosend_campaigns_delete_entities description]
- * @param  [type] $campaign [description]
- * @return [type]           [description]
+ * Helper to delete Moosend Campaigns Entities
+ *
+ * @param  $campaign_id
  */
 function _moosend_campaigns_delete_entities($campaign) {
-  if(entity_delete('moosend_campaigns', $campaign->campaign_id)) {
+  if (entity_delete('moosend_campaigns', $campaign->campaign_id)) {
     watchdog('moosend_campaigns', 'A moosend_campaign entity deleted in hook_enable with name ."%name"', array(
     '%name' => $campaign->name),
     WATCHDOG_NOTICE);
@@ -160,19 +161,18 @@ function moosend_campaigns_access_callback($op, $subscriptions = NULL, $account 
   return FALSE;
 }
 
+
 /**
  * Gets the page/menu title for local action operations.
  *
  * @param $op
- *  The current operation. One of 'add' or 'import'.
  * @param $entity_type
- *  The entity type.
  * @param $bundle_name
  *  (Optional) The name of the bundle. May be NULL if the bundle name is not
  *  relevant to the current page. If the entity type has only one bundle, or no
  *  bundles, this will be the same as the entity type.
  */
-function moosend_entity_ui_title_callback($op, $entity_type, $bundle_name = NULL){
+function moosend_entity_ui_title_callback($op, $entity_type, $bundle_name = NULL) {
   $info = entity_get_info($entity_type);
   switch ($op) {
     case 'add':

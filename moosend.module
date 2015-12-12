@@ -2,16 +2,21 @@
 
 /**
  * @file
- *
  * Moosend Module
  */
 
 define('MOOSEND_CRON_QUEUE', 'moosend');
+
 define('MOOSEND_PAGER', 15);
+
 define('MOOSEND_NUMBER_FIELD', 0);
+
 define('MOOSEND_TEXT_FIELD', 1);
+
 define('MOOSEND_DATETIME_FIELD', 2);
+
 define('MOOSEND_DROPDOWN_FIELD', 3);
+
 define('MOOSEND_CHECKBOX_FIELD', 5);
 
 

@@ -2,7 +2,6 @@
 
 /**
 * @file
-*
 *  Moosend Campaigns Module for Admin Interface.
 */
 
@@ -12,9 +11,8 @@
  */
 function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
 
-
-  // Provide a wrapper around the entire form, since we'll replace the whole
-  // thing with each submit.
+  // Provide a wrapper since we'll replace the whole
+  // form with each submit.
   $form['#prefix'] = '<div id="campaigns-add-form-wrapper">';
   $form['#suffix'] = '</div>';
 
@@ -216,18 +214,12 @@ function _moosend_campaigns_add_form_callback($form, $form_state) {
 /**
  *  Return default values for multistep form
  *
+ * @todo
+ *  Set defaults values to form
+ *  either from Entity of form_state values
  */
-function _moosend_campaings_get_default_value($campaign_field, $form_state_field){
+function _moosend_campaings_get_default_value($campaign_field, $form_state_field) {
 
-  // if($campaign_field) {
-    // return $campaign_field;
-  // }
-  if(!empty($form_state_field)) {
-    return $form_state_field;
-  }
-  else {
-  }
-    return ' ';
 }
 
 
@@ -245,7 +237,7 @@ function moosend_campaigns_form_submit($form, &$form_state) {
   //Normalize multistep values
   foreach ($form_state['storage']['values'] as $key => $multistep_values) {
     foreach ($multistep_values as $key => $value) {
-      if(is_array($value)) {
+      if (is_array($value)) {
           $params[key($value)] = (reset($value) == 'none') ? NULL : reset($value);
       }
       else {

@@ -2,7 +2,6 @@
 
 /**
 * @file
-*
 *  Moosend Campaigns extending Entity API
 */
 
@@ -66,7 +65,7 @@ class MoosendCampaignsController extends EntityAPIController{
    */
   public function delete($ids, DatabaseTransaction $transaction = NULL) {
     foreach ($ids as $id) {
-      if(!moosend_delete_campaign($id)) {
+      if (!moosend_delete_campaign($id)) {
         return FALSE;
       }
     }
