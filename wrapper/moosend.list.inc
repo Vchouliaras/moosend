@@ -107,7 +107,8 @@ function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FA
   try {
     $members = $moosend_api->mailingLists->getSubscribers($list_id, 'Subscribed', $since);
     foreach ($members as $key => $subscriber) {
-      $subscribers[$key]['name'] =  empty($subscriber->getName()) ?  t('Anonymous') : $subscriber->getName();
+      $ubscriber_name = $subscriber->getName();
+      $subscribers[$key]['name'] =  empty($ubscriber_name) ?  t('Anonymous') : $subscriber->getName();
       $subscribers[$key]['email'] =  $subscriber->getEmail();
     }
     cache_set($list_id . '-subscribers', $subscribers, 'cache_moosend');
@@ -125,7 +126,7 @@ function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FA
 
 /**
  * [moosend_create_mailing_list description]
- * @param   $name
+ * @param   $ubscriber_name
  * @param   $confirmation_page
  * @param   $redirect_after_unsubscribe_page
  * @return
