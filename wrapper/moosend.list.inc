@@ -17,8 +17,9 @@
 function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id = NULL, $cache = TRUE) {
   $lists_details = $lists_ids = array();
   if ($cache) {
-     if (!empty(cache_get('lists', 'cache_moosend'))) {
-      $lists_ids = cache_get('lists', 'cache_moosend') -> data;
+     $list_cache = cache_get('lists', 'cache_moosend');
+     if (!empty($list_cache)) {
+      $lists_ids = $list_cache -> data;
       foreach ($lists_ids as $id) {
         $lists_details[$id] = cache_get('list-' . $id, 'cache_moosend')->data;
       }

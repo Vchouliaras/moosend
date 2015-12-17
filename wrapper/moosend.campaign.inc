@@ -19,8 +19,9 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sort_by = 'CreatedO
   $campaings_details = $campaings_ids = array();
 
   if ($cache) {
-   if (!empty(cache_get('campaigns', 'cache_moosend'))) {
-    $campaings_ids = cache_get('campaigns', 'cache_moosend') -> data;
+   $campaign_cache = cache_get('campaigns', 'cache_moosend');
+   if (!empty($campaign_cache)) {
+    $campaings_ids = $campaign_cache -> data;
     foreach ($campaings_ids as $id) {
       $campaings_details[$id] = cache_get('campaign-' . $id, 'cache_moosend') -> data;
     }
