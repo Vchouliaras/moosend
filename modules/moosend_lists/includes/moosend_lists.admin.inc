@@ -312,7 +312,7 @@ function moosend_lists_add_list_segments($form, &$form_state) {
       '#title' => t('Criteria Fields'),
       '#options' => _moosend_criteria_fields(),
       '#ajax' => array(
-        'callback' => 'ajax_date_added_criteria_callback',
+        'callback' => '_moosend_list_ajax_date_added_criteria_callback',
         'wrapper' => 'criteria-wrapper-row-' . $i ,
       ),
     );
@@ -413,9 +413,9 @@ function moosend_lists_add_list_segments($form, &$form_state) {
   $form['criteria_fieldset']['add_criteria'] = array(
     '#type' => 'submit',
     '#value' => t('Add New Criteria'),
-    '#submit' => array('ajax_add_more_criteria_add_one'),
+    '#submit' => array('_moosend_lists_ajax_add_more_criteria_add_one'),
     '#ajax' => array(
-      'callback' => 'ajax_add_more_criteria_callback',
+      'callback' => '_moosend_lists_ajax_add_more_criteria_callback',
       'wrapper' => 'moosend-criteria-fieldset-wrapper',
     ),
   );
@@ -424,9 +424,9 @@ function moosend_lists_add_list_segments($form, &$form_state) {
     $form['criteria_fieldset']['remove_criteria'] = array(
       '#type' => 'submit',
       '#value' => t('Remove one'),
-      '#submit' => array('ajax_add_more_criteria_remove_one'),
+      '#submit' => array('_moosend_lists_ajax_add_more_criteria_remove_one'),
       '#ajax' => array(
-        'callback' => 'ajax_add_more_criteria_callback',
+        'callback' => '_moosend_lists_ajax_add_more_criteria_callback',
         'wrapper' => 'moosend-criteria-fieldset-wrapper',
       ),
     );
@@ -447,7 +447,7 @@ function moosend_lists_add_list_segments($form, &$form_state) {
  *
  * ;Selects and returns the fieldset with the names in it.
  */
-function ajax_date_added_criteria_callback($form, &$form_state) {
+function _moosend_list_ajax_date_added_criteria_callback($form, &$form_state) {
   $row = substr($form_state['triggering_element']['#name'], 0, -1);
   $row = substr($row, -1);
 
@@ -461,7 +461,7 @@ function ajax_date_added_criteria_callback($form, &$form_state) {
  *
  * ;Selects and returns the fieldset with the names in it.
  */
-function ajax_add_more_criteria_callback($form, &$form_state) {
+function _moosend_lists_ajax_add_more_criteria_callback($form, &$form_state) {
   return $form['criteria_fieldset'];
 }
 
@@ -472,7 +472,7 @@ function ajax_add_more_criteria_callback($form, &$form_state) {
  *
  * ;Increments the max counter and causes a rebuild.
  */
-function ajax_add_more_criteria_add_one($form, &$form_state) {
+function _moosend_lists_ajax_add_more_criteria_add_one($form, &$form_state) {
   $form_state['num_criteria'] ++;
   $form_state['rebuild'] = TRUE;
 }
@@ -484,7 +484,7 @@ function ajax_add_more_criteria_add_one($form, &$form_state) {
  *
  * ;Decrements the max counter and causes a form rebuild.
  */
-function ajax_add_more_criteria_remove_one($form, &$form_state) {
+function _moosend_lists_ajax_add_more_criteria_remove_one($form, &$form_state) {
   if ($form_state['num_criteria'] > 1) {
     $form_state['num_criteria'] --;
   }
