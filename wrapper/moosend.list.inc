@@ -8,11 +8,11 @@
 
 /**
  * [moosend_get_active_lists_details description]
- * @param  integer $page      [description]
- * @param  integer $page_size [description]
- * @param  [type]  $list_id   [description]
- * @param  boolean $cache     [description]
- * @return [type]             [description]
+ * @param  integer $page
+ * @param  integer $page_size
+ * @param    $list_id
+ * @param  boolean $cache
+ * @return
  */
 function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id = NULL, $cache = TRUE) {
   $lists_details = $lists_ids = array();
@@ -62,9 +62,9 @@ function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id =
 
 /**
  * [moosend_get_active_list_custom_fields description]
- * @param  [type]  $list_id [description]
- * @param  boolean $cache   [description]
- * @return [type]           [description]
+ * @param    $list_id
+ * @param  boolean $cache
+ * @return
  */
 function moosend_get_active_list_custom_fields($list_id, $cache = TRUE) {
   $fields = array();
@@ -80,10 +80,10 @@ function moosend_get_active_list_custom_fields($list_id, $cache = TRUE) {
 
 /**
  * [moosend_get_active_list_subscibers description]
- * @param  [type]  $list_id [description]
- * @param  [type]  $since   [description]
- * @param  boolean $cache   [description]
- * @return [type]           [description]
+ * @param    $list_id
+ * @param    $since
+ * @param  boolean $cache
+ * @return
  *
  */
 function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FALSE ) {
@@ -124,10 +124,10 @@ function moosend_get_active_list_subscibers($list_id, $since = NULL, $cache = FA
 
 /**
  * [moosend_create_mailing_list description]
- * @param  [type] $name                         [description]
- * @param  [type] $confirmation_page             [description]
- * @param  [type] $redirect_after_unsubscribe_page [description]
- * @return [type]                               [description]
+ * @param   $name
+ * @param   $confirmation_page
+ * @param   $redirect_after_unsubscribe_page
+ * @return
  */
 function moosend_create_mailing_list($name, $confirmation_page = NULL, $redirect_after_unsubscribe_page = NULL) {
    try {
@@ -152,8 +152,8 @@ function moosend_create_mailing_list($name, $confirmation_page = NULL, $redirect
 
 /**
  * [moosend_delete_mailing_list description]
- * @param  [type] $list_id [description]
- * @return [type]          [description]
+ * @param   $list_id
+ * @return
  */
 function moosend_delete_mailing_list($list_id) {
     $status = TRUE;
