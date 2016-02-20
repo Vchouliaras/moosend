@@ -160,7 +160,7 @@ function moosend_lists_member_action_form($settings, &$form_state) {
  //Search for custom fields only for Subscribe operations
  if ($operation === 'Subscribe') {
     if (!empty($list_custom_fields)) {
-        foreach ($list_custom_fields as $key => $field) {
+        foreach ($list_custom_fields as $field) {
           $form['custom_fields'][$field->Name] = array(
             '#type' => 'textfield',
             '#title' => check_plain($field->Name),
@@ -217,7 +217,7 @@ function moosend_lists_member_action(&$entity, $context) {
 
     //Replace tokens to custom fields
     if (isset($context['custom_fields'])) {
-      foreach ($context['custom_fields'] as $key => &$value) {
+      foreach ($context['custom_fields'] as &$value) {
         if (strpos($value, '[user:') !== false) {
           $value = token_replace($value, array('user' => $entity), array('clear', TRUE));
         }

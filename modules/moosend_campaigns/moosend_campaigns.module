@@ -196,8 +196,3 @@ function moosend_entity_ui_title_callback($op, $entity_type, $bundle_name = NULL
       return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
   }
 }
-
-
-// drush pm-uninstall moosend_campaigns -y; drush pm-uninstall moosend_subscriptions -y; drush pm-uninstall -y moosend_lists;drush pm-uninstall -y moosend
-
-// drush dis moosend_campaigns -y; drush dis moosend_subscriptions -y; drush dis -y moosend_lists;drush dis -y moosend

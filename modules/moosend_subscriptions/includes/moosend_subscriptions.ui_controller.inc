@@ -79,7 +79,7 @@ class MoosendSubscriptionsUIController extends EntityDefaultUIController{
 
     if (isset($entity->settings['custom_fields'])) {
         $customFields = array();
-        foreach ($entity->settings['custom_fields'] as $key => $field) {
+        foreach ($entity->settings['custom_fields'] as $field) {
           $customFields[] = $field->Name;
         }
         $customFields = !empty($customFields) ? implode(', ', $customFields) : t('None');

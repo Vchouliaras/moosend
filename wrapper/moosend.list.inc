@@ -34,7 +34,8 @@ function moosend_get_active_lists_details($page = 1, $page_size = 10, $list_id =
       $active_mailing_lists = $moosend_api_key->mailingLists->getActiveMailingLists($page, $page_size);
       if (!empty($active_mailing_lists)) {
         foreach ($active_mailing_lists as $active_mailing_list) {
-          $lists_details[$mailing_list_id]['ID'] = $mailing_list_id = $active_mailing_list->getID();
+          $mailing_list_id = $active_mailing_list->getID();
+          $lists_details[$mailing_list_id]['ID'] = $mailing_list_id;
           $lists_details[$mailing_list_id]['Name'] =  $active_mailing_list->getName();
           $lists_details[$mailing_list_id]['ActiveMemberCount'] =  $active_mailing_list->getActiveMemberCount();
           $lists_details[$mailing_list_id]['BouncedMemberCount'] =  $active_mailing_list->getBouncedMemberCount();
@@ -71,7 +72,7 @@ function moosend_get_active_list_custom_fields($list_id, $cache = TRUE) {
   $fields = array();
   $active_list = moosend_get_active_lists_details(1, 10, $list_id, $cache);
   if (isset($active_list['CustomFieldsDefinition'])) {
-    foreach ($active_list['CustomFieldsDefinition'] as $key => $field) {
+    foreach ($active_list['CustomFieldsDefinition'] as $field) {
       $fields[$field->Name] = (object)(array)$field; //Cast to stdClass object
     }
   }

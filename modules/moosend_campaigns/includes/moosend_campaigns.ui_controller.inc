@@ -428,9 +428,10 @@ protected function operationFormClone($form, &$form_state, $entity) {
           }
         }
         elseif ($values['send_action'] == 'schedule') {
-          $timezone = $values['wrapper']['schedule']['moosend_timezone'];
-          $datetime = $values['wrapper']['schedule']['moosend_datetime'];
 
+          //Support for Scheduling
+          // $timezone = $values['wrapper']['schedule']['moosend_timezone'];
+          // $datetime = $values['wrapper']['schedule']['moosend_datetime'];
         }
         case 'clone':
           $clone = moosend_campaign_clone($entity->campaign_id);

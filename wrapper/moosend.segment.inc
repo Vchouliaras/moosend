@@ -140,7 +140,7 @@ function moosend_update_segment($mailing_list_id, $name, $match_type) {
   $status = TRUE;
   try {
     $moosend_api_key = moosend_initialize_api();
-    $update_segment_response = $moosend_api_key->segments->update($mailing_list_id, $name, $match_type);
+    $moosend_api_key->segments->update($mailing_list_id, $name, $match_type);
     watchdog('moosend', 'Segment  "@name" was updated for list @list.',
       array('@name' => $name, '@list' => $mailing_list_id),
       WATCHDOG_NOTICE);
@@ -171,20 +171,20 @@ function moosend_delete_segment($mailing_list_id, $segment_id) {
     $segments_ids = array();
 
     foreach (moosend_get_list_segments($mailing_list_id) as $segment) {
-        $segments_ids[] = $segment['id'];
+      $segments_ids[] = $segment['id'];
     }
 
     if (in_array($segment_id, $segments_ids)) {
-      $delete_segment_response = $moosend_api_key->segments->delete($mailing_list_id, $segment_id);
+      $moosend_api_key->segments->delete($mailing_list_id, $segment_id);
       watchdog('moosend', 'Segment  "@id" was deleted for list @list.',
         array('@name' => $segment_id, '@list' => $mailing_list_id),
         WATCHDOG_NOTICE);
-      }
+    }
   }
   catch (Exception $e) {
     $status = FALSE;
     watchdog('moosend', 'An error occurred deleting "@name" for list @list. "%message"', array(
-      '@name' => $name,
+      '@name' => $segment_id,
       '@list' => $mailing_list_id,
       '%message' => $e->getMessage()),
       WATCHDOG_ERROR);

@@ -38,7 +38,8 @@ function moosend_get_campaings($page = 1, $page_size = 100, $sort_by = 'CreatedO
       if (!empty($campaigns)) {
         cache_clear_all('campaign-', 'cache_moosend', TRUE);
         foreach ($campaigns as $campaign) {
-          $campaigns_details[$campaign_id]['ID'] = $campaign_id = $campaign->getID();
+          $campaign_id = $campaign->getID();
+          $campaigns_details[$campaign_id]['ID'] = $campaign_id;
           $campaigns_details[$campaign_id]['Name'] = $campaign->getName();
           $campaigns_details[$campaign_id]['Subject'] = $campaign->getSubject();
           $campaigns_details[$campaign_id]['SiteName'] = $campaign->getSiteName();
@@ -105,8 +106,9 @@ function moosend_get_active_senders() {
   try {
       $moosend_api_key = moosend_initialize_api();
       $senders = $moosend_api_key->campaigns->getAllSenders();
-      foreach ($senders as $key => $sender) {
-        $moosend_senders[$sender_id]['ID'] = $sender_id = $sender->getID();
+      foreach ($senders as $sender) {
+        $sender_id = $sender->getID();
+        $moosend_senders[$sender_id]['ID'] = $sender_id;
         $moosend_senders[$sender_id]['Name'] = $sender->getName();
         $moosend_senders[$sender_id]['Email'] = $sender->getEmail();
         $moosend_senders[$sender_id]['Email'] = $sender->getEmail();
@@ -134,7 +136,7 @@ function moosend_delete_campaign($campaign_id) {
   $status = TRUE;
   try {
     $moosend_api_key = moosend_initialize_api();
-    $campaign_deleted = $moosend_api_key->campaigns->delete($campaign_id);
+    $moosend_api_key->campaigns->delete($campaign_id);
     $campaigns = moosend_get_campaings();
       watchdog('moosend', 'Campaing "@Name" was deleted succefully.',
       array('@Name' => $campaigns[$campaign_id]['Name']),
@@ -228,18 +230,6 @@ $campaign = $moosend_api_key->campaigns->getCampaign($campaign_id);
     }
   return $status;
 }
-
-// setName();
-// setStatus();
-// setSubject();
-// setReplyToEmail(Sender $sender)
-// setMailingList(MailingList $mailingList)
-// setWebLocation($webLocation)
-// setSender(Sender $sender)
-// setConfirmationTo($confirmationTo)
-// setSegment(Segment $segment)
-
-
 
 
 /**

@@ -157,16 +157,18 @@ function moosend_lists_clear_cache_submit($form, &$form_state) {
 function moosend_lists_delete($form, &$form_state, $list_id) {
   $delete_list_destination = 'admin/config/services/moosend/lists';
   $list_detail = moosend_get_active_lists_details(1, 10, $list_id);
+
   $form_state['list'] = array(
-    'ID' => $list_detail['ID'],
-    'Name' => $list_detail['Name']
+      'ID' => $list_detail['ID'],
+      'Name' => $list_detail['Name']
     );
+
   return confirm_form($form,
-    t('Reset Moosend mailing lists'),
-    $delete_list_destination,
-    t('Confirm deleting mailing list "' . $list_detail['Name'] . '"'),
-    'Confirm'
-  );
+      t('Reset Moosend mailing lists'),
+      $delete_list_destination,
+      t('Confirm deleting mailing list "' . $list_detail['Name'] . '"'),
+      'Confirm'
+    );
 }
 
 

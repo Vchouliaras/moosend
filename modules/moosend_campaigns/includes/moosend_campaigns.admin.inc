@@ -133,7 +133,7 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
       if ($segments = moosend_get_list_segments($choosen_mailing_list)) {
         $segment_options = array();
         $segment_options['none'] = t('None');
-        foreach ($segments as $key => $segment) {
+        foreach ($segments as $segment) {
           $segment_options[$segment['id']] = $segment['name'];
         }
         $form['step2']['segments_group']['SegmentID'] = array(

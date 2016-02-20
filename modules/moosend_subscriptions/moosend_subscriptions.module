@@ -207,7 +207,6 @@ function moosend_subscriptions_forms($form_id, $args) {
  * Returns a subscription form for Moosend Lists
  */
 function moosend_subscriptions_form_factory($form, &$form_state, $subscription, $mode) {
-    global $conf;
 
     $wrapper = 'moosend_form_' . $subscription->sub_id;
     $form['moosend'][$wrapper] = array(

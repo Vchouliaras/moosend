@@ -151,8 +151,8 @@ function moosend_cron() {
     $batch_size = ($queue_count < $batch_limit) ? $queue_count : $batch_limit;
     $count = 0;
     while ($count < $batch_size) {
-      $got_item = $queue->claimItem();
-      if ($got_item !== FALSE) {
+      $item = $queue->claimItem();
+      if ($item !== FALSE) {
         call_user_func_array($item->data['function'], $item->data['args']);
         $queue->deleteItem($item);
       }
