@@ -1,15 +1,14 @@
 <?php
 
 /**
-* @file
-*  Moosend Campaigns Module for Admin Interface.
-*/
-
+ * @file
+ * Moosend Campaigns Module for Admin Interface.
+ */
 
 /**
- *  Menu Entity Callback: Moosend Add draft Campaing - Wizard form
+ * Menu Entity Callback: Moosend Add draft Campaing - Wizard form.
  */
-function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
+function moosend_campaigns_form($form, &$form_state, $campaign, $op) {
 
   // Provide a wrapper since we'll replace the whole
   // form with each submit.
@@ -102,13 +101,13 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
         '#required' => TRUE,
         '#default_value' => isset($campaign->settings['MailingListID']) ? $campaign->settings['MailingListID'] : key($mailing_lists_options),
         '#ajax' => array(
-        'callback' => '_moosend_campaigns_add_form_segments_callback',
-        'wrapper' => 'segments-fields-wrapper',
-        'progress' => array(
-          'type' => 'throbber',
-          'message' => t('Getting Mailing Lists Segments...'),
+          'callback' => '_moosend_campaigns_add_form_segments_callback',
+          'wrapper' => 'segments-fields-wrapper',
+          'progress' => array(
+            'type' => 'throbber',
+            'message' => t('Getting Mailing Lists Segments...'),
           ),
-        )
+        ),
       );
 
       $form['step2']['segments_group'] = array(
@@ -121,13 +120,13 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
       );
 
       if (!empty($campaign->settings['MailingListID'])) {
-        $choosen_mailing_list =  $campaign->settings['MailingListID'];
+        $choosen_mailing_list = $campaign->settings['MailingListID'];
       }
       elseif (!empty($form_state['values']['step2']['MailingListID'])) {
         $choosen_mailing_list = $form_state['values']['step2']['MailingListID'];
       }
       else {
-        $choosen_mailing_list =  key($mailing_lists_options);
+        $choosen_mailing_list = key($mailing_lists_options);
       }
 
       if ($segments = moosend_get_list_segments($choosen_mailing_list)) {
@@ -139,7 +138,7 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
         $form['step2']['segments_group']['SegmentID'] = array(
           '#type' => 'select',
           '#options' => $segment_options,
-          );
+        );
         if (isset($campaign->settings['SegmentID'])) {
           $form['step2']['segments_group']['SegmentID']['#default_value'] = $campaign->settings['SegmentID'];
         }
@@ -188,14 +187,12 @@ function moosend_campaigns_form($form, &$form_state, $campaign = NULL, $op) {
     );
   }
 
-
   return $form;
 }
 
 
 /**
- * Wizard callback function for Mailing Lists segments
- *
+ * Wizard callback function for Mailing Lists segments.
  */
 function _moosend_campaigns_add_form_segments_callback($form, $form_state) {
   return $form['step2']['segments_group'];
@@ -204,7 +201,6 @@ function _moosend_campaigns_add_form_segments_callback($form, $form_state) {
 
 /**
  * Wizard callback function for steps.
- *
  */
 function _moosend_campaigns_add_form_callback($form, $form_state) {
   return $form;
@@ -212,7 +208,7 @@ function _moosend_campaigns_add_form_callback($form, $form_state) {
 
 
 /**
- *  Return default values for multistep form
+ * Return default values for multistep form.
  *
  * @todo
  *  Set defaults values to form
@@ -225,7 +221,6 @@ function _moosend_campaings_get_default_value($campaign_field, $form_state_field
 
 /**
  * Submit handler for moosend_campaigns_form().
- *
  */
 function moosend_campaigns_form_submit($form, &$form_state) {
 
@@ -234,18 +229,17 @@ function moosend_campaigns_form_submit($form, &$form_state) {
     $form_state['storage']['values'][$current_step] = $form_state['values'][$current_step];
   }
 
-  //Normalize multistep values
+  // Normalize multistep values.
   foreach ($form_state['storage']['values'] as $key => $multistep_values) {
     foreach ($multistep_values as $key => $value) {
       if (is_array($value)) {
-          $params[key($value)] = (reset($value) == 'none') ? NULL : reset($value);
+        $params[key($value)] = (reset($value) == 'none') ? NULL : reset($value);
       }
       else {
         $params[$key] = $value;
       }
     }
   }
-
 
   switch ($form_state['triggering_element']['#value']) {
 
@@ -264,17 +258,17 @@ function moosend_campaigns_form_submit($form, &$form_state) {
       break;
 
     case t('Create draft Campaign'):
-      //First try to create Campaing at Moosend
+      // First try to create Campaing at Moosend.
       if ($campaign_id = moosend_create_campaign_draft($params)) {
 
-        //Clear moosend_cache
+        // Clear moosend_cache.
         moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
-        //Get Entity
+        // Get Entity.
         $campaign = !isset($form_state['moosend_campaigns']) ?
         entity_get_controller('moosend_campaigns')->create() : $form_state['moosend_campaigns'];
 
-        //Populate Entity
+        // Populate Entity.
         $campaign->campaign_id = $campaign_id;
         $campaign->status = CAMPAIGN_DRAFT;
         $campaign->name = $params['Name'];
@@ -297,20 +291,21 @@ function moosend_campaigns_form_submit($form, &$form_state) {
 
       $form_state['redirect'] = 'admin/config/services/moosend/campaigns';
       return $form_state['redirect'];
-      break;
+
+    break;
 
     case t('Update Campaign'):
       $campaign_id = $form_state['moosend_campaigns']->campaign_id;
 
       if (moosend_update_campaign_draft($campaign_id, $params)) {
 
-        //Clear moosend_cache
+        // Clear moosend_cache.
         moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
-        //Get Entity
+        // Get Entity.
         $campaign = $form_state['moosend_campaigns'];
 
-        //Populate Entity
+        // Populate Entity.
         $campaign->campaign_id = $campaign_id;
         $campaign->status = CAMPAIGN_DRAFT;
         $campaign->name = $params['Name'];
@@ -333,8 +328,9 @@ function moosend_campaigns_form_submit($form, &$form_state) {
 
       $form_state['redirect'] = 'admin/config/services/moosend/campaigns';
       return $form_state['redirect'];
-      break;
-    }
 
-    $form_state['rebuild'] = TRUE;
+    break;
   }
+
+  $form_state['rebuild'] = TRUE;
+}

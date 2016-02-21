@@ -1,16 +1,19 @@
 <?php
 
 /**
-* @file
-*  Moosend Campaigns extending Entity API
-*/
-
-class MoosendCampaigns extends Entity {
+ * @file
+ * Moosend Campaigns extending Entity API.
+ */
 
 /**
-  * Override this in order to implement a custom default URI and specify
-  * 'entity_class_uri' as 'uri callback' hook_entity_info().
-  */
+ * Extends Entity.
+ */
+class MoosendCampaigns extends Entity {
+
+  /**
+   * Override this in order to implement a custom default URI and specify
+   * 'entity_class_uri' as 'uri callback' hook_entity_info().
+   */
   protected function defaultUri() {
     return array(
       'path' => 'admin/config/services/moosend/campaigns/manage/' . $this->identifier(),
@@ -20,17 +23,21 @@ class MoosendCampaigns extends Entity {
       ),
     );
   }
+
 }
 
 
-class MoosendCampaignsController extends EntityAPIController{
+/**
+ * Controller to extends EntityAPIController.
+ */
+class MoosendCampaignsController extends EntityAPIController {
 
   /**
    * Builds a structured array representing the entity's content.
    *
    * @see entity_build_content()
    */
-    public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $build = parent::buildContent($entity, $view_mode, $langcode, $content);
 
     return $build;
@@ -39,29 +46,20 @@ class MoosendCampaignsController extends EntityAPIController{
 
   /**
    * Implements EntityAPIControllerInterface.
-   *
-   * @param $transaction
-   *   Optionally a DatabaseTransaction object to use. Allows overrides to pass
-   *   in their transaction object.
    */
   public function save($entity, DatabaseTransaction $transaction = NULL) {
 
-      if (isset($entity->is_new) && empty($entity->created_at)) {
-        $entity->created_at = REQUEST_TIME;
-      }
-      $entity->updated_at = REQUEST_TIME;
+    if (isset($entity->is_new) && empty($entity->created_at)) {
+      $entity->created_at = REQUEST_TIME;
+    }
+    $entity->updated_at = REQUEST_TIME;
 
-      return parent::save($entity, $transaction);
+    return parent::save($entity, $transaction);
   }
 
 
-
- /**
+  /**
    * Implements EntityAPIControllerInterface.
-   *
-   * @param $transaction
-   *   Optionally a DatabaseTransaction object to use. Allows overrides to pass
-   *   in their transaction object.
    */
   public function delete($ids, DatabaseTransaction $transaction = NULL) {
     foreach ($ids as $id) {
@@ -70,9 +68,10 @@ class MoosendCampaignsController extends EntityAPIController{
       }
     }
 
-    //Clear moosend_cache
+    // Clear moosend_cache.
     moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
     return parent::delete($ids, $transaction);
   }
+
 }
