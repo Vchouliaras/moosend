@@ -12,4 +12,3 @@ configure = admin/config/services/moosend/subscriptions
 
 files[] = includes/moosend_subscriptions.entity.inc
 files[] = includes/moosend_subscriptions.ui_controller.inc
-

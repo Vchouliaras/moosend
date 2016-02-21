@@ -2,14 +2,13 @@
 
 /**
  * @file
- *  Drush integration for Moosend.
+ * Drush integration for Moosend.
  */
 
 define(MOOSEND_WRAPPER_LINK, 'https://github.com/moosend/phpwrapper/archive/master.zip');
 
 /**
- *  Implements hook_drush_command().
- *
+ * Implements hook_drush_command().
  */
 function moosend_drush_command() {
   $items = array();
@@ -29,7 +28,7 @@ function moosend_drush_command() {
 
 
 /**
- *  Drush Command Callback
+ * Drush Command Callback.
  */
 function _moosend_drush_download_wrapper() {
   $args = func_get_args();
@@ -51,22 +50,22 @@ function _moosend_drush_download_wrapper() {
     }
   }
 
-  //Normalize path
+  // Normalize path.
   $dir = drush_normalize_path($dir);
 
-  // Build full path including filename
+  // Build full path including filename.
   $path = _moosend_build_path($dir);
 
   // If the directory exists and contains a recognized file, we're finished.
   if (file_exists($path)) {
-      drush_log('Moosend PHP Wrapper already installed. No download required.', 'ok');
-      return;
+    drush_log('Moosend PHP Wrapper already installed. No download required.', 'ok');
+    return;
   }
   else {
     // The file was not present. Create the directory to hold it.
     drush_mkdir($dir);
 
-    //Move to $dir
+    // Move to $dir.
     if (drush_op('chdir', $dir)) {
       if (drush_shell_exec('wget -O moosend.zip ' . MOOSEND_WRAPPER_LINK)) {
         drush_shell_exec('unzip moosend.zip -d .');
@@ -84,11 +83,7 @@ function _moosend_drush_download_wrapper() {
 
 
 /**
- * Helper to get full library path
- *
- * @param string $dir
- * @return
- *  Normalize path
+ * Helper to get full library path.
  */
 function _moosend_build_path($dir) {
   return drush_trim_path($dir) . drush_normalize_path('/src/moosend/MoosendApi.php');

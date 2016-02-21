@@ -2,9 +2,15 @@
 
 /**
  * @file
- * Define schema for Moosend Campaigns
+ * Define schema for Moosend Campaigns.
  */
 
+/**
+ * Implements hook_enable().
+ */
+function moosend_campaigns_enable() {
+  _moosend_campaigns_sync();
+}
 
 /**
  * Implements hook_schema().
@@ -20,12 +26,12 @@ function moosend_campaigns_schema() {
         'length' => 36,
         'not null' => TRUE,
       ),
-     'name' => array(
+      'name' => array(
         'description' => 'Moosend Campaign Name',
         'type' => 'varchar',
         'length' => '32',
         'not null' => TRUE,
-        'default' => ''
+        'default' => '',
       ),
       'status' => array(
         'descritption' => 'Describes the status of Moosend Campaign',
@@ -33,7 +39,7 @@ function moosend_campaigns_schema() {
         'default' => 0,
         'not null' => TRUE,
       ),
-     'created_at' => array(
+      'created_at' => array(
         'description' => 'The Unix timestamp when the Campaign was created.',
         'type' => 'int',
         'length' => 10,
@@ -46,11 +52,11 @@ function moosend_campaigns_schema() {
         'not null' => FALSE,
       ),
       'settings' => array(
-          'description' => 'Serialized object for Campaign settings',
-          'type' => 'blob',
-          'not null' => FALSE,
-          'serialize' => TRUE,
-          'size' => 'big',
+        'description' => 'Serialized object for Campaign settings',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'size' => 'big',
       ),
     ),
     'primary key' => array('campaign_id'),

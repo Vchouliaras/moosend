@@ -1,131 +1,125 @@
 <?php
 
 /**
-* @file
-*  Moosend Lists Module for Admin Interface.
-*
-*/
+ * @file
+ * Moosend Lists Module for Admin Interface.
+ */
 
 /**
- * Page Callback: Display the Moosend Lists page
- *
- * @return array
+ * Page Callback: Display the Moosend Lists page.
  */
 function moosend_lists_admin_page() {
 
-    //Retrieve list from moosend_cache
-    $lists = moosend_get_active_lists_details();
+  // Retrieve list from moosend_cache.
+  $lists = moosend_get_active_lists_details();
 
-    $domain_prefix = variable_get('moosend_user_domain');
+  $domain_prefix = variable_get('moosend_user_domain');
 
-    $header = array(
-      t('Mailing List'), t('Active Subscribers'), t('Unsubscribed'), t('Custom Fields'), t('Segments'), t('Operations')
-    );
+  $header = array(
+    t('Mailing List'), t('Active Subscribers'), t('Unsubscribed'), t('Custom Fields'), t('Segments'), t('Operations'),
+  );
 
-    if (empty($lists)) {
-      $message = t('Your mailing lists are empty. Click the link bellow or go to !moosend and create some mailing lists',
-        array('!moosend' => l(t('Moosend'), 'https://' . $domain_prefix . '.moosend.com/',
-            array('attributes' => array('target' => '_blank'), 'fragment' => '/mailing-lists')
-          )
-        )
-      );
-      drupal_set_message($message, 'warning', FALSE);
-      //Render Table
-      return $build = array(
-          'mailing_list_table' => array(
-            '#theme' => 'table',
-            '#header' => $header,
+  if (empty($lists)) {
+    $message = t('Your mailing lists are empty. Click the link bellow or go to !moosend and create some mailing lists',
+      array(
+        '!moosend' => l(t('Moosend'), 'https://' . $domain_prefix . '.moosend.com/',
+          array('attributes' => array('target' => '_blank'), 'fragment' => '/mailing-lists')
         ),
-      );
+      )
+    );
+    drupal_set_message($message, 'warning', FALSE);
+    // Render Table.
+    return $build = array(
+      'mailing_list_table' => array(
+        '#theme' => 'table',
+        '#header' => $header,
+      ),
+    );
+  }
+
+  $rows = array();
+  foreach ($lists as $list_id => $list_detail) {
+
+    // Get CustomFieldDefinitions.
+    $custom_fields_definitions = array();
+    if (!empty($list_detail['CustomFieldsDefinition'])) {
+      foreach ($list_detail['CustomFieldsDefinition'] as $field) {
+        $custom_fields_definitions[] = $field->Name;
+      }
+      $custom_fields_definitions = implode(', ', $custom_fields_definitions);
     }
 
-    $rows = array();
-    foreach ($lists as $list_id => $list_detail) {
-
-     //Get CustomFieldDefinitions
-    $custom_fields_definitions = array();
-     if (!empty($list_detail['CustomFieldsDefinition'])) {
-        foreach ($list_detail['CustomFieldsDefinition'] as $key => $field) {
-          $custom_fields_definitions[] = $field->Name;
-        }
-      $custom_fields_definitions = implode(', ', $custom_fields_definitions);
-     }
-
-     //Get Lists Segments
-     $segments = moosend_get_list_segments($list_id);
-     if (!empty($segments)) {
+    // Get Lists Segments.
+    $segments = moosend_get_list_segments($list_id);
+    if (!empty($segments)) {
       $list_segements = array();
       foreach ($segments as $key => $segment) {
         $list_segements[] = l($segment['name'], 'https://' . $domain_prefix . '.moosend.com/',
             array(
               'attributes' => array('target' => '_blank'),
-              'fragment' => '/mailing-lists/' . $list_id . '/segments/'
+              'fragment' => '/mailing-lists/' . $list_id . '/segments/',
             )
         );
       }
       $render_segments = implode(', ', $list_segements);
-     }
-     else {
+    }
+    else {
       $render_segments = t('None');
-     }
-
-
-     //Print table Rows
-     $rows[$list_id]['data'] = array(
-        $list_detail['Name'],
-        $list_detail['ActiveMemberCount'],
-        $list_detail['UnsubscribedMemberCount'],
-        !empty($custom_fields_definitions) ? $custom_fields_definitions : t('None'),
-        $render_segments,
-        //Attributes on the cell
-        l(t('Edit'), 'https://' . $domain_prefix . '.moosend.com/',
-            array(
-              'attributes' => array('target' => '_blank'),
-              'fragment' => '/mailing-lists/' . $list_id . '/view-list',
-            )
-          ) . ' | ' .
-          l(t('Delete'), 'admin/config/services/moosend/lists/delete/' . $list_id,
-            array(
-              'query' => array('destination' => 'admin/config/services/moosend/lists')
-            )
-          ),
-      );
     }
 
-    // Initialize Pager
-    $current_page = pager_default_initialize(count($rows), MOOSEND_PAGER);
+    // Print table Rows.
+    $rows[$list_id]['data'] = array(
+      $list_detail['Name'],
+      $list_detail['ActiveMemberCount'],
+      $list_detail['UnsubscribedMemberCount'],
+      !empty($custom_fields_definitions) ? $custom_fields_definitions : t('None'),
+      $render_segments,
+      // Attributes on the cell.
+      l(t('Edit'), 'https://' . $domain_prefix . '.moosend.com/',
+          array(
+            'attributes' => array('target' => '_blank'),
+            'fragment' => '/mailing-lists/' . $list_id . '/view-list',
+          )
+      ) . ' | ' .
+      l(t('Delete'), 'admin/config/services/moosend/lists/delete/' . $list_id,
+          array(
+            'query' => array('destination' => 'admin/config/services/moosend/lists'),
+          )
+      ),
+    );
+  }
 
-    // Split list into page sized chunks
-    $chunks = array_chunk($rows, MOOSEND_PAGER, TRUE);
+  // Initialize Pager.
+  $current_page = pager_default_initialize(count($rows), MOOSEND_PAGER);
 
-    $build = array(
-        'mailing_list_table' => array(
-          '#theme' => 'table',
-          '#header' => $header,
-          '#rows' => $chunks[$current_page],
-        ),
-        'refresh_link' => array(
-          '#type' => 'markup',
-          '#markup' => l(t('Refresh Mailing Lists'),
+  // Split list into page sized chunks.
+  $chunks = array_chunk($rows, MOOSEND_PAGER, TRUE);
+
+  $build = array(
+    'mailing_list_table' => array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $chunks[$current_page],
+    ),
+    'refresh_link' => array(
+      '#type' => 'markup',
+      '#markup' => l(t('Refresh Mailing Lists'),
             'admin/config/services/moosend/lists/clear_cache',
             array('query' => array('destination' => 'admin/config/services/moosend/lists'))
-          )
-        ),
-        'moosend_pager' => array(
-          '#theme' => 'pager',
-          '#quantity' => count($rows),
-        )
-      );
+      ),
+    ),
+    'moosend_pager' => array(
+      '#theme' => 'pager',
+      '#quantity' => count($rows),
+    ),
+  );
 
-    return $build;
+  return $build;
 }
 
 
 /**
- * Menu Callback
- *
- * Moosend List cache clear form.
- *
+ * Menu Callback. Moosend List cache clear form.
  */
 function moosend_lists_clear_cache($form, &$form_state) {
   $cache_clear_destination = 'admin/config/services/moosend/lists';
@@ -140,7 +134,6 @@ function moosend_lists_clear_cache($form, &$form_state) {
 
 /**
  * Handler for lists cache clear form.
- *
  */
 function moosend_lists_clear_cache_submit($form, &$form_state) {
   moosend_get_active_lists_details(1, 10, NULL, FALSE);
@@ -149,75 +142,63 @@ function moosend_lists_clear_cache_submit($form, &$form_state) {
 
 
 /**
- * Menu Callback
- *
- * Moosend delete list
- *
+ * Menu Callback.Moosend delete list.
  */
 function moosend_lists_delete($form, &$form_state, $list_id) {
   $delete_list_destination = 'admin/config/services/moosend/lists';
   $list_detail = moosend_get_active_lists_details(1, 10, $list_id);
 
   $form_state['list'] = array(
-      'ID' => $list_detail['ID'],
-      'Name' => $list_detail['Name']
-    );
+    'ID' => $list_detail['ID'],
+    'Name' => $list_detail['Name'],
+  );
 
   return confirm_form($form,
       t('Reset Moosend mailing lists'),
       $delete_list_destination,
-      t('Confirm deleting mailing list "' . $list_detail['Name'] . '"'),
+      t('Confirm deleting mailing list @mailing_list', array('@mailing_list' => $list_detail['Name'])),
       'Confirm'
     );
 }
 
 
 /**
- * Handler Moosend delete list
- *
+ * Handler Moosend delete list.
  */
 function moosend_lists_delete_submit($form, &$form_state) {
-  if ( $status = moosend_delete_mailing_list($form_state['list']['ID']) ) {
-    drupal_set_message(t('Succefully deleted mailing list "@name"', array( '@name' => $form_state['list']['Name'])));
+  if (moosend_delete_mailing_list($form_state['list']['ID'])) {
+    drupal_set_message(t('Succefully deleted mailing list "@name"', array('@name' => $form_state['list']['Name'])));
   }
-  else{
+  else {
     drupal_set_message(t('An error occurred.Please check recent log messages, for further information.'), 'error');
   }
-  //Clear cache
+  // Clear cache.
   moosend_get_active_lists_details(1, 10, NULL, FALSE);
 }
 
 
 /**
- *  Moosend List form Callback
- *
- * @param   $form
- * @param   &$form_state
- * @return
+ * Moosend List form Callback.
  */
 function moosend_lists_add_lists_form($form, &$form_state) {
 
-    $form['moosend_list_name'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Name'),
-      '#description' => t('Create a new mailing list'),
-      '#requiered' => TRUE,
-    );
-    $form['actions']['save'] = array(
-      '#type' => 'submit',
-      '#value' => t('Add Mailing List'),
-    );
+  $form['moosend_list_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#description' => t('Create a new mailing list'),
+    '#requiered' => TRUE,
+  );
+  $form['actions']['save'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add Mailing List'),
+  );
 
-    return $form;
+  return $form;
 }
 
 
-
 /**
- * Moosend List validation form Callback
- * @param   $form
- * @param   &$form_state
- * @return
+ * Moosend List validation form Callback.
  */
 function moosend_lists_add_lists_form_validate($form, &$form_state) {
   if (empty($form_state['values']['moosend_list_name'])) {
@@ -226,18 +207,15 @@ function moosend_lists_add_lists_form_validate($form, &$form_state) {
 }
 
 
-
 /**
- * Moosend List submit form Callback
- * @param   $form
- * @param   &$form_state
- * @return
+ * Moosend List submit form Callback.
  */
 function moosend_lists_add_lists_form_submit($form, &$form_state) {
   $list_name = $form_state['values']['moosend_list_name'];
   $new_list_id = moosend_create_mailing_list(check_plain($list_name));
   if (!empty($new_list_id)) {
-    moosend_get_active_lists_details(1, 10, NULL, FALSE); // Clear Cache
+    // Clear Cache.
+    moosend_get_active_lists_details(1, 10, NULL, FALSE);
     drupal_set_message(t('Mailing List "@list" created with ID @id',
       array('@list' => $list_name, '@id' => $new_list_id)),
       'status',
@@ -247,7 +225,9 @@ function moosend_lists_add_lists_form_submit($form, &$form_state) {
 }
 
 
-
+/**
+ * Moosend List add segements.
+ */
 function moosend_lists_add_list_segments($form, &$form_state) {
 
   $form['#attached']['css'] = array(
@@ -298,7 +278,6 @@ function moosend_lists_add_list_segments($form, &$form_state) {
     '#suffix' => '</div>',
   );
 
-
   if (empty($form_state['num_criteria'])) {
     $form_state['num_criteria'] = 1;
   }
@@ -307,7 +286,7 @@ function moosend_lists_add_list_segments($form, &$form_state) {
 
     $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['starts'] = array(
       '#markup' => '<div class="criteria-wrapper" id="criteria-wrapper-row-' . $i . '">',
-      );
+    );
 
     $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['criteria_field'][$i] = array(
       '#type' => 'select',
@@ -319,16 +298,16 @@ function moosend_lists_add_list_segments($form, &$form_state) {
       ),
     );
 
-    //if  Date Criteria Field selected
-    if (!empty($form_state['values']['criteria_fieldset']['criteria_wrapper-' . $i ]['criteria_field'][$i])) {
-      $criteria_field = $form_state['values']['criteria_fieldset']['criteria_wrapper-' . $i ]['criteria_field'][$i];
+    // If  Date Criteria Field selected.
+    if (!empty($form_state['values']['criteria_fieldset']['criteria_wrapper-' . $i]['criteria_field'][$i])) {
+      $criteria_field = $form_state['values']['criteria_fieldset']['criteria_wrapper-' . $i]['criteria_field'][$i];
     }
     else {
-      //set default value
+      // Set default value.
       $criteria_field = 'DateAdded';
     }
 
-    //Check for Date Module and set date textfield
+    // Check for Date Module and set date textfield.
     if (module_exists('date_popup')) {
       $element = array(
         '#type' => 'date_popup',
@@ -350,14 +329,14 @@ function moosend_lists_add_list_segments($form, &$form_state) {
       );
     }
 
-    if ($criteria_field === 'DateAdded')  {
+    if ($criteria_field === 'DateAdded') {
       $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['criteria_comparer'][$i] = array(
         '#type' => 'select',
         '#title' => t('Compare'),
         '#options' => _moosend_criteria_comparer($criteria_field),
       );
 
-    $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['criteria_value'][$i] = array('#title' => t('Value')) + $element;
+      $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['criteria_value'][$i] = array('#title' => t('Value')) + $element;
 
     }
     elseif ($criteria_field === 'CampaignsOpened' || $criteria_field === 'LinksClicked') {
@@ -367,14 +346,14 @@ function moosend_lists_add_list_segments($form, &$form_state) {
         '#title' => t('Compare'),
         '#options' => _moosend_criteria_comparer($criteria_field),
       );
-     $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['criteria_value'][$i] = array(
-      '#type' => 'textfield',
-      '#title' => t('Value'),
-      '#size' => 10,
-      '#maxlength' => 100,
+      $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['criteria_value'][$i] = array(
+        '#type' => 'textfield',
+        '#title' => t('Value'),
+        '#size' => 10,
+        '#maxlength' => 100,
       );
-     $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['date_from'][$i] = array('#title' => t('Date From')) + $element;
-     $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['date_to'][$i] = array('#title' => t('Date To')) + $element;
+      $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['date_from'][$i] = array('#title' => t('Date From')) + $element;
+      $form['criteria_fieldset']['criteria_wrapper-' . $i . '']['date_to'][$i] = array('#title' => t('Date To')) + $element;
 
     }
     elseif ($criteria_field === 'LinkURL') {
@@ -443,11 +422,8 @@ function moosend_lists_add_list_segments($form, &$form_state) {
 }
 
 
-
 /**
  * Callback for "Add Criteria" button.
- *
- * ;Selects and returns the fieldset with the names in it.
  */
 function _moosend_list_ajax_date_added_criteria_callback($form, &$form_state) {
   $row = substr($form_state['triggering_element']['#name'], 0, -1);
@@ -457,48 +433,36 @@ function _moosend_list_ajax_date_added_criteria_callback($form, &$form_state) {
 }
 
 
-
 /**
  * Callback for "Add Criteria" button.
- *
- * ;Selects and returns the fieldset with the names in it.
  */
 function _moosend_lists_ajax_add_more_criteria_callback($form, &$form_state) {
   return $form['criteria_fieldset'];
 }
 
 
-
 /**
  * Submit handler for the "Add Criteria" button.
- *
- * ;Increments the max counter and causes a rebuild.
  */
 function _moosend_lists_ajax_add_more_criteria_add_one($form, &$form_state) {
-  $form_state['num_criteria'] ++;
+  $form_state['num_criteria']++;
   $form_state['rebuild'] = TRUE;
 }
 
 
-
 /**
  * Submit handler for the "Remove one" button.
- *
- * ;Decrements the max counter and causes a form rebuild.
  */
 function _moosend_lists_ajax_add_more_criteria_remove_one($form, &$form_state) {
   if ($form_state['num_criteria'] > 1) {
-    $form_state['num_criteria'] --;
+    $form_state['num_criteria']--;
   }
 
   $form_state['rebuild'] = TRUE;
 }
 
-
-
 /**
  * Submit handler for moosend_lists_add_list_segments.
- *
  */
 function moosend_lists_add_list_segments_submit($form, &$form_state) {
 
@@ -507,7 +471,7 @@ function moosend_lists_add_list_segments_submit($form, &$form_state) {
   $match_criteria = $form_state['values']['match_criteria'];
   $criteria = $form_state['values']['criteria_fieldset'];
 
-  //Create Segment
+  // Create Segment.
   $segment_id = moosend_create_segment($mailing_list_id, $segment_name, $match_criteria);
 
   if (isset($segment_id) && is_numeric($segment_id)) {
@@ -529,8 +493,7 @@ function moosend_lists_add_list_segments_submit($form, &$form_state) {
           // Add Criteria to Segment.
           $response = moosend_add_criteria_to_segment($mailing_list_id, $segment_id, $criteria_field, $comparer, $criteria_value, $date_from, $date_to);
           if (!$response['status']) {
-            drupal_set_message(t('An error occurred with Criteria creation.@error_message.'
-               , array( '@error_message' => $response['error_message'])),
+            drupal_set_message(t('An error occurred with Criteria creation.@error_message.', array('@error_message' => $response['error_message'])),
                'error', FALSE);
             moosend_delete_segment($mailing_list_id, $segment_id);
             return;
@@ -540,8 +503,8 @@ function moosend_lists_add_list_segments_submit($form, &$form_state) {
     }
   }
   else {
-     drupal_set_message(t('An error occurred with Segment creation.Please try again.'), 'error', FALSE);
-      return;
+    drupal_set_message(t('An error occurred with Segment creation.Please try again.'), 'error', FALSE);
+    return;
   }
 
   drupal_set_message(t('Segment with name "@name", created succefully for Mailing List ID @mailingList.', array('@name' => $segment_name, '@mailingList' => $mailing_list_id)), 'status', FALSE);

@@ -12,4 +12,3 @@ configure = admin/config/services/moosend/campaings
 
 files[] = includes/moosend_campaigns.entity.inc
 files[] = includes/moosend_campaigns.ui_controller.inc
-

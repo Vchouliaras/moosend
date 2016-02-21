@@ -5,7 +5,6 @@
  * Moosend module admin Configuration Settings.
  */
 
-
 /**
  * Return the Moosend configuration form.
  */
@@ -46,7 +45,7 @@ function moosend_admin_configuration() {
 
 
 /**
- * Submit Handler
+ * Submit Handler.
  */
 function moosend_admin_configuration_submit($form, &$form_state) {
   $moosend_api_key = $form_state['values']['moosend_api_key'];

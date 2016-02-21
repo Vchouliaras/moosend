@@ -1,13 +1,14 @@
 <?php
 
 /**
-* @file
-*
-*  Provides basic functionality for Moosend Subscriptions.
-*/
+ * @file
+ * Provides basic functionality for Moosend Subscriptions.
+ */
 
 define('MOOSEND_SUBSCRIPTIONS_BLOCK_DISPLAY', 1);
+
 define('MOOSEND_SUBSCRIPTIONS_PAGE_DISPLAY', 2);
+
 define('MOOSEND_SUBSCRIPTIONS_BOTH_PAGE_BLOCK', 3);
 
 
@@ -35,32 +36,33 @@ function moosend_subscriptions_menu() {
  * Implements hook_entity_info().
  */
 function moosend_subscriptions_entity_info() {
-    $info['moosend_subscriptions'] = array(
-      'label' => t('Subscription Form'),
-      'base table' => 'moosend_subscriptions',
-      'entity keys' => array(
-        'id' => 'sub_id',
-        'label' => 'name'
+  $info['moosend_subscriptions'] = array(
+    'label' => t('Subscription Form'),
+    'base table' => 'moosend_subscriptions',
+    'entity keys' => array(
+      'id' => 'sub_id',
+      'label' => 'name',
+    ),
+    'uri callback' => 'entity_class_uri',
+    'entity class' => 'MoosendSubscriptions',
+  // We extends this to ovveride the default URI method.
+    'controller class' => 'MoosendSubscriptionsController',
+    'admin ui' => array(
+      'path' => 'admin/config/services/moosend/subscriptions',
+      'controller class' => 'MoosendSubscriptionsUIController',
+      'file' => 'includes/moosend_subscriptions.admin.inc',
+    ),
+    'module' => 'moosend_subscriptions',
+    'fieldable' => FALSE,
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full'),
+        'custom settings' => FALSE,
       ),
-      'uri callback' => 'entity_class_uri',
-      'entity class' => 'MoosendSubscriptions',
-      'controller class' => 'MoosendSubscriptionsController', // We extends this to ovveride the default URI method
-      'admin ui' => array(
-        'path' => 'admin/config/services/moosend/subscriptions',
-        'controller class' => 'MoosendSubscriptionsUIController',
-        'file' => 'includes/moosend_subscriptions.admin.inc'
-        ),
-      'module' => 'moosend_subscriptions',
-      'fieldable' => FALSE,
-      'view modes' => array(
-        'full' => array(
-          'label' => t('Full'),
-          'custom settings' => FALSE,
-          ),
-        ),
-      'rules controller class' => FALSE,
-      'access callback' => 'moosend_subscriptions_access_callback',
-    );
+    ),
+    'rules controller class' => FALSE,
+    'access callback' => 'moosend_subscriptions_access_callback',
+  );
 
   return $info;
 }
@@ -68,23 +70,21 @@ function moosend_subscriptions_entity_info() {
 
 /**
  * Implements hook_permission().
- *
  */
 function moosend_subscriptions_permission() {
   return array(
-     'administer moosend subscriptions' =>  array(
-       'title' => t('Administer Moosend Subscription forms'),
-     ),
-     'access moosend subcription forms pages' => array(
-      'title' => t('Access Moosend subscription form Pages')
-      )
+    'administer moosend subscriptions' => array(
+      'title' => t('Administer Moosend Subscription forms'),
+    ),
+    'access moosend subcription forms pages' => array(
+      'title' => t('Access Moosend subscription form Pages'),
+    ),
   );
 }
 
 
 /**
- * Specify callback permissions
- *
+ * Specify callback permissions.
  */
 function moosend_subscriptions_access_callback($op, $subscriptions = NULL, $account = NULL) {
   if (moosend_initialize_api()) {
@@ -97,14 +97,7 @@ function moosend_subscriptions_access_callback($op, $subscriptions = NULL, $acco
 
 
 /**
- * Load Moosend Multiple Subscriptions
- *
- * @param  array   $ids
- * @param  array   $conditions
- * @param  boolean $reset
- * @return
- *  Moosend Subscription entities
- *
+ * Load Moosend Multiple Subscriptions.
  */
 function moosend_subscriptions_load_multiple($ids = array(), $conditions = array(), $reset = FALSE) {
   if (empty($ids)) {
@@ -115,21 +108,14 @@ function moosend_subscriptions_load_multiple($ids = array(), $conditions = array
 
 
 /**
- * Load Moosend Subscription
- *
- * @param  array   $id
- * @param  array   $conditions
- * @param  boolean $reset
- * @return
- *  Moosend Subscription entity
- *
+ * Load Moosend Subscription.
  */
 function moosend_subscriptions_load($id, $conditions = array(), $reset = FALSE) {
   $subscription = moosend_subscriptions_load_multiple(array($id));
   if (!empty($subscription)) {
     return reset($subscription);
   }
-  else{
+  else {
     return FALSE;
   }
 }
@@ -137,7 +123,6 @@ function moosend_subscriptions_load($id, $conditions = array(), $reset = FALSE) 
 
 /**
  * Implements hook_block_info().
- *
  */
 function moosend_subscriptions_block_info() {
   $blocks = array();
@@ -151,7 +136,7 @@ function moosend_subscriptions_block_info() {
           'cache' => DRUPAL_CACHE_PER_USER,
         );
         break;
-      }
+    }
   }
   return $blocks;
 }
@@ -194,7 +179,7 @@ function moosend_subscriptions_forms($form_id, $args) {
       );
     }
     elseif (isset($args[1]) && $args[1] == 'is_a_page') {
-     $forms['moosend_subscriptions_page_id_' . $args[0]->sub_id . '_form'] = array(
+      $forms['moosend_subscriptions_page_id_' . $args[0]->sub_id . '_form'] = array(
         'callback' => 'moosend_subscriptions_form_factory',
       );
     }
@@ -204,33 +189,33 @@ function moosend_subscriptions_forms($form_id, $args) {
 
 
 /**
- * Returns a subscription form for Moosend Lists
+ * Returns a subscription form for Moosend Lists.
  */
 function moosend_subscriptions_form_factory($form, &$form_state, $subscription, $mode) {
 
-    $wrapper = 'moosend_form_' . $subscription->sub_id;
-    $form['moosend'][$wrapper] = array(
-        '#prefix' => '<div id="moosend-newsletter-' . $subscription->sub_id . '">',
-        '#suffix' => '</div>',
+  $wrapper = 'moosend_form_' . $subscription->sub_id;
+  $form['moosend'][$wrapper] = array(
+    '#prefix' => '<div id="moosend-newsletter-' . $subscription->sub_id . '">',
+    '#suffix' => '</div>',
+  );
+
+  if (!empty($subscription->settings['description'])) {
+    $form['moosend'][$wrapper]['description'] = array(
+      '#markup' => $subscription->settings['description'],
     );
+  }
 
-    if (!empty($subscription->settings['description'])) {
-      $form['moosend'][$wrapper]['description'] = array(
-        '#markup' => $subscription->settings['description']
-      );
-    }
+  $form['moosend'][$wrapper]['email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Email Address'),
+    '#size' => 35,
+    '#required' => TRUE,
+  );
 
-    $form['moosend'][$wrapper]['email'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Email Address'),
-        '#size' => 35,
-        '#required' => TRUE,
-      );
+  $form['moosend'][$wrapper]['custom_fields'] = array('#tree' => TRUE);
+  $form['moosend'][$wrapper]['custom_fields'][] = moosend_fields_to_drupal_elements($subscription->settings['custom_fields']);
 
-    $form['moosend'][$wrapper]['custom_fields'] = array('#tree' => TRUE);
-    $form['moosend'][$wrapper]['custom_fields'][] = moosend_fields_to_drupal_elements($subscription->settings['custom_fields']);
-
-    $form['actions']['submit'] = array(
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#weight' => 10,
     '#value' => t('Submit'),
@@ -259,23 +244,23 @@ function moosend_subscriptions_form_factory_submit($form, &$form_state) {
     global $user;
     $name = ucfirst($user->name);
   }
-  else{
+  else {
     $name = '';
   }
 
   $email = $form_state['values']['email'];
   $custom_fields = array_filter($form_state['values']['custom_fields'][0]);
 
-  $status =  moosend_subscribe_member($list_id, $email, $name, $custom_fields);
+  $status = moosend_subscribe_member($list_id, $email, $name, $custom_fields);
   if ($status) {
     if (strlen($subscriptions->settings['confirm_message'])) {
-      drupal_set_message(t('@message', array( '@message' => $subscriptions->settings['confirm_message'])));
+      drupal_set_message(t('@message', array('@message' => $subscriptions->settings['confirm_message'])));
     }
     if (!empty($subscriptions->settings['redirect_page'])) {
       $form_state['redirect'] = $subscriptions->settings['redirect_page'];
     }
   }
-  else{
+  else {
     drupal_set_message(t('There was a problem with your newsletter signup.'), 'warning');
   }
 }

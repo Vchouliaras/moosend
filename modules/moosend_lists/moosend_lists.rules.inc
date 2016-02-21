@@ -5,10 +5,8 @@
  * Rules integration for the Moosend Mailing Lists.
  */
 
-
 /**
  * Implements hook_rules_action_info().
- *
  */
 function moosend_lists_rules_action_info() {
   $items = array();
@@ -24,14 +22,14 @@ function moosend_lists_rules_action_info() {
         'label' => t('Operations'),
         'options list' => '_moosend_member_operations',
         'description' => t('The Moosend operation to perform for the user.'),
-        'restriction' => 'input'
+        'restriction' => 'input',
       ),
       'mailing_list' => array(
         'type' => 'text',
         'label' => t('Moosend Mailing Lists'),
         'options list' => '_moosend_lists_rules_mailing_lists',
         'description' => t('Choose the Mailing List'),
-        'restriction' => 'input'
+        'restriction' => 'input',
       ),
     ),
     'group' => t('Moosend'),
@@ -45,7 +43,6 @@ function moosend_lists_rules_action_info() {
 
 /**
  * Access callback for the rules condition.
- *
  */
 function moosend_lists_rules_actions_access_callback() {
   return user_access('administer moosend');
@@ -53,9 +50,7 @@ function moosend_lists_rules_actions_access_callback() {
 
 
 /**
- *  Options list callback;
- *  Get Moosend Mailing Lists
- *
+ * Options list callback. Get Moosend Mailing Lists.
  */
 function _moosend_lists_rules_mailing_lists() {
   foreach (moosend_get_active_lists_details() as $list_id => $list_details) {
@@ -67,21 +62,19 @@ function _moosend_lists_rules_mailing_lists() {
 
 
 /**
- * Rules UI form callback
- *
+ * Rules UI form callback.
  */
 function moosend_lists_rules_member_operations_form_alter(&$form, &$form_state, $options, RulesAbstractPlugin $element) {
-    $form['parameter']['mailing_list']['settings']['mailing_list']['#ajax'] = rules_ui_form_default_ajax('fade');
-    $form['parameter']['operation']['settings']['operation']['#ajax'] = rules_ui_form_default_ajax('fade');
+  $form['parameter']['mailing_list']['settings']['mailing_list']['#ajax'] = rules_ui_form_default_ajax('fade');
+  $form['parameter']['operation']['settings']['operation']['#ajax'] = rules_ui_form_default_ajax('fade');
 }
 
 
 /**
- * Rules Action alter callback
- *
+ * Rules Action alter callback.
  */
 function moosend_lists_rules_member_operations_info_alter(&$element_info, $element) {
-  //Remove all predefine custom criteria
+  // Remove all predefine custom criteria.
   foreach ($element_info['parameter'] as $key => &$parameter) {
     if (strpos($key, 'custom_field_') !== FALSE) {
       unset($element_info['parameter'][$key]);
@@ -98,18 +91,16 @@ function moosend_lists_rules_member_operations_info_alter(&$element_info, $eleme
         );
       }
     }
-    //@TODO Check for custom cirteria Type
+    // @TODO Check for custom cirteria Type
   }
 }
 
 
 /**
- * Action callback;
- * Operate to Moosend Member
- *
+ * Action callback. Operate to Moosend Member.
  */
 function moosend_lists_rules_member_operations($user, $operation, $mailing_list) {
-  //Get custom fields from arguments
+  // Get custom fields from arguments.
   $args = func_get_args();
   $custom_fields = array();
   foreach ($args as $key => $argument) {
@@ -118,7 +109,7 @@ function moosend_lists_rules_member_operations($user, $operation, $mailing_list)
         foreach ($argument->currentArguments as $key => $value) {
           $string = 'custom_field_';
           if (strpos($key, $string) !== FALSE) {
-            $custom_fields[ substr($key, strlen($string)) ] = $value;
+            $custom_fields[substr($key, strlen($string))] = $value;
           }
         }
       }
@@ -131,16 +122,16 @@ function moosend_lists_rules_member_operations($user, $operation, $mailing_list)
         $user->mail,
         $user->name,
         $custom_fields,
-        $operation
+        $operation,
       );
     }
     else {
       $args = array(
         $mailing_list,
         $user->mail,
-        $operation
+        $operation,
       );
     }
-  moosend_pre_operate_member($args);
+    moosend_pre_operate_member($args);
   }
 }

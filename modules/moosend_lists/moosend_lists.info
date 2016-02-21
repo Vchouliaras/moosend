@@ -7,5 +7,3 @@ dependencies[] = moosend
 dependencies[] = libraries ( >=2 )
 
 configure = admin/config/services/moosend/lists
-
-

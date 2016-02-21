@@ -1,16 +1,18 @@
 <?php
 
 /**
-* @file
-*  Moosend Subscription Module for extending Entity API
-*/
-
-class MoosendSubscriptions extends Entity {
+ * @file
+ * Moosend Subscription Module for extending Entity API.
+ */
 
 /**
-  * Override this in order to implement a custom default URI and specify
-  * 'entity_class_uri' as 'uri callback' hook_entity_info().
-  */
+ * Extend core Drupal Entity API.
+ */
+class MoosendSubscriptions extends Entity {
+
+  /**
+   * Override this in order to implement a custom default URI and specify.
+   */
   protected function defaultUri() {
     return array(
       'path' => 'admin/config/services/moosend/subscriptions/manage/' . $this->identifier(),
@@ -20,31 +22,33 @@ class MoosendSubscriptions extends Entity {
       ),
     );
   }
+
 }
 
+/**
+ * Extend contrib Drupal Entity API.
+ */
+class MoosendSubscriptionsController extends EntityAPIController {
 
-class MoosendSubscriptionsController extends EntityAPIController{
-    public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+  /**
+   * Builds a structured array representing the entity's content.
+   */
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $build = parent::buildContent($entity, $view_mode, $langcode, $content);
 
     return $build;
   }
 
-
   /**
-   * Implements EntityAPIControllerInterface.
-   *
-   * @param $transaction
-   *   Optionally a DatabaseTransaction object to use. Allows overrides to pass
-   *   in their transaction object.
+   * Permanently saves the entity.
    */
   public function save($entity, DatabaseTransaction $transaction = NULL) {
+    if (isset($entity->is_new)) {
+      $entity->created_at = REQUEST_TIME;
+    }
+    $entity->updated_at = REQUEST_TIME;
 
-      if (isset($entity->is_new)) {
-        $entity->created_at = REQUEST_TIME;
-      }
-      $entity->updated_at = REQUEST_TIME;
-
-      return parent::save($entity, $transaction);
+    return parent::save($entity, $transaction);
   }
+
 }

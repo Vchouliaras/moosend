@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Moosend Module
+ * Moosend Module.
  */
 
 define('MOOSEND_CRON_QUEUE', 'moosend');
@@ -21,7 +21,7 @@ define('MOOSEND_CHECKBOX_FIELD', 5);
 
 
 /**
- *  Implements hook_libraries_info().
+ * Implements hook_libraries_info().
  */
 function moosend_libraries_info() {
   $libraries['moosend'] = array(
@@ -32,10 +32,10 @@ function moosend_libraries_info() {
     'version' => 2,
     'files' => array(
       'php' => array(
-        'MoosendApi.php' => array(),
+        'MoosendApi.php',
         'Models/SubscriberParams.php',
         'Models/CampaignParams.php',
-      )
+      ),
     ),
   );
 
@@ -83,34 +83,34 @@ module_load_include('inc', 'moosend', 'wrapper/moosend.subscriber');
 module_load_include('inc', 'moosend', 'wrapper/moosend.campaign');
 
 /**
- * Initialize Moosend Api
- *
- * @return object moosend_api
+ * Initialize Moosend Api.
  */
 function moosend_initialize_api() {
   $moosend_api = &drupal_static(__FUNCTION__);
-  if (isset($moosend_api) ) {
+  if (isset($moosend_api)) {
     return $moosend_api;
   }
 
   $library = libraries_load('moosend');
 
-  if ( empty($library['installed']) || !$library['installed'] ) {
+  if (empty($library['installed']) || !$library['installed']) {
     watchdog('moosend', 'Failed to load Moosend PHP Wrapper. Please refer to README.txt',
         NULL, WATCHDOG_ERROR);
     return FALSE;
   }
 
-  $moosend_api_key = variable_get('moosend_api_key','');
+  $moosend_api_key = variable_get('moosend_api_key', '');
   if (!empty($moosend_api_key)) {
     try {
       $moosend_api = new moosend\MoosendApi($moosend_api_key);
-    } catch (Exception $e) {
-       watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
-      '%message' => $e->getMessage()),
+    }
+    catch (Exception $e) {
+      watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
+        '%message' => $e->getMessage(),
+      ),
       WATCHDOG_ERROR);
 
-     return FALSE;
+      return FALSE;
     }
   }
 
@@ -118,17 +118,8 @@ function moosend_initialize_api() {
 }
 
 
-
 /**
- * Adds items to DrupalQueue for processing
- *
- * @param $function
- *   The name of the function to operate
- *   i.e subscribe,remove,unsubscribe
- * @param $args
- *   Arguments of the function name
- * @return
- *  Creates a new record in Queue
+ * Adds items to DrupalQueue for processing.
  */
 function moosend_add_to_cron_queue($function, $args) {
   $queue = DrupalQueue::get(MOOSEND_CRON_QUEUE);
@@ -164,10 +155,6 @@ function moosend_cron() {
 
 /**
  * Transform Moosend form elements to Drupal elements.
- *
- * @param array $fields
- * @return $elements
- *  Drupal specific element types
  */
 function moosend_fields_to_drupal_elements($fields) {
 
@@ -182,35 +169,39 @@ function moosend_fields_to_drupal_elements($fields) {
         case MOOSEND_TEXT_FIELD:
         case MOOSEND_NUMBER_FIELD:
         case MOOSEND_DATETIME_FIELD:
-          $elements[$key] +=  array(
+          $elements[$key] += array(
             '#type' => 'textfield',
             '#size' => 35,
             '#maxlength' => 128,
-            );
+          );
           break;
+
         case MOOSEND_DROPDOWN_FIELD:
            $options = array();
-           $elements[$key] +=  array(
-              '#type' => 'select'
-            );
-            if (!empty($field->Context)) {
-              preg_match_all('/\<value\>[a-zA-Z]*\d\<\/value\>/i', $field->Context, $matches);
-              if (!empty($matches[0])) {
-               foreach ($matches[0] as $name => $value) {
-                  $tmp = substr($value, 7); //<value>
-                  $length = strlen($tmp) - 8; // </value>
-                  $options[] = substr($tmp, 0, $length);
-                 }
+          $elements[$key] += array(
+            '#type' => 'select',
+          );
+          if (!empty($field->Context)) {
+            preg_match_all('/\<value\>[a-zA-Z]*\d\<\/value\>/i', $field->Context, $matches);
+            if (!empty($matches[0])) {
+              foreach ($matches[0] as $value) {
+                // <value>.
+                $tmp = substr($value, 7);
+                // </value>.
+                $length = strlen($tmp) - 8;
+                $options[] = substr($tmp, 0, $length);
               }
-              $elements[$key] +=  array(
-                '#options' => drupal_map_assoc($options),
-                '#default_value' => array($options[0]),
-              );
             }
+            $elements[$key] += array(
+              '#options' => drupal_map_assoc($options),
+              '#default_value' => array($options[0]),
+            );
+          }
           break;
+
         case MOOSEND_CHECKBOX_FIELD:
-            $elements[$key] +=  array(
-              '#type' => 'checkbox'
+            $elements[$key] += array(
+              '#type' => 'checkbox',
             );
           break;
       }
@@ -221,18 +212,16 @@ function moosend_fields_to_drupal_elements($fields) {
 
 
 /**
- * Helper to parse date from Moosend repsonse
- * @param  $data
- * @return object Datetime
+ * Helper to parse date from Moosend repsonse.
  */
 function _moosend_parse_date($date) {
   if (!empty($date)) {
     $date = preg_match('/\d+\+\d+/', $date, $matches);
     $date_parts = explode('+', $matches[0]);
 
-    // convert to seconds
-    $timestamp = round($date_parts[0] / 1000 ,0);
+    // Convert to seconds.
+    $timestamp = round($date_parts[0] / 1000, 0);
 
-   return new DateTime('@' . $timestamp);
+    return new DateTime('@' . $timestamp);
   }
 }

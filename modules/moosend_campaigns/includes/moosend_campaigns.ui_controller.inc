@@ -2,10 +2,13 @@
 
 /**
  * @file
- * Provides a controller for customizing Moosend Campaigns Admin UI
+ * Provides a controller for customizing Moosend Campaigns Admin UI.
  */
 
-class MoosendCampaignsUIController extends EntityDefaultUIController{
+/**
+ * Extends EntityDefaultUIController.
+ */
+class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   public $overviewPagerLimit = MOOSEND_PAGER;
 
@@ -27,7 +30,10 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
     $items[$this->path . '/' . $wildcard . '/send'] = array(
       'title' => 'Send the Campaign',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array($this->entityType . '_operation_form', $this->entityType, $this->id_count, 'send'),
+      'page arguments' => array($this->entityType . '_operation_form',
+        $this->entityType, $this->id_count,
+        'send',
+      ),
       'load arguments' => array($this->entityType),
       'access callback' => 'entity_access',
       'access arguments' => array('create', $this->entityType),
@@ -35,13 +41,16 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
       'context' => MENU_CONTEXT_INLINE,
     );
 
-    //Clears predefine clone operation
+    // Clears predefine clone operation.
     unset($items[$this->path . '/manage/' . $wildcard . '/clone']);
 
     $items[$this->path . '/' . $wildcard . '/clone'] = array(
       'title' => 'Clone the Campaign',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array($this->entityType . '_operation_form', $this->entityType, $this->id_count, 'clone'),
+      'page arguments' => array($this->entityType . '_operation_form',
+        $this->entityType,
+        $this->id_count, 'clone',
+      ),
       'load arguments' => array($this->entityType),
       'access callback' => 'entity_access',
       'access arguments' => array('create', $this->entityType),
@@ -54,17 +63,7 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
 
 
   /**
-   * Generates the render array for a overview table for arbitrary entities
-   * matching the given conditions.
-   *
-   * When the overview form in displayed first time we
-   * sync with Moosend Campaigns to be up to date
-   *
-   * @param $conditions
-   *   An array of conditions as needed by entity_load().
-   *
-   * @return Array
-   *   A renderable array.
+   * When the overview form is displayed first time we sync with Moosend Campaigns.
    */
   public function overviewTable($conditions = array()) {
 
@@ -85,7 +84,7 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
     $ids = isset($results[$this->entityType]) ? array_keys($results[$this->entityType]) : array();
     $entities = $ids ? entity_load($this->entityType, $ids) : array();
 
-    //Sync with Moosend Campaign when no entities have created
+    // Sync with Moosend Campaign when no entities have created.
     if (empty($entities)) {
       _moosend_campaigns_sync();
       $entities = $ids ? entity_load($this->entityType, $ids) : array();
@@ -108,16 +107,8 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
   }
 
 
-
   /**
    * Generates the table headers for the overview table.
-   *
-   * @param $conditions
-   * @param $rows
-   * @param $additional_header
-   *
-   * @return $header
-   * Returns the Table's header values
    */
   protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
     $header = array();
@@ -125,9 +116,9 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
     $append_header[]  = array(
       'data' => t('Created at'),
       'type' => 'property',
-      'specifier' => 'created_at', '
-      sort' => 'desc'
-      );
+      'specifier' => 'created_at',
+      'sort' => 'desc',
+    );
 
     $append_header[]  = t('Delivered On');
     $append_header[]  = t('Status');
@@ -143,21 +134,15 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
 
   /**
    * Returns the operation count for calculating colspans.
-   *
-   * @return $count
    */
   protected function operationCount() {
-      $count = parent::operationCount();
-      return $count + 1;
+    $count = parent::operationCount();
+    return $count + 1;
   }
 
 
   /**
-   * Generates the row for the passed entity and may be overridden in order to
-   * customize the rows.
-   *
-   * @param $additional_cols
-   *   Additional columns to be added after the entity label column.
+   * Generates the row for the passed entity and may be overridden in order to customize the rows.
    */
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
     $domain_prefix = variable_get('moosend_user_domain');
@@ -167,24 +152,25 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
       format_date($entity->settings['DeliveredOn'], 'medium') : '----------------------';
     $additional_cols[] = moosend_get_campaign_status_name($entity->status);
     $additional_cols[] = l(t('Campaign Reports'), 'https://' . $domain_prefix . '.moosend.com/', array(
-          'attributes' => array('target' => '_blank'),
-          'fragment' => '/reports/' . $id . '/overview',
-        )
+      'attributes' => array('target' => '_blank'),
+      'fragment' => '/reports/' . $id . '/overview',
+    )
       );
 
-    $row =  parent::overviewTableRow($conditions, $id, $entity, $additional_cols);
+    $row = parent::overviewTableRow($conditions, $id, $entity, $additional_cols);
 
-    //Create a preview Campaign Link
+    // Create a preview Campaign Link.
     $row[0]['data']['#url']['path'] = 'https://' . $domain_prefix . '.moosend.com/show_campaign/' . $id;
 
     $row[] = l(t('clone'), $this->path . '/manage/' . $id . '/clone');
 
-    //Campaign successful Status responses when campaign is send.
+    // Campaign successful Status responses when campaign is send.
     $statuses = array(
-      CAMPAIGN_READY_TO_SEND,
-      CAMPAIGN_SEND,
-      CAMPAIGN_SMTP_READY_TO_SEND,
-      CAMPAIGN_SENDING);
+      MOOSEND_CAMPAIGNS_CAMPAIGN_READY_TO_SEND,
+      MOOSEND_CAMPAIGNS_CAMPAIGN_SEND,
+      MOOSEND_CAMPAIGNS_CAMPAIGN_SMTP_READY_TO_SEND,
+      MOOSEND_CAMPAIGNS_CAMPAIGN_SENDING,
+    );
 
     if (in_array($entity->status, $statuses)) {
       $row[] = t('<strike>sent</strike>');
@@ -196,16 +182,9 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
     return $row;
   }
 
-
-/**
- *  Helper to get Campaign Tasks
- *
- * @return array()
- *  Returns selects options
- *
- *  @see operationFormSend()
- *  @todo  Add support for schedule
- */
+  /**
+   * Helper to get Campaign Tasks.
+   */
   public function moosendCampaignOp() {
     return array(
       'send_a_test' => t('Send a Test'),
@@ -213,168 +192,227 @@ class MoosendCampaignsUIController extends EntityDefaultUIController{
     );
   }
 
-
-/**
- *  Helper to get Campaigns Timezone
- *
- * @return array()
- *  Returns selects options
- *
- *  @see operationFormSend()
- */
+  /**
+   * Helper to get Campaigns Timezone.
+   */
   public function moosendCampaignTimezones() {
-    return drupal_map_assoc(array('Dateline Standard Time', 'Samoa Standard Time', 'Hawaiian Standard Time', 'Alaskan Standard Time', 'Pacific Standard Time', 'Pacific Standard Time (Mexico)', 'US Mountain Standard Time', 'Mountain Standard Time (Mexico)', 'Mountain Standard Time', 'Central Standard Time', 'Central Standard Time (Mexico)', 'Canada Central Standard Time', 'SA Pacific Standard Time', 'US Eastern Standard Time', 'Eastern Standard Time', 'Venezuela Standard Time', 'Atlantic Standard Time', 'SA Western Standard Time', 'Central Brazilian Standard Time', 'Pacific SA Standard Time', 'Newfoundland Standard Time', 'E. South America Standard Time', 'Argentina Standard Time', 'SA Eastern Standard Time', 'Greenland Standard Time', 'Montevideo Standard Time', 'Mid-Atlantic Standard Time', 'Azores Standard Time', 'Cape Verde Standard Time', 'Greenwich Standard Time', 'GMT Standard Time', 'Morocco Standard Time', 'W. Central Africa Standard Time', 'Central European Standard Time', 'Romance Standard Time', 'W. Europe Standard Time', 'Namibia Standard Time', 'E. Europe Standard Time', 'Israel Standard Time', 'FLE Standard Time', 'South Africa Standard Time', 'Egypt Standard Time', 'Middle East Standard Time', 'GTB Standard Time', 'Jordan Standard Time', 'Iran Standard Time', 'Georgian Standard Time', 'E. Africa Standard Time', 'Russian Standard Time', 'Arab Standard Time', 'Arabic Standard Time', 'Caucasus Standard Time', 'Mauritius Standard Time', 'Azerbaijan Standard Time', 'Arabian Standard Time', 'Afghanistan Standard Time', 'West Asia Standard Time', 'Pakistan Standard Time', 'Ekaterinburg Standard Time', 'Sri Lanka Standard Time', 'India Standard Time', 'Nepal Standard Time', 'N. Central Asia Standard Time', 'Central Asia Standard Time', 'Myanmar Standard Time', 'North Asia Standard Time', 'SE Asia Standard Time', 'Taipei Standard Time', 'W. Australia Standard Time', 'Singapore Standard Time', 'North Asia East Standard Time', 'China Standard Time', 'Yakutsk Standard Time', 'Korea Standard Time', 'Tokyo Standard Time', 'AUS Central Standard Time', 'Cen. Australia Standard Time', 'AUS Eastern Standard Time', 'West Pacific Standard Time', 'Tasmania Standard Time', 'Vladivostok Standard Time', 'Central Pacific Standard Time', 'New Zealand Standard Time', 'Tonga Standard Time'));
+    return drupal_map_assoc(
+      array(
+        'Dateline Standard Time',
+        'Samoa Standard Time',
+        'Hawaiian Standard Time',
+        'Alaskan Standard Time',
+        'Pacific Standard Time',
+        'Pacific Standard Time (Mexico)',
+        'US Mountain Standard Time',
+        'Mountain Standard Time (Mexico)',
+        'Mountain Standard Time',
+        'Central Standard Time',
+        'Central Standard Time (Mexico)',
+        'Canada Central Standard Time',
+        'SA Pacific Standard Time',
+        'US Eastern Standard Time',
+        'Eastern Standard Time',
+        'Venezuela Standard Time',
+        'Atlantic Standard Time',
+        'SA Western Standard Time',
+        'Central Brazilian Standard Time',
+        'Pacific SA Standard Time',
+        'Newfoundland Standard Time',
+        'E. South America Standard Time',
+        'Argentina Standard Time',
+        'SA Eastern Standard Time',
+        'Greenland Standard Time',
+        'Montevideo Standard Time',
+        'Mid-Atlantic Standard Time',
+        'Azores Standard Time',
+        'Cape Verde Standard Time',
+        'Greenwich Standard Time',
+        'GMT Standard Time',
+        'Morocco Standard Time',
+        'W. Central Africa Standard Time',
+        'Central European Standard Time',
+        'Romance Standard Time',
+        'W. Europe Standard Time',
+        'Namibia Standard Time',
+        'E. Europe Standard Time',
+        'Israel Standard Time',
+        'FLE Standard Time',
+        'South Africa Standard Time',
+        'Egypt Standard Time',
+        'Middle East Standard Time',
+        'GTB Standard Time',
+        'Jordan Standard Time',
+        'Iran Standard Time',
+        'Georgian Standard Time',
+        'E. Africa Standard Time',
+        'Russian Standard Time',
+        'Arab Standard Time',
+        'Arabic Standard Time',
+        'Caucasus Standard Time',
+        'Mauritius Standard Time',
+        'Azerbaijan Standard Time',
+        'Arabian Standard Time',
+        'Afghanistan Standard Time',
+        'West Asia Standard Time',
+        'Pakistan Standard Time',
+        'Ekaterinburg Standard Time',
+        'Sri Lanka Standard Time',
+        'India Standard Time',
+        'Nepal Standard Time',
+        'N. Central Asia Standard Time',
+        'Central Asia Standard Time',
+        'Myanmar Standard Time',
+        'North Asia Standard Time',
+        'SE Asia Standard Time',
+        'Taipei Standard Time',
+        'W. Australia Standard Time',
+        'Singapore Standard Time',
+        'North Asia East Standard Time',
+        'China Standard Time',
+        'Yakutsk Standard Time',
+        'Korea Standard Time',
+        'Tokyo Standard Time',
+        'AUS Central Standard Time',
+        'Cen. Australia Standard Time',
+        'AUS Eastern Standard Time',
+        'West Pacific Standard Time',
+        'Tasmania Standard Time',
+        'Vladivostok Standard Time',
+        'Central Pacific Standard Time',
+        'New Zealand Standard Time',
+        'Tonga Standard Time',
+      )
+    );
   }
 
 
-
-/**
- *  Builds the operation form.
- *  For the export operation a serialized string of the entity is directly
- *  shown in the form (no submit function needed).
- *
- * @param $form
- * @param &$form_state
- * @param $entity
- * @param $op
- * @return  parent
- */
+  /**
+   * Builds the operation form.
+   *
+   * For the export operation a serialized string of the entity is directly shown in the form (no submit function needed).
+   */
   public function operationForm($form, &$form_state, $entity, $op) {
     $form['#tree'] = TRUE;
-
     switch ($op) {
       case 'send':
+
         return $this->operationFormSend($form, $form_state, $entity);
+
       case 'clone':
+
         return $this->operationFormClone($form, $form_state, $entity);
-        break;
     }
 
     return parent::operationForm($form, $form_state, $entity, $op);
   }
 
 
+  /**
+   * Builds the Send operation form.
+   */
+  protected function operationFormSend($form, &$form_state, $entity) {
 
-/**
- *  Builds the Send operation form.
- *
- * @param $form
- * @param &$form_state
- * @param $entity
- * @param $op
- * @return  $form
- */
-protected function operationFormSend($form, &$form_state, $entity) {
+    $form['send_action'] = array(
+      '#type' => 'select',
+      '#options' => $this->moosendCampaignOp(),
+      '#default_value' => array('Send a Test'),
+      '#title' => t('Specify Action'),
+      '#required' => TRUE,
+      '#ajax' => array(
+        'wrapper' => 'send-campaign-wrapper',
+        'callback' => '_moosend_campaign_ajax_callback',
+      ),
+    );
 
-  $form['send_action'] = array(
-    '#type' => 'select',
-    '#options' => $this->moosendCampaignOp(),
-    '#default_value' => array('Send a Test'),
-    '#title' => t('Specify Action'),
-    '#required' => TRUE,
-    '#ajax' => array(
-      'wrapper' => 'send-campaign-wrapper',
-      'callback' => '_moosend_campaign_ajax_callback'
-      )
-  );
-
-  $send_action = isset($form_state['values']['send_action']) ?
+    $send_action = isset($form_state['values']['send_action']) ?
     $form_state['values']['send_action'] : 'send_a_test';
 
-  $form['wrapper']['starts'] = array(
-    '#markup' => '<div id="send-campaign-wrapper">'
-  );
-
-  if ($send_action == 'send_a_test') {
-    $form['wrapper']['test']['senders_email'] = array(
-      '#type' => 'textarea',
-      '#cols' => 20,
-      '#rows' => 5,
-      '#resizable' => TRUE,
-      '#default_value' => variable_get('site_mail', ini_get('sendmail_from')),
-      '#title' => t('Specify Email Senders'),
-      '#description' => t('Multiple emails, must be comma seperated'),
-      '#required' => TRUE,
+    $form['wrapper']['starts'] = array(
+      '#markup' => '<div id="send-campaign-wrapper">',
     );
+
+    if ($send_action == 'send_a_test') {
+      $form['wrapper']['test']['senders_email'] = array(
+        '#type' => 'textarea',
+        '#cols' => 20,
+        '#rows' => 5,
+        '#resizable' => TRUE,
+        '#default_value' => variable_get('site_mail', ini_get('sendmail_from')),
+        '#title' => t('Specify Email Senders'),
+        '#description' => t('Multiple emails, must be comma seperated'),
+        '#required' => TRUE,
+      );
+    }
+    elseif ($send_action == 'schedule') {
+      $campaigns = moosend_get_campaings();
+
+      $form['wrapper']['schedule']['moosend_timezone'] = array(
+        '#type' => 'select',
+        '#title' => t('Campaign Timezone'),
+        '#description' => t('The preferred Timezone to schedule the Campaign'),
+        '#options' => $this->moosendCampaignTimezones(),
+        '#default_value' => $campaigns[$entity->campaign_id]['ScheduledForTimezone'],
+        '#required' => TRUE,
+      );
+
+      // Check for Date Module and set date textfield.
+      $date_element_defaults = array(
+        '#title' => t('Set Campaign Schedule Time'),
+        '#required' => TRUE,
+      );
+
+      if (module_exists('date_popup')) {
+        $element = array(
+          '#type' => 'date_popup',
+          '#date_format' => 'd/m/Y H:i',
+        ) + $date_element_defaults;
+      }
+      elseif (module_exists('date')) {
+        $element = array(
+          '#type' => 'date_select',
+          '#date_format' => 'd/m/Y H:i',
+        ) + $date_element_defaults;
+      }
+      else {
+        $element = array(
+          '#type' => 'textfield',
+          '#size' => 30,
+          '#maxlength' => 100,
+          '#description' => t('eg. @current_date', array('@current_date' => date('d/m/Y H:i'))),
+        ) + $date_element_defaults;
+      }
+
+      $form['wrapper']['schedule']['moosend_datetime'] = $element;
+    }
+
+    $form['wrapper']['ends'] = array(
+      '#markup' => '</div>',
+    );
+
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Send Campaign'),
+    );
+
+    return $form;
   }
-  elseif ($send_action == 'schedule') {
-    $campaigns = moosend_get_campaings();
-
-    $form['wrapper']['schedule']['moosend_timezone'] = array(
-      '#type' => 'select',
-      '#title' => t('Campaign Timezone'),
-      '#description' => t('The preferred Timezone to schedule the Campaign'),
-      '#options' => $this->moosendCampaignTimezones(),
-      '#default_value' => $campaigns[$entity->campaign_id]['ScheduledForTimezone'],
-      '#required' => TRUE,
-    );
-
-    //Check for Date Module and set date textfield
-    $date_element_defaults = array(
-      '#title' => t('Set Campaign Schedule Time'),
-      '#required' => TRUE,
-    );
-
-    if (module_exists('date_popup')) {
-      $element = array(
-        '#type' => 'date_popup',
-        '#date_format' => 'd/m/Y H:i',
-      ) + $date_element_defaults;
-    }
-    elseif (module_exists('date')) {
-      $element = array(
-        '#type' => 'date_select',
-        '#date_format' => 'd/m/Y H:i',
-      ) + $date_element_defaults;
-    }
-    else {
-      $element = array(
-        '#type' => 'textfield',
-        '#size' => 30,
-        '#maxlength' => 100,
-        '#description' => t('eg. @current_date', array('@current_date' => date('d/m/Y H:i'))),
-      ) + $date_element_defaults;
-    }
-
-    $form['wrapper']['schedule']['moosend_datetime'] = $element;
-  }
-
-  $form['wrapper']['ends'] = array(
-    '#markup' => '</div>'
-  );
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Send Campaign'),
-  );
-
-  return $form;
-}
 
 
-/**
- *  Builds the Clone operation form.
- *
- * @param $form
- * @param &$form_state
- * @param $entity
- * @param $op
- * @return  $form
- */
-protected function operationFormClone($form, &$form_state, $entity) {
- $label = entity_label($this->entityType, $entity);
- $confirm_question = t('Are you sure you want to clone the campaign %label?',
+  /**
+   * Builds the Clone operation form.
+   */
+  protected function operationFormClone($form, &$form_state, $entity) {
+    $label = entity_label($this->entityType, $entity);
+    $confirm_question = t('Are you sure you want to clone the campaign %label?',
     array('%entity' => $this->entityInfo['label'], '%label' => $label));
 
-  return confirm_form($form, $confirm_question, $this->path);
-}
+    return confirm_form($form, $confirm_question, $this->path);
+  }
 
 
   /**
    * Operation form validation callback.
-   * @param $form
-   * @param &$form_state
-   * @return
    */
   public function operationFormValidate($form, &$form_state) {
     parent::operationFormValidate($form, $form_state);
@@ -384,23 +422,12 @@ protected function operationFormClone($form, &$form_state, $entity) {
   /**
    * Applies an operation to the given entity.
    *
-   * Note: the export operation is directly carried out by the operationForm()
-   * method.
-   *
-   * @param string $op
-   *   The operation (revert, delete or import).
-   * @param $entity
-   *   The entity to manipulate.
-   *
-   * @return
-   *   The status message of what has been applied.
-   *
-   *  @todo Support for Scheduling a Campaign in PHP Wrapper
+   * Note: the export operation is directly carried out by the operationForm() method.
    */
   public function applyOperation($op, $entity) {
     parent::applyOperation($op, $entity);
 
-    //To avoid Strict warning: Declaration, use this
+    // To avoid Strict warning: Declaration, use this.
     $args = func_get_args();
     $values = $args[2];
 
@@ -417,84 +444,72 @@ protected function operationFormClone($form, &$form_state, $entity) {
         elseif ($values['send_action'] == 'send_immediatelly') {
           if (moosend_send_campaign($entity->campaign_id)) {
 
-          //Clear campaigns cache
-          $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
+            // Clear campaigns cache.
+            $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
-          $entity->status = $campaigns[$entity->campaign_id]['Status'];
-          entity_save($this->entityType, $entity);
+            $entity->status = $campaigns[$entity->campaign_id]['Status'];
+            entity_save($this->entityType, $entity);
 
-           return t('Campaign "@name" was sent. Status: @status',
+            return t('Campaign "@name" was sent. Status: @status',
               array('@name' => $entity->name, '@status' => moosend_get_campaign_status_name($entity->status)));
           }
         }
         elseif ($values['send_action'] == 'schedule') {
 
-          //Support for Scheduling
+          // Support for Scheduling
           // $timezone = $values['wrapper']['schedule']['moosend_timezone'];
-          // $datetime = $values['wrapper']['schedule']['moosend_datetime'];
+          // $datetime = $values['wrapper']['schedule']['moosend_datetime'];.
         }
-        case 'clone':
+      case 'clone':
           $clone = moosend_campaign_clone($entity->campaign_id);
 
-          //Clear campaigns cache
-          $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
+        // Clear campaigns cache.
+        $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
-          if (!empty($clone)) {
+        if (!empty($clone)) {
 
-             $entity = clone $entity;
-             $entity->campaign_id = $clone->getID();
-             $entity->is_new = TRUE;
-             $entity->status = CAMPAIGN_DRAFT;
+          $entity = clone $entity;
+          $entity->campaign_id = $clone->getID();
+          $entity->is_new = TRUE;
+          $entity->status = MOOSEND_CAMPAIGNS_CAMPAIGN_DRAFT;
 
-             entity_save($this->entityType, $entity);
+          entity_save($this->entityType, $entity);
 
-             return t('Campaign "@name" was cloned successfully',
-              array('@name' => $entity->name));
-          }
-      }
+          return t('Campaign "@name" was cloned successfully',
+            array('@name' => $entity->name));
+        }
+    }
 
   }
 
-
- /**
-  * Operation form submit callback.
-  * Override in order to provide $form_state values.
-  *
-  * @param $form
-  * @param &$form_state
-  * @return
-  */
- public function operationFormSubmit($form, &$form_state) {
+  /**
+   * Operation form submit callback.
+   *
+   * Override in order to provide $form_state values.
+   */
+  public function operationFormSubmit($form, &$form_state) {
     $msg = $this->applyOperation($form_state['op'], $form_state[$this->entityType], $form_state['values']);
     drupal_set_message(check_plain($msg));
     $form_state['redirect'] = $this->path;
   }
 
 
-
- /**
-  *  Overrides EntityAPIController::buildQuery().
-  *  Implement to order by created date since our IDs are not numeric.
-  *
-  * @param  $ids
-  * @param  $conditions
-  * @param  $revision_id
-  * @return $qurty
-  */
+  /**
+   * Overrides EntityAPIController::buildQuery().
+   *
+   *  Implement to order by created date since our IDs are not numeric.
+   */
   protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $conditions, $revision_id);
     $query->orderBy('created_at', 'DESC');
     return $query;
   }
+
 }
 
-  /**
-   * Ajax Callback for "Specify Action"
-   *
-   * @param  $form
-   * @param  $form_state
-   * @return $form
-   */
-  function _moosend_campaign_ajax_callback($form, $form_state) {
-    return $form['wrapper'];
-  }
+/**
+ * Ajax Callback for "Specify Action".
+ */
+function _moosend_campaign_ajax_callback($form, $form_state) {
+  return $form['wrapper'];
+}

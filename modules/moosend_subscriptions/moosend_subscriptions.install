@@ -5,7 +5,6 @@
  * Installation functions for the Moosend Subscritpions module.
  */
 
-
 /**
  * Implements hook_schema().
  */
@@ -20,12 +19,12 @@ function moosend_subscriptions_schema() {
         'not null' => TRUE,
         'unsigned' => TRUE,
       ),
-     'name' => array(
+      'name' => array(
         'description' => 'Moosend Subscription form Name',
         'type' => 'varchar',
         'length' => '32',
         'not null' => TRUE,
-        'default' => ''
+        'default' => '',
       ),
       'mode' => array(
         'descritption' => 'Describes the type of Moosend Subscription form(Block or Page)',
@@ -38,9 +37,9 @@ function moosend_subscriptions_schema() {
         'type' => 'varchar',
         'length' => '48',
         'not null' => TRUE,
-        'default' => ''
+        'default' => '',
       ),
-     'created_at' => array(
+      'created_at' => array(
         'description' => 'The Unix timestamp when the form was created.',
         'type' => 'int',
         'length' => 10,
@@ -53,11 +52,11 @@ function moosend_subscriptions_schema() {
         'not null' => FALSE,
       ),
       'settings' => array(
-          'description' => 'Serialized object for Subscription form settings',
-          'type' => 'blob',
-          'not null' => FALSE,
-          'serialize' => TRUE,
-          'size' => 'big',
+        'description' => 'Serialized object for Subscription form settings',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'size' => 'big',
       ),
     ),
     'primary key' => array('sub_id'),

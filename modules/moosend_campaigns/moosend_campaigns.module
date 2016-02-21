@@ -1,52 +1,41 @@
 <?php
 
 /**
-* @file
-*  Moosend Campaigns Module.
-*
-*/
-
-define('CAMPAIGN_DRAFT', 0);
-
-define('CAMPAIGN_READY_TO_SEND', 1);
-
-define('CAMPAIGN_SEND', 3);
-
-define('CAMPAIGN_SMTP_READY_TO_SEND', 5);
-
-define('CAMPAIGN_NOT_ENOUGH_CREDITS', 4);
-
-define('CAMPAIGN_SENDING', 6);
-
-define('CAMPAIGN_SELECTING_WINNER', 11);
-
-define('CAMPAIGN_ARCHIVED', 12);
-
-
-/**
- * Implements hook_enable().
- *
+ * @file
+ * Moosend Campaigns Module.
  */
-function moosend_campaigns_enable() {
-  _moosend_campaigns_sync();
-}
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_DRAFT', 0);
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_READY_TO_SEND', 1);
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_SEND', 3);
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_SMTP_READY_TO_SEND', 5);
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_NOT_ENOUGH_CREDITS', 4);
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_SENDING', 6);
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_SELECTING_WINNER', 11);
+
+define('MOOSEND_CAMPAIGNS_CAMPAIGN_ARCHIVED', 12);
 
 
 /**
- * Helper to syncronize Campaigns Entities with Moosend Campaigns
- *
+ * Helper to syncronize Campaigns Entities with Moosend Campaigns.
  */
 function _moosend_campaigns_sync() {
 
-  //Avoid PHP notice
-  if(!moosend_initialize_api()) {
+  // Avoid PHP notice.
+  if (!moosend_initialize_api()) {
     return NULL;
   }
 
   $entity_campaigns = entity_load('moosend_campaigns');
   $campaigns = moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
 
-  //Bypass count return value FALSE
+  // Bypass count return value FALSE.
   if ($campaigns !== FALSE && $entity_campaigns !== FALSE) {
     if (count($campaigns) !== count($entity_campaigns)) {
       if (count($campaigns) > count($entity_campaigns)) {
@@ -58,7 +47,7 @@ function _moosend_campaigns_sync() {
       }
       elseif (count($campaigns) < count($entity_campaigns)) {
         foreach ($entity_campaigns as $id => $values) {
-         if (!isset($campaigns[$id])) {
+          if (!isset($campaigns[$id])) {
             _moosend_campaigns_delete_entities($values);
           }
         }
@@ -69,15 +58,11 @@ function _moosend_campaigns_sync() {
 
 
 /**
- * Helper to create Moosend Campaigns Entities
- *
- * @param  $campaign_id
- * @param  $params
+ * Helper to create Moosend Campaigns Entities.
  */
 function _moosend_campaigns_create_entities($campaign_id, $params) {
   $campaign = entity_get_controller('moosend_campaigns')->create();
-
-  //Populate Entity
+  // Populate Entity.
   $campaign->campaign_id = $campaign_id;
   $campaign->status = $params['Status'];
   $campaign->name = $params['Name'];
@@ -95,21 +80,21 @@ function _moosend_campaigns_create_entities($campaign_id, $params) {
 
   if ($campaign->save()) {
     watchdog('moosend_campaigns', 'A new Moosend Campaign entity created in hook_enable with name ."%name"', array(
-    '%name' => $campaign->name),
+      '%name' => $campaign->name,
+    ),
     WATCHDOG_NOTICE);
   }
 }
 
 
 /**
- * Helper to delete Moosend Campaigns Entities
- *
- * @param  $campaign_id
+ * Helper to delete Moosend Campaigns Entities.
  */
 function _moosend_campaigns_delete_entities($campaign) {
   if (entity_delete('moosend_campaigns', $campaign->campaign_id)) {
     watchdog('moosend_campaigns', 'A Moosend Campaign entity deleted in hook_enable with name ."%name"', array(
-    '%name' => $campaign->name),
+      '%name' => $campaign->name,
+    ),
     WATCHDOG_NOTICE);
   }
 }
@@ -119,39 +104,38 @@ function _moosend_campaigns_delete_entities($campaign) {
  */
 function moosend_campaigns_entity_info() {
 
-    $info['moosend_campaigns'] = array(
-      'label' => t('Campaigns'),
-      'base table' => 'moosend_campaigns',
-      'entity keys' => array(
-        'id' => 'campaign_id',
-        'label' => 'name'
+  $info['moosend_campaigns'] = array(
+    'label' => t('Campaigns'),
+    'base table' => 'moosend_campaigns',
+    'entity keys' => array(
+      'id' => 'campaign_id',
+      'label' => 'name',
+    ),
+    'uri callback' => 'entity_class_uri',
+    'entity class' => 'MoosendCampaigns',
+    'controller class' => 'MoosendCampaignsController',
+    'admin ui' => array(
+      'path' => 'admin/config/services/moosend/campaigns',
+      'controller class' => 'MoosendCampaignsUIController',
+      'file' => 'includes/moosend_campaigns.admin.inc',
+    ),
+    'module' => 'moosend_campaigns',
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full'),
+        'custom settings' => FALSE,
       ),
-      'uri callback' => 'entity_class_uri',
-      'entity class' => 'MoosendCampaigns',
-      'controller class' => 'MoosendCampaignsController',
-      'admin ui' => array(
-        'path' => 'admin/config/services/moosend/campaigns',
-        'controller class' => 'MoosendCampaignsUIController',
-        'file' => 'includes/moosend_campaigns.admin.inc'
-        ),
-      'module' => 'moosend_campaigns',
-      'view modes' => array(
-        'full' => array(
-          'label' => t('Full'),
-          'custom settings' => FALSE,
-          ),
-        ),
-      'fieldable' => FALSE,
-      'rules controller class' => FALSE,
-      'access callback' => 'moosend_campaigns_access_callback',
-    );
+    ),
+    'fieldable' => FALSE,
+    'rules controller class' => FALSE,
+    'access callback' => 'moosend_campaigns_access_callback',
+  );
 
   return $info;
 }
 
 /**
  * Implements hook_permission().
- *
  */
 function moosend_campaigns_permission() {
   return array(
@@ -163,8 +147,7 @@ function moosend_campaigns_permission() {
 }
 
 /**
- * Specify callback permissions
- *
+ * Specify callback permissions.
  */
 function moosend_campaigns_access_callback($op, $subscriptions = NULL, $account = NULL) {
   if (moosend_initialize_api()) {
@@ -179,19 +162,13 @@ function moosend_campaigns_access_callback($op, $subscriptions = NULL, $account 
 
 /**
  * Gets the page/menu title for local action operations.
- *
- * @param $op
- * @param $entity_type
- * @param $bundle_name
- *  (Optional) The name of the bundle. May be NULL if the bundle name is not
- *  relevant to the current page. If the entity type has only one bundle, or no
- *  bundles, this will be the same as the entity type.
  */
 function moosend_entity_ui_title_callback($op, $entity_type, $bundle_name = NULL) {
   $info = entity_get_info($entity_type);
   switch ($op) {
     case 'add':
       return t('Add a draft Campaign');
+
     case 'import':
       return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
   }

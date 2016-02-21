@@ -3,16 +3,10 @@
 /**
  * @file
  * Moosend Segment API Wrapper.
- *
  */
 
 /**
- * [moosend_is_a_subscriber description]
- * @param   $list_id
- * @param   $email
- * @param  boolean $cache
- * @return
- *
+ * Search subscriber in mailing list.
  */
 function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
   $subscribers = moosend_get_active_list_subscibers($list_id, NULL, $cache);
@@ -23,8 +17,7 @@ function moosend_is_a_subscriber($list_id, $email, $cache = FALSE) {
 
 
 /**
- * [_moosend_member_operations description]
- * @return
+ * Define Moosend Operations.
  */
 function _moosend_member_operations() {
   return drupal_map_assoc(array('Subscribe', 'Unsubscribe', 'Remove'));
@@ -32,8 +25,7 @@ function _moosend_member_operations() {
 
 
 /**
- * [moosend_pre_operate_member description]
- * @return
+ * Pass operations through this function to support cron jobs.
  */
 function moosend_pre_operate_member() {
   if (count(func_get_args()) === 1) {
@@ -48,7 +40,7 @@ function moosend_pre_operate_member() {
   if (in_array($operation_value, _moosend_member_operations())) {
     $function = strtolower('moosend_' . $operation_value . '_member');
 
-    //Remove operation argument
+    // Remove operation argument.
     array_pop($args);
 
     if (variable_get('moosend_use_cron', FALSE)) {
@@ -60,14 +52,9 @@ function moosend_pre_operate_member() {
 
 
 /**
- * [moosend_add_subscriber description]
- * @param  $list_id
- * @param  $email
- * @param  $name
- * @param  array  $custom_fields
- * @return
+ * Subcribe member to mailing list.
  */
-function moosend_subscribe_member($list_id, $email, $name, $custom_fields = array() ) {
+function moosend_subscribe_member($list_id, $email, $name, $custom_fields = array()) {
   $status = TRUE;
   try {
     $moosend_api_key = moosend_initialize_api();
@@ -82,12 +69,12 @@ function moosend_subscribe_member($list_id, $email, $name, $custom_fields = arra
       );
   }
   catch (Exception $e) {
-      $status = FALSE;
-      watchdog('moosend', 'An error occurred subscribing @email to list @list. "%message"', array(
-        '@email' => $email,
-        '@list' => $list_id,
-        '%message' => $e->getMessage(),
-      ), WATCHDOG_ERROR);
+    $status = FALSE;
+    watchdog('moosend', 'An error occurred subscribing @email to list @list. "%message"', array(
+      '@email' => $email,
+      '@list' => $list_id,
+      '%message' => $e->getMessage(),
+    ), WATCHDOG_ERROR);
   }
 
   return $status;
@@ -95,25 +82,20 @@ function moosend_subscribe_member($list_id, $email, $name, $custom_fields = arra
 
 
 /**
- * [moosend_unsubscribe_subscriber description]
- * @param  $list_id
- * @param  $email
- * @param  $campaing_id
- * @return
- *
+ * Unsubcribe member from mailing list.
  */
 function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
   $status = TRUE;
-   try {
+  try {
     $moosend_api_key = moosend_initialize_api();
 
     $moosend_api_key->subscribers->unsubscribe($email, $campaing_id, $list_id);
     cache_clear_all($list_id . '-subscribers', 'cache_moosend');
 
     watchdog('moosend', '@email was unsubscribe from list @list.',
-        array('@email' => $email, '@list' => $list_id),
-        WATCHDOG_NOTICE
-      );
+       array('@email' => $email, '@list' => $list_id),
+       WATCHDOG_NOTICE
+     );
   }
   catch (Exception $e) {
     $status = FALSE;
@@ -129,42 +111,35 @@ function moosend_unsubscribe_member($list_id, $email, $campaing_id = NULL) {
 
 
 /**
- * [moosend_remove_subscriber description]
- * @param  $list_id
- * @param  $email
- * @return
+ * Remove member from mailing list.
  */
 function moosend_remove_member($list_id, $email) {
   $status = TRUE;
-   try {
+  try {
     $moosend_api_key = moosend_initialize_api();
 
     $moosend_api_key->subscribers->removeSubscriber($list_id, $email);
     cache_clear_all($list_id . '-subscribers', 'cache_moosend');
 
     watchdog('moosend', '@email was removed from list @list.',
-        array('@email' => $email, '@list' => $list_id),
-        WATCHDOG_NOTICE
-      );
+       array('@email' => $email, '@list' => $list_id),
+       WATCHDOG_NOTICE
+     );
   }
   catch (Exception $e) {
-      $status = FALSE;
-      watchdog('moosend', 'An error occurred removing @email from list @list. "%message"', array(
-        '@email' => $email,
-        '@list' => $list_id,
-        '%message' => $e->getMessage(),
-      ), WATCHDOG_ERROR);
+    $status = FALSE;
+    watchdog('moosend', 'An error occurred removing @email from list @list. "%message"', array(
+      '@email' => $email,
+      '@list' => $list_id,
+      '%message' => $e->getMessage(),
+    ), WATCHDOG_ERROR);
   }
   return $status;
 }
 
 
 /**
- * [moosend_subscriber_params description]
- * @param  $email
- * @param  $name
- * @param  $custom_fields
- * @return
+ * Get subscriber parameters.
  */
 function moosend_subscriber_params($email, $name, $custom_fields) {
   $member = NULL;
@@ -172,11 +147,11 @@ function moosend_subscriber_params($email, $name, $custom_fields) {
   $custom_fields = !empty($custom_fields) ? $custom_fields : array();
   $member = new moosend\Models\SubscriberParams();
   $member->email = $email;
-  $member->name= $name;
+  $member->name = $name;
   if (!empty($custom_fields)) {
     foreach ($custom_fields as $key => $field) {
-      //Create fields with proper format
-     $fields[] =  $key . '=' . $field;
+      // Create fields with proper format.
+      $fields[] = $key . '=' . $field;
     }
   }
 
