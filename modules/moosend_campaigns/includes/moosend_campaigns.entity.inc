@@ -11,7 +11,7 @@
 class MoosendCampaigns extends Entity {
 
   /**
-   * Override to implement a custom default URI and specify 'entity_class_uri' as 'uri callback' hook_entity_info().
+   * Override to implement a custom default URI.
    */
   protected function defaultUri() {
     return array(

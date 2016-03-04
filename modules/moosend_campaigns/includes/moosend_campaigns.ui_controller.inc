@@ -109,6 +109,10 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Generates the table headers for the overview table.
+<<<<<<< HEAD
+=======
+   *
+>>>>>>> 2ecd98371433168eaded22cb40f72fa1a1cf8e26
    */
   protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
     $header = array();
@@ -134,6 +138,11 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Returns the operation count for calculating colspans.
+<<<<<<< HEAD
+=======
+   *
+   * @return count
+>>>>>>> 2ecd98371433168eaded22cb40f72fa1a1cf8e26
    */
   protected function operationCount() {
     $count = parent::operationCount();
@@ -142,7 +151,12 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
 
   /**
+<<<<<<< HEAD
    * Generates the row for the passed entity and may be overridden in order to customize the rows.
+=======
+   * Generates the row for the passed entity and may be overridden in order to
+   * customize the rows.
+>>>>>>> 2ecd98371433168eaded22cb40f72fa1a1cf8e26
    */
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
     $domain_prefix = variable_get('moosend_user_domain');
@@ -289,8 +303,6 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Builds the operation form.
-   *
-   * For the export operation a serialized string of the entity is directly shown in the form (no submit function needed).
    */
   public function operationForm($form, &$form_state, $entity, $op) {
     $form['#tree'] = TRUE;
@@ -421,8 +433,6 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Applies an operation to the given entity.
-   *
-   * Note: the export operation is directly carried out by the operationForm() method.
    */
   public function applyOperation($op, $entity) {
     parent::applyOperation($op, $entity);
@@ -472,7 +482,6 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
           $entity->campaign_id = $clone->getID();
           $entity->is_new = TRUE;
           $entity->status = MOOSEND_CAMPAIGNS_CAMPAIGN_DRAFT;
-
           entity_save($this->entityType, $entity);
 
           return t('Campaign "@name" was cloned successfully',
@@ -484,8 +493,6 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Operation form submit callback.
-   *
-   * Override in order to provide $form_state values.
    */
   public function operationFormSubmit($form, &$form_state) {
     $msg = $this->applyOperation($form_state['op'], $form_state[$this->entityType], $form_state['values']);
@@ -496,8 +503,6 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Overrides EntityAPIController::buildQuery().
-   *
-   *  Implement to order by created date since our IDs are not numeric.
    */
   protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $conditions, $revision_id);

@@ -209,13 +209,9 @@ function _moosend_campaigns_add_form_callback($form, $form_state) {
 
 /**
  * Return default values for multistep form.
- *
- * @todo
- *  Set defaults values to form
- *  either from Entity of form_state values
  */
 function _moosend_campaings_get_default_value($campaign_field, $form_state_field) {
-
+  //@TODO   Set defaults values to form either from Entity of form_state values
 }
 
 
@@ -259,7 +255,8 @@ function moosend_campaigns_form_submit($form, &$form_state) {
 
     case t('Create draft Campaign'):
       // First try to create Campaing at Moosend.
-      if ($campaign_id = moosend_create_MOOSEND_CAMPAIGNS_CAMPAIGN_DRAFT($params)) {
+
+      if ($campaign_id = moosend_create_campaign_draft($params)) {
 
         // Clear moosend_cache.
         moosend_get_campaings(1, 100, 'CreatedOn', 'ASC', FALSE);
