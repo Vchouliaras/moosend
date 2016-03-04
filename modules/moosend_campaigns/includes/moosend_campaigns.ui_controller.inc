@@ -109,10 +109,6 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Generates the table headers for the overview table.
-<<<<<<< HEAD
-=======
-   *
->>>>>>> 2ecd98371433168eaded22cb40f72fa1a1cf8e26
    */
   protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
     $header = array();
@@ -138,11 +134,6 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
   /**
    * Returns the operation count for calculating colspans.
-<<<<<<< HEAD
-=======
-   *
-   * @return count
->>>>>>> 2ecd98371433168eaded22cb40f72fa1a1cf8e26
    */
   protected function operationCount() {
     $count = parent::operationCount();
@@ -151,12 +142,7 @@ class MoosendCampaignsUIController extends EntityDefaultUIController {
 
 
   /**
-<<<<<<< HEAD
    * Generates the row for the passed entity and may be overridden in order to customize the rows.
-=======
-   * Generates the row for the passed entity and may be overridden in order to
-   * customize the rows.
->>>>>>> 2ecd98371433168eaded22cb40f72fa1a1cf8e26
    */
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
     $domain_prefix = variable_get('moosend_user_domain');

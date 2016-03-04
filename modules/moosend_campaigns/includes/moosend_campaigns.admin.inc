@@ -211,7 +211,7 @@ function _moosend_campaigns_add_form_callback($form, $form_state) {
  * Return default values for multistep form.
  */
 function _moosend_campaings_get_default_value($campaign_field, $form_state_field) {
-  //@TODO   Set defaults values to form either from Entity of form_state values
+  // @TODO   Set defaults values to form either from Entity of form_state values
 }
 
 
