@@ -147,7 +147,7 @@ function moosend_subscriber_params($email, $name, $custom_fields) {
   $member = NULL;
   $fields = array();
   $custom_fields = !empty($custom_fields) ? $custom_fields : array();
-  $member = new moosend\Models\SubscriberParams();
+  $member = new SubscriberParams();
   $member->email = $email;
   $member->name = $name;
   if (!empty($custom_fields)) {
