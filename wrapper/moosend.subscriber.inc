@@ -5,6 +5,8 @@
  * Moosend Segment API Wrapper.
  */
 
+use moosend\Models\SubscriberParams;
+
 /**
  * Search subscriber in mailing list.
  */

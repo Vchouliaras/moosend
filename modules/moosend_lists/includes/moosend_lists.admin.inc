@@ -53,7 +53,7 @@ function moosend_lists_admin_page() {
     $segments = moosend_get_list_segments($list_id);
     if (!empty($segments)) {
       $list_segements = array();
-      foreach ($segments as $key => $segment) {
+      foreach ($segments as $segment) {
         $list_segements[] = l($segment['name'], 'https://' . $domain_prefix . '.moosend.com/',
             array(
               'attributes' => array('target' => '_blank'),

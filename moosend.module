@@ -5,6 +5,8 @@
  * Moosend Module.
  */
 
+use moosend\MoosendApi;
+
 define('MOOSEND_CRON_QUEUE', 'moosend');
 
 define('MOOSEND_PAGER', 15);
@@ -102,7 +104,7 @@ function moosend_initialize_api() {
   $moosend_api_key = variable_get('moosend_api_key', '');
   if (!empty($moosend_api_key)) {
     try {
-      $moosend_api = new moosend\MoosendApi($moosend_api_key);
+      $moosend_api = new MoosendApi($moosend_api_key);
     }
     catch (Exception $e) {
       watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(

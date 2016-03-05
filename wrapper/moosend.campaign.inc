@@ -2,8 +2,10 @@
 
 /**
  * @file
- * Moosend Campaing API Wrapper.
+ * Moosend Campaign API Wrapper.
  */
+
+use moosend\Models\CampaignParams;
 
 /**
  * Get campaigns.
@@ -135,7 +137,7 @@ function moosend_delete_campaign($campaign_id) {
   }
   catch (Exception $e) {
     $status = FALSE;
-    watchdog('moosend', 'An error occurred deleting Campaing "@Name" . "%message"',
+    watchdog('moosend', 'An error occurred deleting Campaign "@Name" . "%message"',
       array(
         '@Name' => $campaigns[$campaign_id]['Name'],
         '%message' => $e->getMessage(),
@@ -155,7 +157,7 @@ function moosend_create_campaign_draft($params) {
   if (!empty($params) && is_array($params)) {
     try {
       $moosend_api_key = moosend_initialize_api();
-      $draft_params = new moosend\Models\CampaignParams();
+      $draft_params = new CampaignParams();
       foreach ($params as $key => $value) {
         $draft_params->{$key} = $value;
       }
@@ -163,7 +165,7 @@ function moosend_create_campaign_draft($params) {
       $campaign_id = $moosend_api_key->campaigns->createDraft($draft_params);
     }
     catch (Exception $e) {
-      watchdog('moosend', 'An error occurred creating draft Campaing "@Name"',
+      watchdog('moosend', 'An error occurred creating draft Campaign "@Name"',
       array('@Name' => $draft_params->Name),
       WATCHDOG_ERROR);
     }
@@ -211,7 +213,7 @@ function moosend_update_campaign_draft($campaign_id, $params) {
   }
   catch (Exception $e) {
     $status = FALSE;
-    watchdog('moosend', 'An error occurred updating draft Campaing @Name. "@message"',
+    watchdog('moosend', 'An error occurred updating draft Campaign @Name. "@message"',
     array('@Name' => $campaign->getName(), '@message' => $e->getMessage()),
     WATCHDOG_ERROR);
   }

@@ -6,7 +6,7 @@
  */
 
 /**
- * Menu Entity Callback: Moosend Add draft Campaing - Wizard form.
+ * Menu Entity Callback: Moosend Add draft Campaign - Wizard form.
  */
 function moosend_campaigns_form($form, &$form_state, $campaign, $op) {
 
@@ -254,8 +254,7 @@ function moosend_campaigns_form_submit($form, &$form_state) {
       break;
 
     case t('Create draft Campaign'):
-      // First try to create Campaing at Moosend.
-
+      // First try to create Campaign at Moosend.
       if ($campaign_id = moosend_create_campaign_draft($params)) {
 
         // Clear moosend_cache.
