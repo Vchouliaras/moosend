@@ -13,7 +13,7 @@ define(MOOSEND_WRAPPER_LINK, 'https://github.com/moosend/phpwrapper/archive/mast
 function moosend_drush_command() {
   $items = array();
 
-  $items['moosend'] = array(
+  $items['moosend-wrapper'] = array(
     'callback'  => '_moosend_drush_download_wrapper',
     'description' => dt('Downloads the Moosend PHP Wrapper from @github. Accepts an optional destination parameter.',
       array('@github' => MOOSEND_WRAPPER_LINK)),
@@ -42,6 +42,7 @@ function _moosend_drush_download_wrapper() {
     }
 
     $drush_context = drush_get_context('DRUSH_DRUPAL_ROOT');
+    drush_print_r($drush_context);
     if (!empty($libraries_dir)) {
       $dir = $drush_context . '/' . $libraries_dir;
     }
@@ -67,11 +68,11 @@ function _moosend_drush_download_wrapper() {
 
     // Move to $dir.
     if (drush_op('chdir', $dir)) {
-      if (drush_shell_exec('wget -O moosend.zip ' . MOOSEND_WRAPPER_LINK)) {
-        drush_shell_exec('unzip moosend.zip -d .');
+      if (drush_shell_exec('wget -O moosend-wrapper.zip ' . MOOSEND_WRAPPER_LINK)) {
+        drush_shell_exec('unzip moosend-wrapper.zip -d .');
         drush_shell_exec('mv phpwrapper-master/* .');
         drush_delete_dir('phpwrapper-master');
-        drush_delete_dir('moosend.zip');
+        drush_delete_dir('moosend-wrapper.zip');
         drush_log(dt('Drush downloaded Moosend PHP Wrapper to @path', array('@path' => $dir)), 'success');
       }
       else {
