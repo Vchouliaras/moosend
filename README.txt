@@ -49,7 +49,7 @@ This module requires the following modules:
  * Install Moosend PHP Wrapper. There is an official github.com repo located at
    [https://github.com/moosend/phpwrapper]([https://github.com/moosend/phpwrapper]).
    Download those files an put  them in sites/all/libraries. You can also you a drush command.
-   "drush moosend", will download the PHP Wrapper in sites/all/libraries.
+   "drush moosend-wrapper", will download the PHP Wrapper in sites/all/libraries.
 
 
   CONFIGURATION
