@@ -4,5 +4,6 @@ package = Moosend
 core = 7.x
 
 dependencies[] = libraries ( >=2 )
+dependencies[] = entity
 
 configure = admin/config/services/moosend
