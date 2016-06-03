@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Installation functions for the Moosend module.
+ * Installation functions for the Moosend module
  */
 
 /**
@@ -19,8 +19,15 @@ function moosend_schema() {
  */
 function moosend_uninstall() {
   if (db_table_exists('cache_moosend')) {
-    db_drop_table('cache_moosend');
+     db_drop_table('cache_moosend');
   }
   variable_del('moosend_api_key');
   variable_del('moosend_user_domain');
+}
+
+/**
+ * Implements hook_enable.
+ */
+function moosend_enable() {
+  module_enable(array('moosend_lists'));
 }
