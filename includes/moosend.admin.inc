@@ -17,7 +17,7 @@ function moosend_admin_configuration() {
     '#required' => TRUE,
     '#default_value' => variable_get('moosend_api_key'),
     '#description' => t('The API key for your Moosend account. Get a valid API key at !moosend.',
-                    array('!moosend' => l(t('Moosend'), 'https://moosend.com/'))),
+      array('!moosend' => l(t('Moosend'), 'https://moosend.com/'))),
   );
 
   $form['moosend_user_domain'] = array(
@@ -57,10 +57,10 @@ function moosend_admin_configuration_submit($form, &$form_state) {
   ($moosend_cron) ? variable_set('moosend_cron', TRUE) : variable_set('moosend_cron', FALSE);
 
   if (!moosend_initialize_api()) {
-    drupal_set_message(t('Could not initialize connection with Moosend API. Please check your configuration settings.'), 'error');
     variable_del('moosend_api_key');
     variable_del('moosend_user_domain');
     variable_del('moosend_cron');
+    drupal_set_message(t('Could not initialize connection with Moosend API services. Please check your settings.'), 'error');
   }
 
   cache_clear_all('*', 'cache_moosend', TRUE);

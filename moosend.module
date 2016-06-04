@@ -104,13 +104,16 @@ function moosend_initialize_api() {
   $moosend_api_key = variable_get('moosend_api_key', '');
   if (!empty($moosend_api_key)) {
     try {
+      // Check if Moosend API is loaded correctly.
       $moosend_api = new MoosendApi($moosend_api_key);
+
+      // Make a simple request to check for valid connection credentials.
+      $moosend_api->mailingLists->getActiveMailingLists(1, 1);
     }
     catch (Exception $e) {
-      watchdog('moosend', 'An error occurred initializing Moosend Api. "%message"', array(
+      watchdog('moosend', 'An error occurred initializing Moosend API. "%message"', array(
         '%message' => $e->getMessage(),
-      ),
-      WATCHDOG_ERROR);
+      ),WATCHDOG_ERROR);
 
       return FALSE;
     }

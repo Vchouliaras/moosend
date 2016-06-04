@@ -56,7 +56,8 @@ This module requires the following modules:
 -------------
 
   * Got to admin/config/services/moosend. You will need to put in your Moosend API key for your Moosend account.
-    If you do not have a Moosend API key, go to [http://www.moosend.com]([http://www.moosend.com) and sign up for a new account. You will also need to fill in your moosend prefix domain. i.e myname.moosend.com.
+    If you do not have a Moosend API key, go to [http://www.moosend.com]([http://www.moosend.com) and sign up for a new account. You will also need to fill in your moosend prefix domain. i.e mydomain.moosend.com.
+
 
   MAINTAINERS
 -----------
