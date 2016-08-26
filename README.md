@@ -1,4 +1,4 @@
- # CONTENTS OF THIS FILE
+# CONTENTS OF THIS FILE
 
  * Introduction
  * Requirements
@@ -6,7 +6,6 @@
  * Installation
  * Configuration
  * Maintainers
-
 
 ## INTRODUCTION
 
@@ -35,7 +34,7 @@ This module requires the following modules:
  * View Bulk Operations (https://www.drupal.org/project/vbo)
 
 
- ## INSTALLATION
+## INSTALLATION
 
  * Install as you would normally install a contributed Drupal module. See:
    https://drupal.org/documentation/install/modules-themes/modules-7
@@ -48,14 +47,12 @@ This module requires the following modules:
    $ drush moosend-wrapper
    ```
 
+## CONFIGURATION
 
- ## CONFIGURATION
+ * Got to `admin/config/services/moosend`. You will need to put in your Moosend API key for your Moosend account.
+   If you do not have a Moosend API key, go to [http://www.moosend.com]([http://www.moosend.com) and sign up for a new account. You will also need to fill in your moosend prefix domain. i.e mydomain.moosend.com.
 
-  * Got to `admin/config/services/moosend`. You will need to put in your Moosend API key for your Moosend account.
-    If you do not have a Moosend API key, go to [http://www.moosend.com]([http://www.moosend.com) and sign up for a new account. You will also need to fill in your moosend prefix domain. i.e mydomain.moosend.com.
-
-
- ## MAINTAINERS
+## MAINTAINERS
 
 Current maintainers:
  * Vasileios Chouliaras (vchouliaras) - https://www.drupal.org/user/3069771
