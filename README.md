@@ -1,5 +1,4 @@
-  CONTENTS OF THIS FILE
----------------------
+ # CONTENTS OF THIS FILE
 
  * Introduction
  * Requirements
@@ -9,8 +8,7 @@
  * Maintainers
 
 
-  INTRODUCTION
-------------
+## INTRODUCTION
 
 The purpose of this module is to provide integration with Moosend, an email marketing and delivery service. Moosend module gives site builders and developers an easy way to interact with Moosend's capabilities. Those capabilities include user subscriptions, mailing and segment manipulation.
 
@@ -21,8 +19,7 @@ The purpose of this module is to provide integration with Moosend, an email mark
    https://drupal.org/project/issues/moosend
 
 
-  REQUIREMENTS
-------------
+## REQUIREMENTS
 
 This module requires the following modules:
 
@@ -30,8 +27,7 @@ This module requires the following modules:
  * Entity (https://www.drupal.org/project/entity)
 
 
-  RECOMMENDED MODULES
--------------------
+## RECOMMENDED MODULES
 
  * Date (https://www.drupal.org/project/date):
     Provides date popups for Segment Criteria
@@ -39,8 +35,7 @@ This module requires the following modules:
  * View Bulk Operations (https://www.drupal.org/project/vbo)
 
 
-  INSTALLATION
-------------
+ ## INSTALLATION
 
  * Install as you would normally install a contributed Drupal module. See:
    https://drupal.org/documentation/install/modules-themes/modules-7
@@ -48,19 +43,19 @@ This module requires the following modules:
 
  * Install Moosend PHP Wrapper. There is an official github.com repo located at
    [https://github.com/moosend/phpwrapper]([https://github.com/moosend/phpwrapper]).
-   Download those files an put  them in sites/all/libraries. You can also you a drush command.
-   "drush moosend-wrapper", will download the PHP Wrapper in sites/all/libraries.
+   Download those files an put  them in `sites/all/libraries`. You can also you a drush command, it will download the PHP Wrapper in `sites/all/libraries`.
+   ```sh
+   $ drush moosend-wrapper
+   ```
 
 
-  CONFIGURATION
--------------
+ ## CONFIGURATION
 
-  * Got to admin/config/services/moosend. You will need to put in your Moosend API key for your Moosend account.
+  * Got to `admin/config/services/moosend`. You will need to put in your Moosend API key for your Moosend account.
     If you do not have a Moosend API key, go to [http://www.moosend.com]([http://www.moosend.com) and sign up for a new account. You will also need to fill in your moosend prefix domain. i.e mydomain.moosend.com.
 
 
-  MAINTAINERS
------------
+ ## MAINTAINERS
 
 Current maintainers:
  * Vasileios Chouliaras (vchouliaras) - https://www.drupal.org/user/3069771
